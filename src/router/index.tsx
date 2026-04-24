@@ -4,7 +4,7 @@ import { AppShell } from '@/components/layout/AppShell'
 
 // Pages — lazy loaded for performance
 import { lazy, Suspense } from 'react'
-const LoginPage       = lazy(() => import('@/features/auth/LoginPage'))
+const LoginPage       = lazy(() => import('@/pages/LoginPage'))
 const DashboardPage   = lazy(() => import('@/pages/DashboardPage'))
 const LeadsPage       = lazy(() => import('@/pages/LeadsPage'))
 const LeadDetailPage  = lazy(() => import('@/pages/LeadDetailPage'))
