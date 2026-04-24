@@ -4,6 +4,10 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],       // default body font
+        display: ['Cal Sans', 'sans-serif'], // headings ke liye
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -35,16 +39,42 @@ export default {
           foreground: 'hsl(var(--card-foreground))',
         },
         brand: {
-          DEFAULT: '#1A56DB',
-          light: '#EBF2FF',
-          dark: '#1E2A3A',
+          primary: '#5b5bd6',   // main purple
+          secondary: '#6049CD',   // logo purple
+          hover: '#4a4ac4',
+        }, neutral: {
+          900: '#111127',   // heading text
+          600: '#6b6b8a',   // body/muted text
+          400: '#9898b3',   // placeholder/hint
+          200: '#e4e4ee',   // borders
+          100: '#ebebff',   // icon bg
+          50: '#f5f5f5',   // hover bg
+        },
+        bg: {
+          from: '#F0F2FD',  // gradient start
+          to: '#E6E4FD',  // gradient end
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        'card': '10px',
+        'input': '8px',
+        'pill': '30px',
+        'icon': '8px',
       },
+      fontSize: {
+        'display-lg': ['2.5rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        'display-sm': ['2rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        'heading-xl': ['40px', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        'heading-lg': ['30px', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        'heading-md': ['1.625rem', { lineHeight: '1.3', letterSpacing: '-0.02em' }],
+        'body-lg': ['18px', { lineHeight: '1.65' }],
+        'body-md': ['16px', { lineHeight: '1.65' }],
+        'body-sm': ['14px', { lineHeight: '1.5' }],
+        'label': ['13px', { lineHeight: '1.4' }],
+      },
+      spacing:{
+        'page': '70px',
+      }
     },
   },
   plugins: [require('tailwindcss-animate')],
