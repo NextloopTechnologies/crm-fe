@@ -10,13 +10,8 @@ build/
 out/
 
 # ── Environment variables — NEVER commit these ────────────────────────────────
-.env
-.env.local
-.env.development
 .env.development.local
-.env.test
 .env.test.local
-.env.production
 .env.production.local
 
 # ── Logs ──────────────────────────────────────────────────────────────────────
@@ -76,3 +71,4 @@ coverage/
 *.local
 *.orig
 .npmrc.local
+config.bat
