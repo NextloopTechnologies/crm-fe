@@ -4,13 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, Link } from 'react-router-dom'
 import { Eye, EyeOff, Mail, Lock, } from 'lucide-react'
-
+import { useLogin } from '@/hooks/userLogin'
 import { Button } from '../components/common/Button'
 import { Input } from '@/components/common/Input'
 import { Checkbox } from '@/components/common/Checkbox'
 import pipelines from '../assets/features/pipelines.svg'
 import user from '../assets/features/user.svg'
-import followUp from '../assets/features/followUp.svg'
 import growthIcon from '../assets/features/growthIcon.svg'
 import dashboardImg from '../assets/images/dashboardImg.svg'
 
@@ -34,7 +33,6 @@ type LoginFormValues = z.infer<typeof loginSchema>
 const features = [
   { icon: pipelines, title: 'Track your pipeline', description: 'Visualize every stage of your sales process.' },
   { icon: user, title: 'Manage relationships', description: 'Keep all your contacts and conversations in one place.' },
-  { icon: followUp, title: 'Automate follow-ups', description: 'Never miss a follow-up with smart reminders.' },
   { icon: growthIcon, title: 'Grow your business', description: 'Insights and reports to help you make better decisions.' },
 ]
 
@@ -42,6 +40,8 @@ const features = [
 export default function LoginPage() {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+
+  const { onSubmit: loginSubmit, isLoading, serverError } = useLogin()
 
   const {
     register,
@@ -56,24 +56,25 @@ export default function LoginPage() {
 
   const rememberMe = watch('rememberMe')
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     // TODO: wire up login API + auth store
     console.log('Login submitted:', data)
+    await loginSubmit(data);
     navigate('/')
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-[#F0F2FD] to-[#E6E4FD] p-[70px] overflow-hidden">
+    <div className="flex min-h-screen bg-gradient-to-b from-[#F0F2FD] to-[#E6E4FD] p-[80px] overflow-hidden">
       {/* ── Left Panel ── */}
-      <div className="relative hidden flex-1 flex-col bg-transparent gap-8 overflow-hidden lg:flex">
+      <div className="relative hidden flex-1 flex-col bg-transparent gap-3 overflow-hidden lg:flex">
 
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center ">
           <span className="text-[1.1rem] tracking-[-0.01em]">
             <span className="font-bold text-[30px] tracking-[-0.01em] text-[#6049CD]">
               Nextloop
             </span>{' '}
-            <span className="font-medium text-[30px] tracking-[-0.01em] opacity-[0.85] text-[#111127]">
+            <span className="font-medium text-[26px] tracking-[-0.01em] opacity-[0.85] text-[#111127]">
               CRM
             </span>
           </span>
@@ -81,29 +82,28 @@ export default function LoginPage() {
 
         {/* Hero */}
         <div>
-          <h1 className="font-semibold text-[clamp(2rem,3vw,2.5rem)] leading-[1.3] tracking-[-0.01em] text-[#111127] max-w-[533px]">
-            Build stronger relationships.{' '}
+          <h2 className="font-semibold text-[clamp(1.3rem,2vw,1.7rem)] leading-[1.25] tracking-[-0.01em] text-[#111127] max-w-[460px]">            Build stronger relationships.{' '}
 
             <span className="font-bold text-[#111127]">Close</span>{' '}
             <span className="font-bold text-[#5b5bd6]">more deals.</span>
-          </h1>
+          </h2>
 
-          <p className="mt-3 max-w-[400px] text-[18px] leading-[1.65] text-[#4A4A4A]">
+          <p className="mt-1.5 max-w-[360px] text-[14px] leading-[1.5] text-[#4A4A4A]">
             Nextloop CRM helps sales teams track leads, nurture relationships, and win more business.
           </p>
         </div>
 
         {/* Features */}
-        <ul className="flex flex-col gap-[21px]">
+        <ul className="flex flex-col gap-[12px]">
           {features.map(({ icon, title, description }) => (
             <li key={title} className="flex items-start gap-3.5">
 
-              <div className="flex h-[41px] w-[41px] items-center justify-center rounded-[8px] bg-[#ebebff]">
+              <div className="flex h-[36px] w-[36px] items-center justify-center rounded-[8px] bg-[#ebebff]">
                 <img src={icon} alt={title} className=" object-contain" />
               </div>
 
               <div>
-                <h4 className="text-[16px] font-semibold leading-[1.3] tracking-[-0.01em] text-[#111127]">
+                <h4 className="text-[14px] font-semibold leading-[1.25] tracking-[-0.01em] text-[#111127]">
                   {title}
                 </h4>
                 <p className="text-sm text-[#6b6b8a]">{description}</p>
@@ -118,20 +118,17 @@ export default function LoginPage() {
           <img
             src={dashboardImg}
             alt="Dashboard preview"
-            className="block w-full max-w-[606px] h-auto object-contain"
+            className="block w-full max-w-[450px] h-auto object-contain"
           />
-
-          <div className="pointer-events-none absolute bottom-[-80px] right-[-60px] h-[300px] w-[300px] rounded-full bg-[radial-gradient(circle,rgba(91,91,214,0.12),transparent_70%)]" />
-          <div className="pointer-events-none absolute right-[10%] top-[40%] h-[200px] w-[200px] rounded-full bg-[radial-gradient(circle,rgba(124,124,232,0.08),transparent_70%)]" />
         </div>
       </div>
 
       {/* ── Right Panel ── */}
-      <div className="flex w-full flex-col items-center justify-center border-[#e4e4ee] bg-[#FFFFFF] px-8 py-10 lg:w-[480px] lg:border-l rounded-[10px]">
-        <div className="flex w-full max-w-[380px] flex-col gap-[24px]">
+      <div className="flex flex-1 flex-col items-center justify-center border-[#e4e4ee] bg-[#FFFFFF]  lg:border-l rounded-[10px]">
+        <div className="flex w-full max-w-[380px] p-[10px] flex-col gap-[40px]">
 
           {/* Header */}
-          <div>
+          <div >
             <h2 className="flex items-center gap-2 text-[40px] font-semibold leading-[1.3] tracking-[-0.01em] text-[#111127]">
               Hi,Welcome!
               <img src={helloIcon} alt="hello" className="w-[39px] h-[39px]" />
@@ -151,6 +148,7 @@ export default function LoginPage() {
               autoComplete="email"
               leftIcon={<Mail size={16} strokeWidth={1.75} />}
               error={errors.email?.message}
+              disabled={isLoading}
               {...register('email')}
             />
 
@@ -173,6 +171,7 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={16} strokeWidth={1.75} /> : <Eye size={16} strokeWidth={1.75} />}
                 </button>
               }
+              disabled={isLoading}
               {...register('password')}
             />
 
@@ -194,27 +193,39 @@ export default function LoginPage() {
             </div>
 
             {/* Submit — using Button */}
-            <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1">
-              Login
+            <Button type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              className="mt-1"
+              disabled={isLoading}>
+              {isLoading ? (
+                <div className='flex items-center gap-2'>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent">
+                    Logging in.....
+                  </span>
+                </div>) : (
+                'Login'
+              )}
             </Button>
 
           </form>
 
           {/* Divider */}
-          <div className="flex items-center gap-4 text-[0.8125rem] text-[#9898b3]">
+          {/* <div className="flex items-center gap-4 text-[0.8125rem] text-[#9898b3]">
             <div className="h-px flex-1 bg-[#e4e4ee]" />
             <span>or</span>
             <div className="h-px flex-1 bg-[#e4e4ee]" />
-          </div>
+          </div> */}
 
-          {/* Social buttons */}
-          <div className="flex gap-3 w-full">
+          {/* Socail median login */}
+          {/* <div className="flex gap-3 w-full">
             <Button
               type="button"
               variant="outline"
               className="flex-1 h-[44px] flex items-center justify-center gap-2 rounded-[30px] border border-[#e4e4ee]  bg-white text-[#111127] text-sm font-medium hover:bg-[#f5f5f5]"
             >
-              {/* Google SVG icon */}
+          
               <svg width="16" height="16" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -229,13 +240,12 @@ export default function LoginPage() {
               variant="outline"
               className="flex-1 h-[44px] flex items-center justify-center gap-2 rounded-[30px] border border-[#e4e4ee] bg-white text-[#111127] text-sm font-medium hover:bg-[#f5f5f5]"
             >
-              {/* Facebook SVG icon */}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
               Facebook
             </Button>
-          </div>
+          </div> */}
 
           {/* Sign up */}
           <p className="text-center text-sm text-[#6b6b8a]">

@@ -49,16 +49,17 @@ const Checkbox = forwardRef<HTMLButtonElement, CustomCheckboxProps>(
           onCheckedChange={handleChange}
           className={cn(
             // Base
-            'h-[18px] w-[18px] rounded-[5px] border-2 flex items-center justify-center transition-all',
+            'h-[18px] w-[18px] rounded-[5px] flex items-center justify-center transition-all',
 
-            // ✅ Visible border (unchecked)
-            'border-[#cfcfe6] bg-white',
+            // ✅ Visible border (FIXED)
+            'border border-solid border-[#9ca3af] bg-white shadow-sm',
 
-            // ✅ Hover
+            // Hover
             'hover:border-[#5b5bd6]',
 
-            // ✅ Checked state
-            'data-[state=checked]:bg-[#5b5bd6] data-[state=checked]:border-[#5b5bd6]',
+            // Checked state
+            'data-[state=checked]:bg-[#5b5bd6]',
+            'data-[state=checked]:border-[#5b5bd6]',
 
             // Focus
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b5bd6] focus-visible:ring-offset-2',
@@ -69,7 +70,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CustomCheckboxProps>(
             className
           )}
         >
-          {/* ✅ Check Icon */}
+          {/* Check Icon */}
           <CheckboxPrimitive.Indicator>
             <Check className="h-[12px] w-[12px] text-white" strokeWidth={3} />
           </CheckboxPrimitive.Indicator>

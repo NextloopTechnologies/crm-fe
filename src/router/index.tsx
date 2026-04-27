@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell'
 // Pages — lazy loaded for performance
 import { lazy, Suspense } from 'react'
 const LoginPage       = lazy(() => import('@/pages/LoginPage'))
+const SignUpPage         = lazy(() => import ('@/pages/SignUpPage'))
 const DashboardPage   = lazy(() => import('@/pages/DashboardPage'))
 const LeadsPage       = lazy(() => import('@/pages/LeadsPage'))
 const LeadDetailPage  = lazy(() => import('@/pages/LeadDetailPage'))
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <Wrap><LoginPage /></Wrap>,
+  },
+  {
+    path: '/signUp',
+    element: <Wrap><SignUpPage /></Wrap>,
   },
   {
     path: '/',
