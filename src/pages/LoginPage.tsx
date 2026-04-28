@@ -3,17 +3,16 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, Link } from 'react-router-dom'
-import { Eye, EyeOff, Mail, Lock, } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, MailIcon, LockIcon, } from '@/assets/icons/components/index'
 import { useLogin } from '@/hooks/userLogin'
 import { Button } from '../components/common/Button'
 import { Input } from '@/components/common/Input'
 import { Checkbox } from '@/components/common/Checkbox'
-import pipelines from '../assets/features/pipelines.svg'
-import user from '../assets/features/user.svg'
-import growthIcon from '../assets/features/growthIcon.svg'
+import pipelines from '../assets/icons/svgs/pipelines.svg'
+import user from '../assets/icons/svgs/user.svg'
+import growthIcon from '../assets/icons/svgs/growthIcon.svg'
 import dashboardImg from '../assets/images/dashboardImg.svg'
-
-import helloIcon from '@/assets/features/helloIcon.svg'
+import helloIcon from '../assets/icons/svgs/helloIcon.svg'
 // ─── Zod Schema ───────────────────────────────────────────────────────────────
 const loginSchema = z.object({
   email: z
@@ -146,7 +145,7 @@ export default function LoginPage() {
               type="email"
               placeholder="Enter your email"
               autoComplete="email"
-              leftIcon={<Mail size={16} strokeWidth={1.75} />}
+              leftIcon={<MailIcon className="w-4 h-4" />}
               error={errors.email?.message}
               disabled={isLoading}
               {...register('email')}
@@ -159,7 +158,7 @@ export default function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               placeholder="Enter your password"
               autoComplete="current-password"
-              leftIcon={<Lock size={16} strokeWidth={1.75} />}
+              leftIcon={<LockIcon className="w-4 h-4" />}
               error={errors.password?.message}
               rightElement={
                 <button
@@ -168,7 +167,7 @@ export default function LoginPage() {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="text-[#9898b3] transition-colors hover:text-[#6b6b8a]"
                 >
-                  {showPassword ? <EyeOff size={16} strokeWidth={1.75} /> : <Eye size={16} strokeWidth={1.75} />}
+                  {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                 </button>
               }
               disabled={isLoading}
