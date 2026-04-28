@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, Link } from 'react-router-dom'
-import { Eye, EyeOff, Mail, Lock, } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, MailIcon, LockIcon, } from '@/assets/icons/components/index'
 import { Button } from '../components/common/Button'
 import { Input } from '@/components/common/Input'
 import { Checkbox } from '@/components/common/Checkbox'
-import pipelines from '../assets/features/pipelines.svg'
-import user from '../assets/features/user.svg'
-import growthIcon from '../assets/features/growthIcon.svg'
+import pipelines from '../assets/icons/svgs/pipelines.svg'
+import user from '../assets/icons/svgs/user.svg'
+import growthIcon from '../assets/icons/svgs/growthIcon.svg'
 import dashboardImg from '../assets/images/dashboardImg.svg'
 import { useSignup } from '@/hooks/useSignup'
 
@@ -113,7 +113,7 @@ export default function SignUpPage() {
                         <li key={title} className="flex items-start gap-3.5">
 
                             <div className="flex h-[36px] w-[36px] items-center justify-center rounded-[8px] bg-[#ebebff]">
-                                <img src={icon} alt={title} className=" object-contain" />
+                                <img src={icon} alt={title} className=" object-contain bg=[#02004E3B]" />
                             </div>
 
                             <div>
@@ -122,7 +122,6 @@ export default function SignUpPage() {
                                 </h4>
                                 <p className="text-sm text-[#FFFFFF]">{description}</p>
                             </div>
-
                         </li>
                     ))}
                 </ul>
@@ -169,7 +168,7 @@ export default function SignUpPage() {
                             label="Email address"
                             type="email"
                             placeholder="Enter your email"
-                            leftIcon={<Mail size={16} strokeWidth={1.75} />}
+                            leftIcon={<MailIcon className="w-4 h-4"/>}
                             error={errors.email?.message}
                             disabled={isLoading}
                             {...register('email')}
@@ -192,9 +191,19 @@ export default function SignUpPage() {
                             label="Password"
                             type={showPassword ? 'text' : 'password'}
                             placeholder="Enter your password"
-                            leftIcon={<Lock size={16} strokeWidth={1.75} />}
+                            leftIcon={<LockIcon className="w-4 h-4"/>}
                             error={errors.password?.message}
                             disabled={isLoading}
+                            rightElement={
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword((v) => !v)}
+                                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                  className="text-[#9898b3] transition-colors hover:text-[#6b6b8a]"
+                                >
+                                  {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                                </button>
+                              }
                             {...register('password')}
                         />
 
@@ -204,9 +213,19 @@ export default function SignUpPage() {
                             label="Confirm Password"
                             type={showPassword ? 'text' : 'password'}
                             placeholder="Confirm your password"
-                            leftIcon={<Lock size={16} strokeWidth={1.75} />}
+                            leftIcon={<LockIcon className="w-4 h-4"/>}
                             error={errors.confirmPassword?.message}
                             disabled={isLoading}
+                            rightElement={
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword((v) => !v)}
+                                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                  className="text-[#9898b3] transition-colors hover:text-[#6b6b8a]"
+                                >
+                                  {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                                </button>
+                              }
                             {...register('confirmPassword')}
                         />
 
