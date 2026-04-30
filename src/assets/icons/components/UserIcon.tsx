@@ -1,4 +1,4 @@
-export const MailIcon = ({ className }: { className?: string }) => (
+export const UserIcon = ({ className }: { className?: string }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -6,7 +6,7 @@ export const MailIcon = ({ className }: { className?: string }) => (
       stroke="currentColor"
       strokeWidth="1.75"
     >
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="M3 7l9 6 9-6" />
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
     </svg>
   )
