@@ -46,7 +46,7 @@ const FormPage: React.FC<FormPageProps> = ({
   isLoading = false,
 }) => {
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-4 border-[1.5px] border-[#ECECEC] rounded-xl bg-white">    
       {/* ── Page header ── */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">{heading}</h1>
@@ -57,18 +57,17 @@ const FormPage: React.FC<FormPageProps> = ({
 
       {/* ── Form ── */}
       <form onSubmit={onSubmit} noValidate>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 -mx-4 p-3 border-t-[1.5px] border-[#ECECEC]">
           {sections.map((section, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-xl border border-gray-200 px-6 py-6"
+              className="bg-white rounded-xl px-4 py-4"
             >
               {/* Section header */}
               <div className="flex items-center gap-3 mb-6">
                 <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    section.iconBg ?? "bg-blue-50"
-                  } ${section.iconColor ?? "text-blue-500"}`}
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${section.iconBg ?? "bg-blue-50"
+                    } ${section.iconColor ?? "text-blue-500"}`}
                 >
                   {section.icon}
                 </div>
@@ -89,7 +88,7 @@ const FormPage: React.FC<FormPageProps> = ({
         </div>
 
         {/* ── Footer actions ── */}
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="-mx-4 px-6 border-t-[1.5px] border-[#ECECEC] flex justify-end gap-3 mt-6 pt-4">
           {onCancel && (
             <button
               type="button"

@@ -24,6 +24,12 @@ const ADMIN_NAV = [
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
+const navItemClass = ({ isActive }: { isActive: boolean }) =>
+  cn(
+    'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
+    'text-black hover:bg-[#5752FE] hover:text-white'
+  )
+
 export function Sidebar() {
   const { sidebarCollapsed, toggleCollapsed } = useUIStore()
   const { isAdmin } = usePermission()
@@ -31,18 +37,25 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-gray-800 bg-[#0C142C] text-white transition-all duration-300',
+        'fixed left-0 top-0 z-40 flex h-screen flex-col bg-gradient-to-b from-[#F0F2FD] to-[#E6E4FD] text-black transition-all duration-300',
         sidebarCollapsed ? 'w-14' : 'w-56'
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-gray-800 pt-[24px] pb-[10px] px-5">
+      <div className="flex h-16 items-center justify-between pt-[24px] pb-[10px] px-5">
         {!sidebarCollapsed && (
-          <span className="text-lg font-bold text-white">Nextloop CRM</span>
+          <span className="text-[1.1rem] tracking-[-0.01em]">
+            <span className="font-bold text-[20px] tracking-[-0.01em] text-[#6049CD]">
+              Nextloop
+            </span>{' '}
+            <span className="font-medium text-[20px] tracking-[-0.01em] opacity-[0.85] text-[#111127]">
+              CRM
+            </span>
+          </span>
         )}
         <button
           onClick={toggleCollapsed}
-          className="rounded-md p-1.5 text-gray-300 hover:bg-gray-800"
+          className="rounded-md p-1.5 text-black hover:bg-[#5752FE] hover:text-white transition-colors"
         >
           {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
@@ -53,17 +66,7 @@ export function Sidebar() {
         <ul className="space-y-1 px-2">
           {NAV.map(({ to, label, icon: Icon }) => (
             <li key={to}>
-              <NavLink
-                to={to}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors text-white',
-                    isActive
-                      ? 'bg-brand-light text-white'
-                      : 'hover:bg-gray-800'
-                  )
-                }
-              >
+              <NavLink to={to} className={navItemClass}>
                 <Icon size={18} className="flex-shrink-0" />
                 {!sidebarCollapsed && <span>{label}</span>}
               </NavLink>
@@ -74,7 +77,7 @@ export function Sidebar() {
             <>
               {!sidebarCollapsed && (
                 <li className="px-3 pt-4 pb-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-black-400">
                     Admin
                   </span>
                 </li>
@@ -82,17 +85,7 @@ export function Sidebar() {
 
               {ADMIN_NAV.map(({ to, label, icon: Icon }) => (
                 <li key={to}>
-                  <NavLink
-                    to={to}
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors text-white',
-                        isActive
-                          ? 'bg-brand-light text-white'
-                          : 'hover:bg-gray-800'
-                      )
-                    }
-                  >
+                  <NavLink to={to} className={navItemClass}>
                     <Icon size={18} className="flex-shrink-0" />
                     {!sidebarCollapsed && <span>{label}</span>}
                   </NavLink>

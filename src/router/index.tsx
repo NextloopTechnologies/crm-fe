@@ -4,6 +4,7 @@ import { AppShell } from '@/components/layout/AppShell'
 
 // Pages — lazy loaded for performance
 import { lazy, Suspense } from 'react'
+import ForgotPasswordPage from '@/pages/ForgotPassword'
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const SignUpPage = lazy(() => import('@/pages/SignUpPage'))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
@@ -14,7 +15,9 @@ const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'))
 const TasksPage = lazy(() => import('@/pages/TasksPage'))
 const PipelinePage = lazy(() => import('@/pages/PipelinePage'))
 const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
-const UsersPage = lazy(() => import('@/pages/UsersPage'))
+const CreateUsersPage = lazy(() => import('@/pages/users/CreateUsers'))
+const EditUsersPage = lazy(() => import('@/pages/users/EditUsers'))
+const UserListPage = lazy(() => import('@/pages/users/UserList'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 
@@ -38,6 +41,10 @@ export const router = createBrowserRouter([
     element: <Wrap><SignUpPage /></Wrap>,
   },
   {
+    path: '/forgot-password',
+    element: <Wrap><ForgotPasswordPage /></Wrap>,
+  },
+  {
     path: '/',
     element: <ProtectedRoute />,
     children: [
@@ -53,8 +60,9 @@ export const router = createBrowserRouter([
           { path: 'tasks', element: <Wrap><TasksPage /></Wrap> },
           { path: 'pipeline', element: <Wrap><PipelinePage /></Wrap> },
           { path: 'reports', element: <Wrap><ReportsPage /></Wrap> },
-          { path: 'settings/users', element: <Wrap><UsersPage /></Wrap> },
-          { path: 'users', element: <Wrap><UsersPage /></Wrap> },
+          { path: 'users/create', element: <Wrap><CreateUsersPage /></Wrap> },
+          { path: 'users/:id/edit', element: <Wrap><EditUsersPage /></Wrap> },
+          { path: 'users', element: <Wrap><UserListPage /></Wrap> },
           { path: 'settings', element: <Wrap><SettingsPage /></Wrap> },
         ],
       },

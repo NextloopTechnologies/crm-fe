@@ -47,6 +47,20 @@ export interface LoginForm {
     rememberMe?: boolean
 }
 
+export interface RegisterRequest {
+
+  userName : string
+  password: string
+  email : string
+  roleName : string 
+  firstName : string 
+  lastName : string 
+  phone : string 
+
+}
+
+
+
 // ── Lead ──────────────────────────────────────────────────────────────────────
 export interface Lead {
   id: number

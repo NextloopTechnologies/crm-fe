@@ -7,7 +7,7 @@ export function MainLayout() {
     <div className="flex">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-white">
         <Navbar />
         <main className="p-4">
           <Outlet />
