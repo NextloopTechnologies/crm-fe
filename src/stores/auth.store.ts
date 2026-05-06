@@ -1,13 +1,14 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { AuthUser } from '@/types/api.types'
+import type { AuthUser, LoginResponse } from '@/types/api.types'
 
 interface AuthState {
   token: string | null
   refreshToken: string | null
   user: AuthUser | null
   isAuthenticated: boolean
-  login: (token: string, refreshToken: string, user: AuthUser) => void
+
+  login: (data: LoginResponse) => void
   logout: () => void
   updateUser: (user: AuthUser) => void
 }
@@ -19,12 +20,37 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       user: null,
       isAuthenticated: false,
-      login: (token, refreshToken, user) =>
-        set({ token, refreshToken, user, isAuthenticated: true }),
+
+      login: (data) =>
+        set({
+          token: data.token,
+          refreshToken: data.refreshToken,
+          user: {
+            fullname: data.fullname,
+            roleName: data.roleName,
+            managerId: data.managerId,
+            orgnizationId: data.orgnizationId,
+          },
+          isAuthenticated: true,
+        }),
+
       logout: () =>
-        set({ token: null, refreshToken: null, user: null, isAuthenticated: false }),
+        set({
+          token: null,
+          refreshToken: null,
+          user: null,
+          isAuthenticated: false,
+        }),
+
       updateUser: (user) => set({ user }),
     }),
-    { name: 'crm-auth' }
+    {
+      name: 'crm-auth',
+      partialize: (s) => ({
+        token: s.token,
+        refreshToken: s.refreshToken,
+        user: s.user,
+      }),
+    }
   )
 )

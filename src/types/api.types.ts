@@ -21,11 +21,10 @@ export interface ApiError {
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export interface AuthUser {
-  id: number
-  name: string
-  email: string
-  role: string
-  avatar?: string
+  fullname: string
+  roleName: string
+  managerId: string
+  orgnizationId: string
 }
 
 export interface LoginRequest {
@@ -36,8 +35,31 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string
   refreshToken: string
-  user: AuthUser
+  roleName: string
+  managerId: string
+  orgnizationId: string
+  fullname: string
 }
+
+export interface LoginForm {
+    email: string
+    password: string
+    rememberMe?: boolean
+}
+
+export interface RegisterRequest {
+
+  userName : string
+  password: string
+  email : string
+  roleName : string 
+  firstName : string 
+  lastName : string 
+  phone : string 
+
+}
+
+
 
 // ── Lead ──────────────────────────────────────────────────────────────────────
 export interface Lead {
