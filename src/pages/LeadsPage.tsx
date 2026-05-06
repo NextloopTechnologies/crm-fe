@@ -85,7 +85,40 @@ export default function LeadsPage() {
             required
             leftIcon={<UserIcon className='w-5 h-5' />}
           />
-          <SelectDropdown
+
+          <Input
+            id="email"
+            label="Email"
+            placeholder="Enter email"
+            type="email"
+            required
+            leftIcon={<MailIcon className='w-5 h-5' />}
+          />
+
+          <Input
+            id="phone"
+            label="Phone"
+            placeholder="Enter phone number"
+            type="tel"
+            leftIcon={<PhoneIcon className='w-5 h-5' />}
+          />
+
+          <Input
+            id="fax"
+            label="Fax"
+            placeholder="Enter fax number"
+            type="tel"
+            leftIcon={<PhoneIcon className='w-5 h-5' />}
+          />
+
+          <Input
+            id="website"
+            label="Website"
+            placeholder="Enter website URL"
+            type="url"
+            leftIcon={<PhoneIcon className='w-5 h-5' />}
+          />
+           <SelectDropdown
             label="Lead Status"
             placeholder="Select lead status"
             options={roleOptions}
@@ -98,41 +131,8 @@ export default function LeadsPage() {
             leftIcon={<ShieldIcon />}
             error={(touched || isSubmitted) && !role ? "Role is required" : undefined}
           />
-          <Input
-            id="title"
-            label="Title"
-            placeholder="Enter title"
-            leftIcon={<UserIcon className='w-5 h-5' />}
-          />
-          <Input
-            id="phone"
-            label="Phone"
-            placeholder="Enter phone number"
-            type="tel"
-            leftIcon={<PhoneIcon className='w-5 h-5' />}
-          />
-          <Input
-            id="email"
-            label="Email"
-            placeholder="Enter email"
-            type="email"
-            required
-            leftIcon={<MailIcon className='w-5 h-5' />}
-          />
-          <Input
-            id="fax"
-            label="Fax"
-            placeholder="Enter fax number"
-            type="tel"
-            leftIcon={<PhoneIcon className='w-5 h-5' />}
-          />
-          <Input
-            id="website"
-            label="Website"
-            placeholder="Enter website URL"
-            type="url"
-            leftIcon={<PhoneIcon className='w-5 h-5' />}
-          />
+
+
           <SelectDropdown
             label="Lead Sources"
             placeholder="Select lead source"
@@ -234,13 +234,6 @@ export default function LeadsPage() {
       iconColor: "text-[#5752FE]",
       children: (
         <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 pt-6 -mx-6 px-6">
-          <InlineInput id="flatNo" label="Flat No." placeholder="Enter flat number" />
-          <InlineInput id="zipCode" label="Zip Code" placeholder="Enter zip / postal code" />
-          <InlineInput id="street" label="Street" placeholder="Enter street address" />
-          <InlineInput id="latitude" label="Latitude" placeholder="Enter latitude" />
-          <InlineInput id="city" label="City" placeholder="Enter city" />
-          <InlineInput id="longitude" label="Longitude" placeholder="Enter longitude" />
-          <InlineInput id="state" label="State" placeholder="Enter state / province" />
           <InlineSelectDropdown
             id="country"
             label="Country"
@@ -255,6 +248,11 @@ export default function LeadsPage() {
             leftIcon={<ShieldIcon />}
             error={(touched || isSubmitted) && !role ? "Role is required" : undefined}
           />
+          <InlineInput id="street" label="Street" placeholder="Enter street address" />
+          <InlineInput id="state" label="State" placeholder="Enter state / province" />
+          <InlineInput id="flatNo" label="Flat No." placeholder="Enter flat number" />
+          <InlineInput id="city" label="City" placeholder="Enter city" />
+          <InlineInput id="zipCode" label="Zip Code" placeholder="Enter zip / postal code" />
         </div>
       ),
     },
