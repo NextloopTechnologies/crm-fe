@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Pencil, Trash2, Eye, UserPlus, SlidersHorizontal, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usersData, type User } from '../../data/user.data';
-import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon, UsersIcon } from '@/assets/icons/components/index';
+import { ActiveUsersIcon, DownArrowIcon, InActiveUsersIcon, NoActivityIcon, TenantsIcon, UpArrowIcon, UsersIcon } from '@/assets/icons/components/index';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
+import { NewLeadsIcon } from '@/assets/icons/components/index';
 
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
@@ -93,29 +94,27 @@ const stats = [
         label: "Total Users",
         value: usersData.length,
         subtitle: "All Users in System",
-    },
+        trend: { icon: <UpArrowIcon />, text: "24%" , color : "text-[#22c55e]" },
+      },
     {
-        icon: <ActiveUsersIcon />,
-        label: "Active",
+        icon: <NewLeadsIcon/>,
+        label: "New Leads",
         value: usersData.filter((u) => u.status === "active").length,
-        subtitle: "Currently Active",
+        subtitle: "vs last 7 days",
+        trend: { icon: <UpArrowIcon />, text: "12%" , color : "text-[#22c55e]" },
     },
     {
-        icon: <InActiveUsersIcon />,
-        label: "Inactive",
+        icon: <NoActivityIcon />,
+        label: "No Activity",
         value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "Currently Inactive",
-    },
-    {
-        icon: <TenantsIcon />,
-        label: "Admins",
-        value: usersData.filter((u) => u.role === "Admin").length,
-        subtitle: "Tenants",
+        subtitle: "vs last 7 days",
+        trend: { icon: <DownArrowIcon />, text: "12%" , color : "text-[#EB4335]" },
+
     },
 ];
 
 
-export default function UsersList() {
+export default function LeadsList() {
     const [selectedRows, setSelectedRows] = useState<User[]>([]);
     const navigate = useNavigate();
 
@@ -124,6 +123,45 @@ export default function UsersList() {
         {
             key: "name",
             label: "Name",
+            width: "220px",
+            render: (val) => (
+                <span>{String(val)}</span>
+            ),
+        },
+        {
+            key: "name",
+            label: "Company",
+            width: "220px",
+            render: (val) => (
+                <span>{String(val)}</span>
+            ),
+        },
+        {
+            key: "email",
+            label: "Email",
+            width: "220px",
+            render: (val) => (
+                <span >{String(val)}</span>
+            ),
+        },
+        {
+            key: "phone",
+            label: "Phone",
+            width: "220px",
+            render: (val) => (
+                <span >{String(val)}</span>
+            ),
+        },
+        {
+            key: "role",
+            label: "Lead Source",
+            width: "140px",
+            render: (val) => <RoleBadge role={String(val)} />,
+        },
+       
+        {
+            key: "name",
+            label: "Lead Owner",
             width: "180px",
             render: (_, row) => (
                 <div className="flex items-center gap-2.5">
@@ -133,43 +171,8 @@ export default function UsersList() {
                             {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                         </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-[#111127]">{row.name}</span>
+                    <span>{row.name}</span>
                 </div>
-            ),
-        },
-        {
-            key: "email",
-            label: "Email",
-            width: "220px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
-            ),
-        },
-        {
-            key: "role",
-            label: "Role",
-            width: "140px",
-            render: (val) => <RoleBadge role={String(val)} />,
-        },
-        {
-            key: "status",
-            label: "Status",
-            width: "140px",
-            render: (val) => <StatusBadge status={String(val)} />,
-        },
-        {
-            key: "location",
-            label: "Last Login",
-        },
-        {
-            key: "joinedAt",
-            label: "Created At",
-            render: (val) => (
-                <span className="text-[#6b6b8d] text-sm">
-                    {new Date(String(val)).toLocaleDateString("en-IN", {
-                        day: "2-digit", month: "short", year: "numeric",
-                    })}
-                </span>
             ),
         },
     ];
@@ -189,10 +192,10 @@ export default function UsersList() {
                 </Button>
             )}
 
-            {/* Add User */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/users/create")}>
+            {/* Add Lead */}
+            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/leads/add")}>
                 <PlusIcon />
-                Add User
+                Add Lead
             </Button>
         </div>
     );
@@ -200,9 +203,8 @@ export default function UsersList() {
     return (
         <div className="bg-white min-h-screen p-3 rounded-xl">
 
-            {/* Stats */}
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6">
                 {stats.map((stat) => (
                     <StatsCard
                         key={stat.label}
@@ -210,6 +212,8 @@ export default function UsersList() {
                         label={stat.label}
                         value={stat.value}
                         subtitle={stat.subtitle}
+                        trend={stat.trend}
+
                     />
                 ))}
             </div>
@@ -226,12 +230,12 @@ export default function UsersList() {
                 headerActions={headerActions}
                 onRowClick={(row) => console.log("Row clicked", row)}
                 onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(`/users/${row.id}/edit`)}
+                onEdit={(row) => console.log("Edit", row)}
                 onDelete={(row) => console.log("Delete", row)}
                 filters={[
                     {
                         key: "role",
-                        label: "Role",
+                        label: "Company",
                         type: "select",
                         options: [
                             { label: "Admin", value: "Admin" },
@@ -242,17 +246,22 @@ export default function UsersList() {
                     },
                     {
                         key: "status",
-                        label: "Status",
+                        label: "Lead Source",
                         type: "select",
                         options: [
                             { label: "Active", value: "active" },
                             { label: "Inactive", value: "inactive" },
                         ],
                     },
-                    { key: "createdFrom", label: "Created From", type: "date" },
-                    { key: "createdTo", label: "Created To", type: "date" },
-                    { key: "lastLoginFrom", label: "Last Login From", type: "date" },
-                    { key: "lastLoginTo", label: "Last Login To", type: "date" },
+                    {
+                        key: "status",
+                        label: "Lead Owner",
+                        type: "select",
+                        options: [
+                            { label: "Active", value: "active" },
+                            { label: "Inactive", value: "inactive" },
+                        ],
+                    },
                 ]}
             />
         </div>

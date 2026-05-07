@@ -27,7 +27,9 @@ const ADMIN_NAV = [
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   cn(
     'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-    'text-black hover:bg-[#5752FE] hover:text-white'
+    isActive
+      ? 'bg-[#5752FE] text-white cursor-default hover:bg-[#5752FE] hover:text-white'
+      : 'text-black hover:bg-[#f5f4ff] hover:text-[#5752FE]'
   )
 
 export function Sidebar() {

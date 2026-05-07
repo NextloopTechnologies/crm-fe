@@ -71,7 +71,7 @@ const FormPage: React.FC<FormPageProps> = ({
                 >
                   {section.icon}
                 </div>
-                <div>
+                <div >
                   <p className="text-sm font-semibold text-gray-800">
                     {section.title}
                   </p>

@@ -10,7 +10,7 @@ export function AppShell() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#0B1220]">
-      
+
       {/* Sidebar */}
       <Sidebar />
 
@@ -22,7 +22,7 @@ export function AppShell() {
         )}
       >
         {/* Navbar */}
-        <Navbar/>
+        <Navbar />
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto p-6">
@@ -31,7 +31,12 @@ export function AppShell() {
       </div>
 
       {/* Toasts */}
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster position="top-right"
+        toastOptions={{
+          style: {
+            top: "60px",  // top se niche karo — value apne hisaab se adjust karo
+          }
+        }} />
     </div>
   )
 }
