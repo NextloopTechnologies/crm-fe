@@ -12,81 +12,16 @@ import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
 import { NewLeadsIcon } from '@/assets/icons/components/index';
+import CustomBadge from "@/components/common/CommonBadge";
 
-
-// ── Status Badge ──────────────────────────────────────────────────────────────
-const StatusBadge = ({ status }: { status: string }) => (
-    <Badge
-        className={cn(
-            "w-[90px] justify-center text-center",
-            status === "active"
-                ? "bg-green-50 text-green-600 border border-green-200 rounded-[4px] px-5 py-3 hover:bg-green-50"
-                : "bg-red-50 text-red-500 border border-red-200 rounded-[4px] px-5 py-3 hover:bg-red-50"
-        )}
-    >
-        <span className={`${status === "active" ? "bg-green-500" : "bg-red-400"}`} />
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-    </Badge>
-);
-
-// ── Role Badge ────────────────────────────────────────────────────────────────
 const roleColors: Record<string, string> = {
-    Admin: "bg-purple-50 text-purple-600 border border-purple-200 rounded-[4px] px-5 py-3 hover:bg-purple-50",
-    Manager: "bg-blue-50 text-blue-600 border border-blue-200 rounded-[4px] px-5 py-3 hover:bg-blue-50",
-    Developer: "bg-orange-50 text-orange-600 border border-orange-200 rounded-[4px] px-5 py-3 hover:bg-orange-50",
-    Viewer: "bg-gray-50 text-gray-600 border border-gray-200 rounded-[4px] px-5 py-3 hover:bg-gray-50",
+    Admin:
+        "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
+    Manager:
+        "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
+    Sales:
+        "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
 };
-
-// ── Role Badge ────────────────────────────────────────────────────────────────
-const RoleBadge = ({ role }: { role: string }) => (
-    <Badge
-        className={cn(
-            "w-[90px] justify-center text-center",
-            roleColors[role] ?? "bg-gray-100 text-gray-600"
-        )}
-    >
-        {role}
-    </Badge>
-);
-
-
-// ── User Cell ─────────────────────────────────────────────────────────────────
-const UserCell = ({ name, email }: { name: string; email: string }) => (
-    <div className="flex items-center gap-2.5">
-        <Avatar className="h-8 w-8">
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${name}`} />
-            <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                {name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-            </AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col">
-            <span className="text-sm font-medium text-[#111127]">{name}</span>
-            <span className="text-xs text-[#9898b3]">{email}</span>
-        </div>
-    </div>
-);
-
-// ── Filter Options ────────────────────────────────────────────────────────────
-const filtersConfig = [
-    {
-        key: "status",
-        label: "Status",
-        options: [
-            { label: "Active", value: "active" },
-            { label: "Inactive", value: "inactive" }
-        ]
-    },
-    {
-        key: "role",
-        label: "Role",
-        options: [
-            { label: "Admin", value: "Admin" },
-            { label: "Manager", value: "Manager" },
-            { label: "Developer", value: "Developer" },
-            { label: "Viewer", value: "Viewer" }
-        ]
-    }
-];
 
 const stats = [
     {
@@ -129,7 +64,7 @@ export default function LeadsList() {
             ),
         },
         {
-            key: "name",
+            key: "comapany",
             label: "Company",
             width: "220px",
             render: (val) => (
@@ -152,15 +87,23 @@ export default function LeadsList() {
                 <span >{String(val)}</span>
             ),
         },
-        {
-            key: "role",
-            label: "Lead Source",
-            width: "140px",
-            render: (val) => <RoleBadge role={String(val)} />,
-        },
+         {
+                    key: "role",
+                    label: "Role",
+                    width: "140px",
+                    render: (val) => (
+                        <CustomBadge
+                            label={String(val)}
+                            className={
+                                roleColors[String(val)] ??
+                                "bg-gray-100 text-gray-600 border border-gray-200"
+                            }
+                        />
+                    ),
+                },
        
         {
-            key: "name",
+            key: "leadOwner",
             label: "Lead Owner",
             width: "180px",
             render: (_, row) => (

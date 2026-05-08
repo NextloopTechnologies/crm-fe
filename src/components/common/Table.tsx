@@ -24,7 +24,7 @@ import {
   Pencil, Trash2, SlidersHorizontal, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FilterIcon } from "@/assets/icons/components/index";
+import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
 import SelectDropdown from "@/components/common/SelectDropdown";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -197,6 +197,124 @@ function FilterDropdown({
   );
 }
 
+
+// ── Sort Dropdown ─────────────────────────────────────────────────────────────
+function SortDropdown<T>({
+  columns,
+  sortKey,
+  sortDir,
+  onApply,
+  onClose,
+  triggerRef,
+}: {
+  columns: ColumnDef<T>[];
+  sortKey: string;
+  sortDir: "asc" | "desc";
+  onApply: (key: string, dir: "asc" | "desc") => void;
+  onClose: () => void;
+  triggerRef: React.RefObject<HTMLButtonElement | null>;
+}) {
+  const [key, setKey] = useState(sortKey);
+  const [dir, setDir] = useState<"asc" | "desc">(sortDir);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      // ── Add these three guards (same as FilterDropdown) ──
+      if (
+        target.closest('[role="listbox"]') ||
+        target.closest('[role="option"]') ||
+        target.closest('[data-radix-popper-content-wrapper]')
+      ) {
+        return;
+      }
+
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(target)
+      ) {
+        onClose();
+      }
+    };
+    const timer = setTimeout(() => document.addEventListener("mousedown", handler), 150);
+    return () => { clearTimeout(timer); document.removeEventListener("mousedown", handler); };
+  }, [onClose, triggerRef]);
+
+  const sortableColumns = columns.filter((c) => c.sortable !== false);
+  
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="absolute z-50 top-[calc(100%+8px)] left-0 bg-white rounded-2xl shadow-2xl border border-[#ECECEC] w-72 p-3"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-[#111127]">Sort by</h2>
+        <button
+          onClick={onClose}
+          className="h-5 w-7 flex items-center justify-center rounded-full hover:bg-[#f0f0f8] text-[#6b6b8d] transition-colors"
+        >
+          <X size={15} />
+        </button>
+      </div>
+
+      {/* Fields row */}
+      <div className="flex gap-2 mb-3">
+        {/* Field selector */}
+        <div className="flex-1 flex flex-col gap-1">
+          <label className="text-xs text-[#111127]">Field</label>
+          <SelectDropdown
+            placeholder="None"
+            options={sortableColumns.map((col) => ({
+              label: col.label,
+              value: col.key as string,
+            }))}
+            value={key}
+            onChange={(val) => setKey(val)}
+          />
+        </div>
+
+        {/* Direction selector */}
+        <div className="flex-1 flex flex-col gap-1">
+          <label className="text-xs text-[#111127]">Order</label>
+          <SelectDropdown
+            placeholder="Select order"
+            options={[
+              { label: "Ascending", value: "asc" },
+              { label: "Descending", value: "desc" },
+            ]}
+            value={dir}
+            onChange={(val) => setDir(val as "asc" | "desc")}
+          />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="outline"
+          className="flex-1 h-8 rounded-[10px] border-[#e4e4ee] text-[#6b6b8d] text-sm"
+          onClick={() => { onApply("", "asc"); onClose(); }}
+        >
+          Cancel
+        </Button>
+        <Button
+          className="flex-1 h-8 rounded-[10px] bg-[#5752FE] hover:bg-[#4a45e0] text-white text-sm font-medium"
+          onClick={() => { onApply(key, dir); onClose(); }}
+        >
+          Apply
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export function DataTable<T extends { id?: string | number }>({
   data,
@@ -223,6 +341,10 @@ export function DataTable<T extends { id?: string | number }>({
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterValues>({});
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [sortDropdownKey, setSortDropdownKey] = useState<string>("");
+  const [sortDropdownDir, setSortDropdownDir] = useState<"asc" | "desc">("asc");
+  const sortBtnRef = useRef<HTMLButtonElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
 
   const activeFilterCount = Object.values(appliedFilters).filter(Boolean).length;
@@ -355,7 +477,46 @@ export function DataTable<T extends { id?: string | number }>({
                   />
                 )}
               </div>
+
+
             )}
+
+            {/* Replace the existing Sort button div with this: */}
+            <div className="relative">
+              <Button
+                ref={sortBtnRef}
+                variant="outline"
+                className={cn(
+                  "h-9 px-4 text-sm rounded-[10px] gap-2 border-[#e4e4ee]",
+                  sortKey
+                    ? "border-[#5752FE] text-[#5F616E] bg-[#f5f4ff]"
+                    : "text-[#6b6b8d]"
+                )}
+                onClick={() => setShowSortDropdown((prev) => !prev)}
+              >
+                <SortingIcon />
+                Sort
+                {sortKey && (
+                  <span className="bg-[#5752FE] text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                    1
+                  </span>
+                )}
+              </Button>
+
+              {showSortDropdown && (
+                <SortDropdown
+                  columns={columns}
+                  sortKey={sortKey ?? ""}
+                  sortDir={(sortDir as "asc" | "desc") ?? "asc"}
+                  onApply={(key, dir) => {
+                    setSortKey(key || null);
+                    setSortDir(key ? dir : null);
+                  }}
+                  onClose={() => setShowSortDropdown(false)}
+                  triggerRef={sortBtnRef}
+                />
+              )}
+            </div>
           </div>
 
           {/* Right: Header Actions */}
