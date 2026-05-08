@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
 import SelectDropdown from "@/components/common/SelectDropdown";
+import { AlertPopupDialog } from "@/components/common/AlertDialog";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type ColumnDef<T> = {
@@ -79,6 +80,12 @@ function getNestedValue<T>(obj: T, key: string): unknown {
   }, obj);
 }
 
+// ── Add this new helper ──
+function safeString(val: unknown): string {
+  if (val === null || val === undefined) return "—";
+  if (typeof val === "object") return "—"; // object/array/ReactNode — let render() handle it
+  return String(val);
+}
 // ── Filter Dropdown ───────────────────────────────────────────────────────────
 function FilterDropdown({
   filters,
@@ -245,7 +252,7 @@ function SortDropdown<T>({
   }, [onClose, triggerRef]);
 
   const sortableColumns = columns.filter((c) => c.sortable !== false);
-  
+
 
   return (
     <div
@@ -346,6 +353,7 @@ export function DataTable<T extends { id?: string | number }>({
   const [sortDropdownDir, setSortDropdownDir] = useState<"asc" | "desc">("asc");
   const sortBtnRef = useRef<HTMLButtonElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
+  const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
 
   const activeFilterCount = Object.values(appliedFilters).filter(Boolean).length;
 
@@ -642,7 +650,7 @@ export function DataTable<T extends { id?: string | number }>({
                       <TableCell key={col.key as string} className="px-4 py-3 text-sm">
                         {col.render
                           ? col.render(getNestedValue(row, col.key as string), row)
-                          : String(getNestedValue(row, col.key as string) ?? "—")}
+                          : safeString(getNestedValue(row, col.key as string))}  {/* ← use safeString */}
                       </TableCell>
                     ))}
                     {(onEdit || onDelete) && (
@@ -661,6 +669,7 @@ export function DataTable<T extends { id?: string | number }>({
                           </Button>
                         )}
 
+                        {/* Delete Confirm Dialog */}
                         {onDelete && (
                           <Button
                             variant="ghost"

@@ -56,70 +56,60 @@ export default function LeadsList() {
     // ── Columns ───────────────────────────────────────────────────────────────────
     const columns: ColumnDef<User>[] = [
         {
-            key: "name",
-            label: "Name",
-            width: "220px",
-            render: (val) => (
-                <span>{String(val)}</span>
-            ),
+          key: "name",
+          label: "Name",
+          width: "220px",
+          render: (_, row) => <span>{row.name ?? "—"}</span>,
         },
         {
-            key: "comapany",
-            label: "Company",
-            width: "220px",
-            render: (val) => (
-                <span>{String(val)}</span>
-            ),
+          key: "company",        // ← fix typo was "comapany"
+          label: "Company",
+          width: "220px",
+          render: (_, row) => <span>{(row as any).company ?? "—"}</span>,
         },
         {
-            key: "email",
-            label: "Email",
-            width: "220px",
-            render: (val) => (
-                <span >{String(val)}</span>
-            ),
+          key: "email",
+          label: "Email",
+          width: "220px",
+          render: (_, row) => <span>{row.email ?? "—"}</span>,
         },
         {
-            key: "phone",
-            label: "Phone",
-            width: "220px",
-            render: (val) => (
-                <span >{String(val)}</span>
-            ),
+          key: "phone",
+          label: "Phone",
+          width: "220px",
+          render: (_, row) => <span>{row.phone ?? "—"}</span>,
         },
-         {
-                    key: "role",
-                    label: "Role",
-                    width: "140px",
-                    render: (val) => (
-                        <CustomBadge
-                            label={String(val)}
-                            className={
-                                roleColors[String(val)] ??
-                                "bg-gray-100 text-gray-600 border border-gray-200"
-                            }
-                        />
-                    ),
-                },
-       
         {
-            key: "leadOwner",
-            label: "Lead Owner",
-            width: "180px",
-            render: (_, row) => (
-                <div className="flex items-center gap-2.5">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
-                        <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                            {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                        </AvatarFallback>
-                    </Avatar>
-                    <span>{row.name}</span>
-                </div>
-            ),
+          key: "role",
+          label: "Role",
+          width: "140px",
+          render: (_, row) => (
+            <CustomBadge
+              label={row.role ?? "—"}
+              className={
+                roleColors[row.role ?? ""] ??
+                "bg-gray-100 text-gray-600 border border-gray-200"
+              }
+            />
+          ),
         },
-    ];
-
+        {
+          key: "name",
+          label: "Lead Owner",
+          width: "180px",
+          render: (_, row) => (
+            <div className="flex items-center gap-2.5">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
+                <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+                  {row.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <span>{row.name ?? "—"}</span>
+            </div>
+          ),
+        },
+      ];
     // ── Header Actions (Filter + Add User) ────────────────────────────────────
     const headerActions = (
         <div className="flex items-center gap-2">
