@@ -13,13 +13,14 @@ import { useLocation } from "react-router-dom" // or next/router if using Next.j
 
 // ── Route → label map ─────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
-  "/users": { title: "Users", breadcrumb: ["Users"] },
-  "/users/add": { title: "Add User", breadcrumb: ["Users", "Add User"] },
+  "/users": { title: "Users", breadcrumb: ["Manage system users and their access"] },
+  "/users/create": { title: "Create User", breadcrumb: ["Users", "Create User"] },
+  "/users/:id/edit": { title: "Edit User", breadcrumb: ["Users", "Edit User"] },
   "/dashboard": { title: "Dashboard", breadcrumb: ["Dashboard"] },
   "/settings": { title: "Settings", breadcrumb: ["Settings"] },
   "/roles": { title: "Roles", breadcrumb: ["Roles"] },
-  "/leads": { title: "Leads", breadcrumb: ["Leads"] },
-
+  "/leads": { title: "Leads", breadcrumb: ["Manage and track all your incoming leads"] },
+  "/leads/add": { title: "Add Lead", breadcrumb: ["Leads", "Add Lead"] },
 }
 
 export function Navbar() {
@@ -46,7 +47,7 @@ export function Navbar() {
               <span
                 className={
                   idx === meta.breadcrumb.length - 1
-                    ? "text-[11px] text-blue-500 font-medium"
+                    ? "text-[11px] text-gray-500 font-medium"
                     : "text-[11px] text-gray-400"
                 }
               >
@@ -68,7 +69,7 @@ export function Navbar() {
           />
           <Search
             size={15}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#5752FE]"
           />
         </div>
 

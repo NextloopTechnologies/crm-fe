@@ -8,18 +8,18 @@ import ForgotPasswordPage from '@/pages/ForgotPassword'
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const SignUpPage = lazy(() => import('@/pages/SignUpPage'))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
-const LeadsPage = lazy(() => import('@/pages/LeadsPage'))
-const LeadDetailPage = lazy(() => import('@/pages/LeadDetailPage'))
+const LeadsPage = lazy(() => import('@/pages/leads/LeadsPage'))
 const ClientsPage = lazy(() => import('@/pages/ClientsPage'))
 const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'))
 const TasksPage = lazy(() => import('@/pages/TasksPage'))
 const PipelinePage = lazy(() => import('@/pages/PipelinePage'))
 const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
-const CreateUsersPage = lazy(() => import('@/pages/users/CreateUsers'))
-const EditUsersPage = lazy(() => import('@/pages/users/EditUsers'))
+const CreateUsersPage = lazy(() => import('@/pages/users/CreateUserPage'))
+const EditUsersPage = lazy(() => import('@/pages/users/EditUserPage'))
 const UserListPage = lazy(() => import('@/pages/users/UserList'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
+const LeadsListPage = lazy(() => import('@/pages/leads/LeadsListPage'))
 
 const Loading = () => (
   <div className="flex h-full items-center justify-center">
@@ -53,8 +53,8 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: 'dashboard', element: <Wrap><DashboardPage /></Wrap> },
-          { path: 'leads', element: <Wrap><LeadsPage /></Wrap> },
-          { path: 'leads/:id', element: <Wrap><LeadDetailPage /></Wrap> },
+          { path: 'leads', element: <Wrap><LeadsListPage /></Wrap> },
+          { path: 'leads/add', element: <Wrap><LeadsPage /></Wrap> },
           { path: 'clients', element: <Wrap><ClientsPage /></Wrap> },
           { path: 'projects', element: <Wrap><ProjectsPage /></Wrap> },
           { path: 'tasks', element: <Wrap><TasksPage /></Wrap> },

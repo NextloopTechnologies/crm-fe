@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/common/Checkbox";
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   ChevronUp, ChevronDown, ChevronsUpDown,
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterIcon } from "@/assets/icons/components/index";
+import SelectDropdown from "@/components/common/SelectDropdown";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type ColumnDef<T> = {
@@ -98,13 +99,10 @@ function FilterDropdown({
   const set = (key: string, val: string) =>
     setValues((prev) => ({ ...prev, [key]: val }));
 
-  // Fix 1 — useEffect mein delay add karo
-  // FilterDropdown ke andar yeh useEffect replace karo
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      // Agar click Select ke portal content mein hai toh ignore karo
       if (target.closest('[role="listbox"]') || target.closest('[role="option"]') || target.closest('[data-radix-popper-content-wrapper]')) {
         return;
       }
@@ -119,7 +117,6 @@ function FilterDropdown({
       }
     };
 
-    // Timeout so initial render click doesn't close it
     const timer = setTimeout(() => {
       document.addEventListener("mousedown", handler);
     }, 150);
@@ -154,24 +151,12 @@ function FilterDropdown({
             </label>
 
             {filter.type === "select" && filter.options ? (
-              <Select
+              <SelectDropdown
+                placeholder={`Select ${filter.label.toLowerCase()}`}
+                options={filter.options}
                 value={values[filter.key] || ""}
-                onValueChange={(val) => set(filter.key, val)}
-              >
-                <SelectTrigger className="w-full h-10 rounded-[10px]  text-sm text-[#9898b3] px-3 focus:ring-0 focus:ring-offset-0 focus:border-[#5752FE]">
-                  <SelectValue placeholder={`Select ${filter.label.toLowerCase()}`} />
-                </SelectTrigger>
-                <SelectContent
-                  className="w-full bg-white border border-[#e4e4ee] rounded-[10px] shadow-lg z-[999]"
-                  onPointerDownOutside={(e) => e.preventDefault()}
-                >
-                  {filter.options.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value} className="text-sm px-3 py-2">
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(val) => set(filter.key, val)}
+              />
             ) : (
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9898b3] pointer-events-none">
@@ -327,7 +312,7 @@ export function DataTable<T extends { id?: string | number }>({
 
             {searchable && (
               <div className="relative w-64">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9898b3]" />
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5752FE]" />
                 <Input
                   placeholder={searchPlaceholder}
                   value={search}
@@ -420,7 +405,7 @@ export function DataTable<T extends { id?: string | number }>({
             <TableRow className="bg-[#F8F8FA] hover:bg-[#F7F7FB] border-b border-[#ECECEC]">
               {selectable && (
                 <TableHead className="w-10 px-4">
-                  <Checkbox checked={allChecked} onCheckedChange={toggleAll} className="border-[#dcdcf0]" />
+                  <Checkbox id="select-all-checkbox" checked={allChecked} onCheckedChange={toggleAll} className="border-[#dcdcf0] hover:border-[#5b5bd6]" />
                 </TableHead>
               )}
               {columns.map((col) => (
@@ -428,7 +413,7 @@ export function DataTable<T extends { id?: string | number }>({
                   key={col.key as string}
                   style={{ width: col.width }}
                   className={cn(
-                    "text-xs font-semibold text-[#6b6b8d] uppercase tracking-wide px-4 py-3",
+                    "text-xs font-semibold text-[#000000] uppercase tracking-wide px-4 py-3",
                     col.sortable && "cursor-pointer select-none hover:text-[#5752FE]"
                   )}
                   onClick={() => col.sortable && handleSort(col.key as string)}
@@ -440,7 +425,7 @@ export function DataTable<T extends { id?: string | number }>({
                 </TableHead>
               ))}
               {onEdit && (
-                <TableHead className="w-16 px-4 text-xs font-semibold text-[#6b6b8d] uppercase tracking-wide">
+                <TableHead className="w-16 px-4 text-xs font-semibold text-[#000000] uppercase tracking-wide">
                   Actions
                 </TableHead>
               )}
@@ -453,7 +438,7 @@ export function DataTable<T extends { id?: string | number }>({
                 <TableRow key={i} className="border-b border-[#ECECEC]">
                   {selectable && <TableCell className="px-4"><div className="h-4 w-4 rounded bg-[#FFFFFF00] animate-pulse" /></TableCell>}
                   {columns.map((col) => (
-                    <TableCell key={col.key as string} className="px-4 py-3">
+                    <TableCell key={col.key as string} className="px-4 py-3 text-[#000000]">
                       <div className="h-4 rounded bg-[#f0f0f8] animate-pulse w-3/4" />
                     </TableCell>
                   ))}
@@ -464,7 +449,7 @@ export function DataTable<T extends { id?: string | number }>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length + (selectable ? 1 : 0) + (onEdit ? 1 : 0) + (onDelete ? 1 : 0)}
-                  className="text-center py-12 text-sm text-[#9898b3]"
+                  className="text-center py-12 text-sm text-[#000000]"
                 >
                   {emptyMessage}
                 </TableCell>
@@ -485,6 +470,7 @@ export function DataTable<T extends { id?: string | number }>({
                     {selectable && (
                       <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
+                          id="remember-me-checkbox"
                           checked={selected.has(absIdx)}
                           onCheckedChange={() => toggleRow(absIdx)}
                           className="border-[#dcdcf0]"
@@ -492,7 +478,7 @@ export function DataTable<T extends { id?: string | number }>({
                       </TableCell>
                     )}
                     {columns.map((col) => (
-                      <TableCell key={col.key as string} className="px-4 py-3 text-sm text-[#111127]">
+                      <TableCell key={col.key as string} className="px-4 py-3 text-sm">
                         {col.render
                           ? col.render(getNestedValue(row, col.key as string), row)
                           : String(getNestedValue(row, col.key as string) ?? "—")}
