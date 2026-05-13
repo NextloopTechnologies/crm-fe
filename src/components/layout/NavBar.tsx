@@ -21,6 +21,8 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/roles": { title: "Roles", breadcrumb: ["Roles"] },
   "/leads": { title: "Leads", breadcrumb: ["Manage and track all your incoming leads"] },
   "/leads/add": { title: "Add Lead", breadcrumb: ["Leads", "Add Lead"] },
+  "/tenants": { title: "Tenants", breadcrumb: ["Manage system tenants and their system"] },
+
 }
 
 export function Navbar() {

@@ -20,6 +20,7 @@ const UserListPage = lazy(() => import('@/pages/users/UserList'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 const LeadsListPage = lazy(() => import('@/pages/leads/LeadsListPage'))
+const TenantsListPage = lazy(() => import('@/pages/tenants/TenantsListPage'))
 
 const Loading = () => (
   <div className="flex h-full items-center justify-center">
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
           { path: 'users/:id/edit', element: <Wrap><EditUsersPage /></Wrap> },
           { path: 'users', element: <Wrap><UserListPage /></Wrap> },
           { path: 'settings', element: <Wrap><SettingsPage /></Wrap> },
+          { path: 'tenants', element: <Wrap><TenantsListPage /></Wrap> },
         ],
       },
     ],

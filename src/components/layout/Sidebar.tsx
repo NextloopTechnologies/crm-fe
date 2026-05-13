@@ -10,13 +10,15 @@ import { usePermission } from '@/hooks/usePermission'
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/pipeline', label: 'Pipeline', icon: FolderKanban },
   { to: '/leads', label: 'Leads', icon: Users },
+  { to: '/users', label: 'Users', icon: Users },
+  { to: '/tenants', label: 'Tenants', icon: Users },
+  { to: '/pipeline', label: 'Pipeline', icon: FolderKanban },
+  { to: '/tasks', label: 'Tasks', icon: CheckSquare },
   { to: '/clients', label: 'Clients', icon: Building2 },
   { to: '/projects', label: 'Projects', icon: Briefcase },
-  { to: '/tasks', label: 'Tasks', icon: CheckSquare },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
-  { to: '/users', label: 'Users', icon: Users }
+  
 ]
 
 const ADMIN_NAV = [

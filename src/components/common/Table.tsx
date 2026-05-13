@@ -21,7 +21,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   Search, ChevronLeft, ChevronRight,
-  Pencil, Trash2, SlidersHorizontal, X
+  Pencil, Trash2, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
@@ -349,8 +349,6 @@ export function DataTable<T extends { id?: string | number }>({
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterValues>({});
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const [sortDropdownKey, setSortDropdownKey] = useState<string>("");
-  const [sortDropdownDir, setSortDropdownDir] = useState<"asc" | "desc">("asc");
   const sortBtnRef = useRef<HTMLButtonElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
@@ -655,31 +653,37 @@ export function DataTable<T extends { id?: string | number }>({
                     ))}
                     {(onEdit || onDelete) && (
                       <TableCell
-                        className="px-4 flex items-center gap-1"
+                        className="px-4"  // ← remove flex from td
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {onEdit && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
-                            onClick={() => onEdit(row)}
-                          >
-                            <Pencil size={15} />
-                          </Button>
-                        )}
+                        <div className="flex items-center gap-1">  {/* ← wrap buttons in a div */}
+                          {onEdit && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
+                              onClick={() => onEdit(row)}
+                            >
+                              <Pencil size={15} />
+                            </Button>
+                          )}
 
-                        {/* Delete Confirm Dialog */}
-                        {onDelete && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 hover:bg-red-50 text-[#6b6b8d] hover:text-red-500"
-                            onClick={() => onDelete(row)}
-                          >
-                            <Trash2 size={15} />
-                          </Button>
-                        )}
+                          {onDelete && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-red-50 text-[#6b6b8d] hover:text-red-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                console.log("Delete clicked", row); // ← add this
+                                setDeleteTarget(row);
+
+                              }}
+                            >
+                              <Trash2 size={15} />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     )}
                   </TableRow>
@@ -717,6 +721,25 @@ export function DataTable<T extends { id?: string | number }>({
           </div>
         </div>
       </div>
+
+      <AlertPopupDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        variant="danger"
+        title="Delete Record?"
+        subtitle="Are you sure you want to delete this record? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={() => {
+          if (deleteTarget && onDelete) {
+            onDelete(deleteTarget);
+          }
+          setDeleteTarget(null);
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
