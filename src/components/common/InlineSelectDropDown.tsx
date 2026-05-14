@@ -3,7 +3,7 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import { Label } from "@/components/ui/label";
 
 interface InlineSelectProps {
-    // id?: string;
+    id?: string;
     label?: string;
     placeholder?: string;
     options: { label: string; value: string }[];
@@ -15,8 +15,7 @@ interface InlineSelectProps {
 }
 
 export function InlineSelectDropdown({
-    // id
-    label, placeholder, options, value, onChange, required, error, leftIcon
+    id, label, placeholder, options, value, onChange, required, error, leftIcon
 }: InlineSelectProps) {
     return (
         <div className="flex flex-col">

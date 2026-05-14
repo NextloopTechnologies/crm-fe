@@ -58,20 +58,20 @@ const stats = [
         value: usersData.filter((u) => u.status === "inactive").length,
         subtitle: "Currently Inactive",
     },
-    {
-        icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={tenantsIcon}
-                    alt="tenants"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
-        ),
-        label: "Total Users",
-        value: usersData.filter((u) => u.role === "Admin").length,
-        subtitle: "Across all Tenants",
-    },
+    // {
+    //     icon: (
+    //         <div className="w-[55px] h-[55px] flex items-center justify-center">
+    //             <img
+    //                 src={tenantsIcon}
+    //                 alt="tenants"
+    //                 className="max-w-full max-h-full object-contain"
+    //             />
+    //         </div>
+    //     ),
+    //     label: "Total Users",
+    //     value: usersData.filter((u) => u.role === "Admin").length,
+    //     subtitle: "Across all Tenants",
+    // },
 ];
 
 
@@ -168,7 +168,7 @@ export default function TenantsListPage() {
             )}
 
             {/* Add User */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/users/create")}>
+            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tenants/create")}>
                 <PlusIcon />
                 Add Tenant
             </Button>
@@ -179,7 +179,7 @@ export default function TenantsListPage() {
         <div className="bg-white min-h-screen p-3 rounded-xl">
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                 {stats.map((stat) => (
                     <StatsCard
                         key={stat.label}
@@ -203,7 +203,7 @@ export default function TenantsListPage() {
                 headerActions={headerActions}
                 onRowClick={(row) => console.log("Row clicked", row)}
                 onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(`/users/${row.id}/edit`)}
+                onEdit={(row) => navigate(`/tenants/${row.id}/edit`)}
                 onDelete={(row) => console.log("Delete", row)}
                 filters={[
                     {
