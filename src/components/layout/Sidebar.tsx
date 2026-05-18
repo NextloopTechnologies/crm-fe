@@ -46,7 +46,7 @@ export function Sidebar() {
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between pt-[24px] pb-[10px] px-5">
+      <div className="flex h-16 items-center justify-between pl-5">
         {!sidebarCollapsed && (
           <span className="text-[1.1rem] tracking-[-0.01em]">
             <span className="font-bold text-[20px] tracking-[-0.01em] text-[#6049CD]">
@@ -66,7 +66,7 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin">
+      <nav className="flex-1 overflow-y-auto  scrollbar-thin">
         <ul className="space-y-1 px-2">
           {NAV.map(({ to, label, icon: Icon }) => (
             <li key={to}>

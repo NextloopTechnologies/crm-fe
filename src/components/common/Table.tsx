@@ -26,7 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
 import SelectDropdown from "@/components/common/SelectDropdown";
-import { AlertPopupDialog } from "@/components/common/AlertDialog";
+import { AlertPopupDialog } from "@/components/common/AlertPopupDialog";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type ColumnDef<T> = {
@@ -65,7 +65,7 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   headerActions?: React.ReactNode;
   onEdit?: (row: T) => void;
-  onDelete?: (row: T) => void;
+  onDelete?: (row: T | T[]) => void;
   filters?: FilterConfig[];
 }
 
@@ -80,12 +80,12 @@ function getNestedValue<T>(obj: T, key: string): unknown {
   }, obj);
 }
 
-// ── Add this new helper ──
 function safeString(val: unknown): string {
   if (val === null || val === undefined) return "—";
-  if (typeof val === "object") return "—"; // object/array/ReactNode — let render() handle it
+  if (typeof val === "object") return "—";
   return String(val);
 }
+
 // ── Filter Dropdown ───────────────────────────────────────────────────────────
 function FilterDropdown({
   filters,
@@ -109,11 +109,9 @@ function FilterDropdown({
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-
       if (target.closest('[role="listbox"]') || target.closest('[role="option"]') || target.closest('[data-radix-popper-content-wrapper]')) {
         return;
       }
-
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&
@@ -123,22 +121,20 @@ function FilterDropdown({
         onClose();
       }
     };
-
     const timer = setTimeout(() => {
       document.addEventListener("mousedown", handler);
     }, 150);
-
     return () => {
       clearTimeout(timer);
       document.removeEventListener("mousedown", handler);
     };
   }, [onClose, triggerRef]);
+
   return (
     <div
       ref={dropdownRef}
       className="absolute z-50 top-[calc(100%+8px)] left-0 bg-white rounded-2xl shadow-2xl border border-[#ECECEC] w-80 p-2"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-base font-semibold text-[#111127]">Filters</h2>
         <button
@@ -148,15 +144,10 @@ function FilterDropdown({
           <X size={15} />
         </button>
       </div>
-
-      {/* Fields */}
       <div className="flex flex-col gap-1">
         {filters.map((filter) => (
           <div key={filter.key} className="flex flex-col gap-1">
-            <label className="text-xs text-[#111127]">
-              {filter.label}
-            </label>
-
+            <label className="text-xs text-[#111127]">{filter.label}</label>
             {filter.type === "select" && filter.options ? (
               <SelectDropdown
                 placeholder={`Select ${filter.label.toLowerCase()}`}
@@ -183,8 +174,6 @@ function FilterDropdown({
           </div>
         ))}
       </div>
-
-      {/* Footer */}
       <div className="flex items-center gap-3 mt-2">
         <Button
           variant="outline"
@@ -203,7 +192,6 @@ function FilterDropdown({
     </div>
   );
 }
-
 
 // ── Sort Dropdown ─────────────────────────────────────────────────────────────
 function SortDropdown<T>({
@@ -228,8 +216,6 @@ function SortDropdown<T>({
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-
-      // ── Add these three guards (same as FilterDropdown) ──
       if (
         target.closest('[role="listbox"]') ||
         target.closest('[role="option"]') ||
@@ -237,7 +223,6 @@ function SortDropdown<T>({
       ) {
         return;
       }
-
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&
@@ -253,13 +238,11 @@ function SortDropdown<T>({
 
   const sortableColumns = columns.filter((c) => c.sortable !== false);
 
-
   return (
     <div
       ref={dropdownRef}
       className="absolute z-50 top-[calc(100%+8px)] left-0 bg-white rounded-2xl shadow-2xl border border-[#ECECEC] w-72 p-3"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-[#111127]">Sort by</h2>
         <button
@@ -269,10 +252,7 @@ function SortDropdown<T>({
           <X size={15} />
         </button>
       </div>
-
-      {/* Fields row */}
       <div className="flex gap-2 mb-3">
-        {/* Field selector */}
         <div className="flex-1 flex flex-col gap-1">
           <label className="text-xs text-[#111127]">Field</label>
           <SelectDropdown
@@ -285,8 +265,6 @@ function SortDropdown<T>({
             onChange={(val) => setKey(val)}
           />
         </div>
-
-        {/* Direction selector */}
         <div className="flex-1 flex flex-col gap-1">
           <label className="text-xs text-[#111127]">Order</label>
           <SelectDropdown
@@ -300,8 +278,6 @@ function SortDropdown<T>({
           />
         </div>
       </div>
-
-      {/* Footer */}
       <div className="flex items-center gap-3">
         <Button
           variant="outline"
@@ -320,7 +296,6 @@ function SortDropdown<T>({
     </div>
   );
 }
-
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function DataTable<T extends { id?: string | number }>({
@@ -352,13 +327,12 @@ export function DataTable<T extends { id?: string | number }>({
   const sortBtnRef = useRef<HTMLButtonElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const activeFilterCount = Object.values(appliedFilters).filter(Boolean).length;
 
-  // ── Filtering + Search ────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let result = data;
-
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter((row) =>
@@ -368,7 +342,6 @@ export function DataTable<T extends { id?: string | number }>({
         })
       );
     }
-
     result = result.filter((row) =>
       Object.entries(appliedFilters).every(([key, value]) => {
         if (!value) return true;
@@ -376,11 +349,9 @@ export function DataTable<T extends { id?: string | number }>({
         return String(val ?? "").toLowerCase().includes(value.toLowerCase());
       })
     );
-
     return result;
   }, [data, search, appliedFilters, columns]);
 
-  // ── Sort ──────────────────────────────────────────────────────────────────
   const sorted = useMemo(() => {
     if (!sortKey || !sortDir) return filtered;
     return [...filtered].sort((a, b) => {
@@ -391,7 +362,6 @@ export function DataTable<T extends { id?: string | number }>({
     });
   }, [filtered, sortKey, sortDir]);
 
-  // ── Pagination ────────────────────────────────────────────────────────────
   const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
   const paginated = sorted.slice((page - 1) * perPage, page * perPage);
 
@@ -401,7 +371,6 @@ export function DataTable<T extends { id?: string | number }>({
     else { setSortKey(null); setSortDir(null); }
   };
 
-  // ── Selection ─────────────────────────────────────────────────────────────
   const allChecked = paginated.length > 0 && paginated.every((_, i) => selected.has((page - 1) * perPage + i));
   const toggleAll = () => {
     const next = new Set(selected);
@@ -427,305 +396,309 @@ export function DataTable<T extends { id?: string | number }>({
 
   const hasActions = onEdit || onDelete;
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className={cn("flex flex-col gap-3 border border-[#E0E0E0] rounded-[8px] p-6", className)}>
+    <>
+      <div className={cn("flex flex-col gap-3 border border-[#E0E0E0] rounded-[8px] p-6", className)}>
 
-      {/* Top Bar */}
-      {(searchable || headerActions) && (
-        <div className="flex items-center justify-between gap-3">
+        {/* Top Bar */}
+        {(searchable || headerActions) && (
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              {searchable && (
+                <div className="relative w-64">
+                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5752FE]" />
+                  <Input
+                    placeholder={searchPlaceholder}
+                    value={search}
+                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                    className="pl-9 h-9 rounded-[8px] border-[#e4e4ee] text-sm focus-visible:border-[#5752FE] focus-visible:ring-[rgba(87,82,254,0.12)]"
+                  />
+                </div>
+              )}
 
-          {/* Left: Search + Filter */}
-          <div className="flex items-center gap-2">
+              {filters && (
+                <div className="relative">
+                  <Button
+                    ref={filterBtnRef}
+                    variant="outline"
+                    className={cn(
+                      "h-9 px-4 text-sm rounded-[10px] gap-2 border-[#e4e4ee]",
+                      activeFilterCount > 0
+                        ? "border-[#5752FE] text-[#5F616E] bg-[#f5f4ff]"
+                        : "text-[#6b6b8d]"
+                    )}
+                    onClick={() => setShowFilterDropdown((prev) => !prev)}
+                  >
+                    <FilterIcon />
+                    Filters
+                    {activeFilterCount > 0 && (
+                      <span className="bg-[#5752FE] text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                  {showFilterDropdown && (
+                    <FilterDropdown
+                      filters={filters}
+                      initialValues={appliedFilters}
+                      onApply={(vals) => { setAppliedFilters(vals); setPage(1); }}
+                      onClose={() => setShowFilterDropdown(false)}
+                      triggerRef={filterBtnRef}
+                    />
+                  )}
+                </div>
+              )}
 
-            {searchable && (
-              <div className="relative w-64">
-                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5752FE]" />
-                <Input
-                  placeholder={searchPlaceholder}
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  className="pl-9 h-9 rounded-[8px] border-[#e4e4ee] text-sm focus-visible:border-[#5752FE] focus-visible:ring-[rgba(87,82,254,0.12)]"
-                />
-              </div>
-            )}
-
-            {/* Filter Button + Dropdown */}
-            {filters && (
               <div className="relative">
                 <Button
-                  ref={filterBtnRef}
+                  ref={sortBtnRef}
                   variant="outline"
                   className={cn(
                     "h-9 px-4 text-sm rounded-[10px] gap-2 border-[#e4e4ee]",
-                    activeFilterCount > 0
+                    sortKey
                       ? "border-[#5752FE] text-[#5F616E] bg-[#f5f4ff]"
                       : "text-[#6b6b8d]"
                   )}
-                  onClick={() => setShowFilterDropdown((prev) => !prev)}
+                  onClick={() => setShowSortDropdown((prev) => !prev)}
                 >
-                  <FilterIcon />
-                  Filters
-                  {activeFilterCount > 0 && (
+                  <SortingIcon />
+                  Sort
+                  {sortKey && (
                     <span className="bg-[#5752FE] text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
-                      {activeFilterCount}
+                      1
                     </span>
                   )}
                 </Button>
-
-                {showFilterDropdown && (
-                  <FilterDropdown
-                    filters={filters}
-                    initialValues={appliedFilters}
-                    onApply={(vals) => { setAppliedFilters(vals); setPage(1); }}
-                    onClose={() => setShowFilterDropdown(false)}
-                    triggerRef={filterBtnRef}
+                {showSortDropdown && (
+                  <SortDropdown
+                    columns={columns}
+                    sortKey={sortKey ?? ""}
+                    sortDir={(sortDir as "asc" | "desc") ?? "asc"}
+                    onApply={(key, dir) => {
+                      setSortKey(key || null);
+                      setSortDir(key ? dir : null);
+                    }}
+                    onClose={() => setShowSortDropdown(false)}
+                    triggerRef={sortBtnRef}
                   />
                 )}
               </div>
-
-
-            )}
-
-            {/* Replace the existing Sort button div with this: */}
-            <div className="relative">
-              <Button
-                ref={sortBtnRef}
-                variant="outline"
-                className={cn(
-                  "h-9 px-4 text-sm rounded-[10px] gap-2 border-[#e4e4ee]",
-                  sortKey
-                    ? "border-[#5752FE] text-[#5F616E] bg-[#f5f4ff]"
-                    : "text-[#6b6b8d]"
-                )}
-                onClick={() => setShowSortDropdown((prev) => !prev)}
-              >
-                <SortingIcon />
-                Sort
-                {sortKey && (
-                  <span className="bg-[#5752FE] text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">
-                    1
-                  </span>
-                )}
-              </Button>
-
-              {showSortDropdown && (
-                <SortDropdown
-                  columns={columns}
-                  sortKey={sortKey ?? ""}
-                  sortDir={(sortDir as "asc" | "desc") ?? "asc"}
-                  onApply={(key, dir) => {
-                    setSortKey(key || null);
-                    setSortDir(key ? dir : null);
-                  }}
-                  onClose={() => setShowSortDropdown(false)}
-                  triggerRef={sortBtnRef}
-                />
-              )}
             </div>
+
+            {headerActions && (
+              <div className="flex items-center gap-2">{headerActions}</div>
+            )}
           </div>
+        )}
 
-          {/* Right: Header Actions */}
-          {headerActions && (
-            <div className="flex items-center gap-2">{headerActions}</div>
-          )}
-        </div>
-      )}
-
-      {/* Active Filter Tags */}
-      {activeFilterCount > 0 && (
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-[#9898b3]">Filtered by:</span>
-          {Object.entries(appliedFilters).map(([key, value]) => {
-            if (!value) return null;
-            const filterConfig = filters?.find((f) => f.key === key);
-            const label = filterConfig?.options?.find((o) => o.value === value)?.label ?? value;
-            return (
-              <span
-                key={key}
-                className="flex items-center gap-1 bg-[#f5f4ff] text-[#5752FE] border border-[#e0dfff] text-xs px-2.5 py-1 rounded-full"
-              >
-                <span className="text-[#9898b3] mr-0.5 capitalize">{filterConfig?.label ?? key}:</span>
-                {label}
-                <button
-                  onClick={() => setAppliedFilters((prev) => ({ ...prev, [key]: "" }))}
-                  className="hover:text-[#3f3bd4] ml-0.5"
+        {/* Active Filter Tags */}
+        {activeFilterCount > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-[#9898b3]">Filtered by:</span>
+            {Object.entries(appliedFilters).map(([key, value]) => {
+              if (!value) return null;
+              const filterConfig = filters?.find((f) => f.key === key);
+              const label = filterConfig?.options?.find((o) => o.value === value)?.label ?? value;
+              return (
+                <span
+                  key={key}
+                  className="flex items-center gap-1 bg-[#f5f4ff] text-[#5752FE] border border-[#e0dfff] text-xs px-2.5 py-1 rounded-full"
                 >
-                  <X size={10} />
-                </button>
-              </span>
-            );
-          })}
-          <button
-            onClick={() => setAppliedFilters({})}
-            className="text-xs text-red-400 hover:text-red-500 ml-1"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
-
-      {/* Table */}
-      <div className="rounded-[12px] border border-[#ECECEC] overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-[#F8F8FA] hover:bg-[#F7F7FB] border-b border-[#ECECEC]">
-              {selectable && (
-                <TableHead className="w-10 px-4">
-                  <Checkbox id="select-all-checkbox" checked={allChecked} onCheckedChange={toggleAll} className="border-[#dcdcf0] hover:border-[#5b5bd6]" />
-                </TableHead>
-              )}
-              {columns.map((col) => (
-                <TableHead
-                  key={col.key as string}
-                  style={{ width: col.width }}
-                  className={cn(
-                    "text-xs font-semibold text-[#000000] uppercase tracking-wide px-4 py-3",
-                    col.sortable && "cursor-pointer select-none hover:text-[#5752FE]"
-                  )}
-                  onClick={() => col.sortable && handleSort(col.key as string)}
-                >
-                  <span className="flex items-center">
-                    {col.label}
-                    <SortIcon col={col} />
-                  </span>
-                </TableHead>
-              ))}
-              {onEdit && (
-                <TableHead className="w-16 px-4 text-xs font-semibold text-[#000000] uppercase tracking-wide">
-                  Actions
-                </TableHead>
-              )}
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i} className="border-b border-[#ECECEC]">
-                  {selectable && <TableCell className="px-4"><div className="h-4 w-4 rounded bg-[#FFFFFF00] animate-pulse" /></TableCell>}
-                  {columns.map((col) => (
-                    <TableCell key={col.key as string} className="px-4 py-3 text-[#000000]">
-                      <div className="h-4 rounded bg-[#f0f0f8] animate-pulse w-3/4" />
-                    </TableCell>
-                  ))}
-                  {hasActions && <TableCell className="px-4"><div className="h-4 w-4 rounded bg-[#f0f0f8] animate-pulse" /></TableCell>}
-                </TableRow>
-              ))
-            ) : paginated.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length + (selectable ? 1 : 0) + (onEdit ? 1 : 0) + (onDelete ? 1 : 0)}
-                  className="text-center py-12 text-sm text-[#000000]"
-                >
-                  {emptyMessage}
-                </TableCell>
-              </TableRow>
-            ) : (
-              paginated.map((row, i) => {
-                const absIdx = (page - 1) * perPage + i;
-                return (
-                  <TableRow
-                    key={absIdx}
-                    className={cn(
-                      "border-b border-[#ECECEC] transition-colors",
-                      onRowClick && "cursor-pointer hover:bg-[#F7F7FB]",
-                      selected.has(absIdx) && "bg-[#f5f4ff]"
-                    )}
-                    onClick={() => onRowClick?.(row)}
+                  <span className="text-[#9898b3] mr-0.5 capitalize">{filterConfig?.label ?? key}:</span>
+                  {label}
+                  <button
+                    onClick={() => setAppliedFilters((prev) => ({ ...prev, [key]: "" }))}
+                    className="hover:text-[#3f3bd4] ml-0.5"
                   >
+                    <X size={10} />
+                  </button>
+                </span>
+              );
+            })}
+            <button
+              onClick={() => setAppliedFilters({})}
+              className="text-xs text-red-400 hover:text-red-500 ml-1"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Table */}
+        <div className="rounded-[12px] border border-[#ECECEC] overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-[#F8F8FA] hover:bg-[#F7F7FB] border-b border-[#ECECEC]">
+                {selectable && (
+                  <TableHead className="w-10 px-4">
+                    <Checkbox
+                      id="select-all-checkbox"
+                      checked={allChecked}
+                      onCheckedChange={toggleAll}
+                      className="border-[#dcdcf0] hover:border-[#5b5bd6]"
+                    />
+                  </TableHead>
+                )}
+                {columns.map((col) => (
+                  <TableHead
+                    key={col.key as string}
+                    style={{ width: col.width }}
+                    className={cn(
+                      "text-xs font-semibold text-[#000000] uppercase tracking-wide px-4 py-3",
+                      col.sortable && "cursor-pointer select-none hover:text-[#5752FE]"
+                    )}
+                    onClick={() => col.sortable && handleSort(col.key as string)}
+                  >
+                    <span className="flex items-center">
+                      {col.label}
+                      <SortIcon col={col} />
+                    </span>
+                  </TableHead>
+                ))}
+                {(onEdit || onDelete) && (
+                  <TableHead className="w-16 px-4 text-xs font-semibold text-[#000000] uppercase tracking-wide">
+                    Actions
+                  </TableHead>
+                )}
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={`skeleton-${i}`} className="border-b border-[#ECECEC]">
                     {selectable && (
-                      <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                          id="remember-me-checkbox"
-                          checked={selected.has(absIdx)}
-                          onCheckedChange={() => toggleRow(absIdx)}
-                          className="border-[#dcdcf0]"
-                        />
+                      <TableCell className="px-4">
+                        <div className="h-4 w-4 rounded bg-[#f0f0f8] animate-pulse" />
                       </TableCell>
                     )}
                     {columns.map((col) => (
-                      <TableCell key={col.key as string} className="px-4 py-3 text-sm">
-                        {col.render
-                          ? col.render(getNestedValue(row, col.key as string), row)
-                          : safeString(getNestedValue(row, col.key as string))}  {/* ← use safeString */}
+                      <TableCell key={`skeleton-${i}-${col.key as string}`} className="px-4 py-3 text-[#000000]">
+                        <div className="h-4 rounded bg-[#f0f0f8] animate-pulse w-3/4" />
                       </TableCell>
                     ))}
-                    {(onEdit || onDelete) && (
-                      <TableCell
-                        className="px-4"  // ← remove flex from td
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="flex items-center gap-1">  {/* ← wrap buttons in a div */}
-                          {onEdit && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
-                              onClick={() => onEdit(row)}
-                            >
-                              <Pencil size={15} />
-                            </Button>
-                          )}
-
-                          {onDelete && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 hover:bg-red-50 text-[#6b6b8d] hover:text-red-500"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log("Delete clicked", row); // ← add this
-                                setDeleteTarget(row);
-
-                              }}
-                            >
-                              <Trash2 size={15} />
-                            </Button>
-                          )}
-                        </div>
+                    {hasActions && (
+                      <TableCell className="px-4">
+                        <div className="h-4 w-4 rounded bg-[#f0f0f8] animate-pulse" />
                       </TableCell>
                     )}
                   </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between text-sm text-[#6b6b8d]">
-        <div className="flex items-center gap-2">
-          <span>Rows per page</span>
-          <Select value={String(perPage)} onValueChange={(v) => { setPerPage(Number(v)); setPage(1); }}>
-            <SelectTrigger className="h-8 w-16 rounded-[8px] border-[#e4e4ee] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[5, 10, 20, 50].map((n) => (
-                <SelectItem key={n} value={String(n)} className="text-xs">{n}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                ))
+              ) : paginated.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + (selectable ? 1 : 0) + (onEdit ? 1 : 0) + (onDelete ? 1 : 0)}
+                    className="text-center py-12 text-sm text-[#000000]"
+                  >
+                    {emptyMessage}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginated.map((row, i) => {
+                  const absIdx = (page - 1) * perPage + i;
+                  return (
+                    <TableRow
+                      key={absIdx}
+                      className={cn(
+                        "border-b border-[#ECECEC] transition-colors",
+                        onRowClick && "cursor-pointer hover:bg-[#F7F7FB]",
+                        selected.has(absIdx) && "bg-[#f5f4ff]"
+                      )}
+                      onClick={() => onRowClick?.(row)}
+                    >
+                      {selectable && (
+                        <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            id={`row-checkbox-${absIdx}`}
+                            checked={selected.has(absIdx)}
+                            onCheckedChange={() => toggleRow(absIdx)}
+                            className="border-[#dcdcf0]"
+                          />
+                        </TableCell>
+                      )}
+                      {columns.map((col) => (
+                        <TableCell key={`${absIdx}-${col.key as string}`} className="px-4 py-3 text-sm">
+                          {col.render
+                            ? col.render(getNestedValue(row, col.key as string), row)
+                            : safeString(getNestedValue(row, col.key as string))}
+                        </TableCell>
+                      ))}
+                      {(onEdit || onDelete) && (
+                        <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1">
+                            {onEdit && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
+                                onClick={() => onEdit(row)}
+                              >
+                                <Pencil size={15} />
+                              </Button>
+                            )}
+                            {onDelete && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-red-50 text-[#6b6b8d] hover:text-red-500"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDeleteTarget(row);
+                                  setShowDeleteDialog(true);
+                                }}
+                              >
+                                <Trash2 size={15} />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
         </div>
-        <div className="flex items-center gap-3">
-          <span>{Math.min((page - 1) * perPage + 1, sorted.length)}–{Math.min(page * perPage, sorted.length)} of {sorted.length}</span>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-[8px] hover:bg-[#f0f0f8]" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
-              <ChevronLeft size={15} />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-[8px] hover:bg-[#f0f0f8]" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
-              <ChevronRight size={15} />
-            </Button>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between text-sm text-[#6b6b8d]">
+          <div className="flex items-center gap-2">
+            <span>Rows per page</span>
+            <Select value={String(perPage)} onValueChange={(v) => { setPerPage(Number(v)); setPage(1); }}>
+              <SelectTrigger className="h-8 w-16 rounded-[8px] border-[#e4e4ee] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[5, 10, 20, 50].map((n) => (
+                  <SelectItem key={n} value={String(n)} className="text-xs">{n}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-3">
+            <span>{Math.min((page - 1) * perPage + 1, sorted.length)}–{Math.min(page * perPage, sorted.length)} of {sorted.length}</span>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-[8px] hover:bg-[#f0f0f8]" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
+                <ChevronLeft size={15} />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-[8px] hover:bg-[#f0f0f8]" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>
+                <ChevronRight size={15} />
+              </Button>
+            </div>
           </div>
         </div>
+
       </div>
 
+      {/* AlertPopupDialog outside main div to avoid portal clipping */}
       <AlertPopupDialog
-        open={!!deleteTarget}
+        open={showDeleteDialog}
         onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
+          if (!open) {
+            setShowDeleteDialog(false);
+            setDeleteTarget(null);
+          }
         }}
         variant="danger"
         title="Delete Record?"
@@ -733,13 +706,17 @@ export function DataTable<T extends { id?: string | number }>({
         confirmLabel="Delete"
         cancelLabel="Cancel"
         onConfirm={() => {
-          if (deleteTarget && onDelete) {
-            onDelete(deleteTarget);
+          if (deleteTarget) {
+            onDelete?.(deleteTarget);
+            setDeleteTarget(null);
+            setShowDeleteDialog(false);
           }
-          setDeleteTarget(null);
         }}
-        onCancel={() => setDeleteTarget(null)}
+        onCancel={() => {
+          setDeleteTarget(null);
+          setShowDeleteDialog(false);
+        }}
       />
-    </div>
+    </>
   );
 }

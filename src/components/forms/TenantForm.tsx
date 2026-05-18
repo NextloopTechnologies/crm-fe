@@ -156,7 +156,7 @@ export default function TenantForm({
             label="First Name"
             placeholder="Enter first name"
             required
-            value={form.firstName}
+            value={form.email}
             onChange={(e) =>
               set("firstName")(e.target.value)
             }
@@ -170,7 +170,7 @@ export default function TenantForm({
             label="Last Name"
             placeholder="Enter last name"
             required
-            value={form.lastName}
+            value={form.email}
             onChange={(e) =>
               set("lastName")(e.target.value)
             }
@@ -214,7 +214,7 @@ export default function TenantForm({
             label="Username"
             placeholder="Enter username"
             required
-            value={form.username}
+            value={form.email}
             onChange={(e) =>
               set("username")(e.target.value)
             }
@@ -394,9 +394,9 @@ export default function TenantForm({
                   : "Updating..."}
               </div>
             ) : mode === "add" ? (
-              "Create Tenant"
+              "Save"
             ) : (
-              "Update Tenant"
+              "Update"
             )}
           </Button>
         }
