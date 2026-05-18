@@ -40,7 +40,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
 
-  const { onSubmit: loginSubmit, isLoading, serverError } = useLogin()
+  const { onSubmit: loginSubmit, isLoading } = useLogin()
 
   const {
     register,

@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/AppShell'
 // Pages — lazy loaded for performance
 import { lazy, Suspense } from 'react'
 import ForgotPasswordPage from '@/pages/ForgotPassword'
+import EditTenantPage from '@/pages/tenants/EditTenantPage'
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const SignUpPage = lazy(() => import('@/pages/SignUpPage'))
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
@@ -20,6 +21,8 @@ const UserListPage = lazy(() => import('@/pages/users/UserList'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
 const LeadsListPage = lazy(() => import('@/pages/leads/LeadsListPage'))
+const TenantsListPage = lazy(() => import('@/pages/tenants/TenantsListPage'))
+const CreateTenantPage = lazy(() => import('@/pages/tenants/CreateTenantPage'))
 
 const Loading = () => (
   <div className="flex h-full items-center justify-center">
@@ -64,6 +67,10 @@ export const router = createBrowserRouter([
           { path: 'users/:id/edit', element: <Wrap><EditUsersPage /></Wrap> },
           { path: 'users', element: <Wrap><UserListPage /></Wrap> },
           { path: 'settings', element: <Wrap><SettingsPage /></Wrap> },
+          { path: 'tenants', element: <Wrap><TenantsListPage /></Wrap> },
+          { path: 'tenants/create', element: <Wrap><CreateTenantPage /></Wrap> },
+          { path: 'tenants/:id/edit', element: <Wrap><EditTenantPage /></Wrap> },
+
         ],
       },
     ],
