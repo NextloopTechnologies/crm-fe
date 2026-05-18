@@ -8,14 +8,15 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, Search, ChevronDown, ChevronRight } from "lucide-react"
-import { useLocation } from "react-router-dom" // or next/router if using Next.js
+import { Bell, Search, ChevronDown, ChevronRight, User, Settings, LogOut } from "lucide-react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { AlertPopupDialog } from "@/components/common/AlertPopupDialog";
 
-// ── Route → label map ─────────────────────────────────────────────────────────
+// ── Route → label map ────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/users": { title: "Users", breadcrumb: ["Manage system users and their access"] },
   "/users/create": { title: "Create User", breadcrumb: ["Users", "Create User"] },
-  "/users/:id/edit": { title: "Edit User", breadcrumb: ["Users", "Edit User"] },
   "/dashboard": { title: "Dashboard", breadcrumb: ["Dashboard"] },
   "/settings": { title: "Settings", breadcrumb: ["Settings"] },
   "/roles": { title: "Roles", breadcrumb: ["Roles"] },
@@ -23,12 +24,20 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/leads/add": { title: "Add Lead", breadcrumb: ["Leads", "Add Lead"] },
   "/tenants": { title: "Tenants", breadcrumb: ["Manage system tenants and their system"] },
   "/tenants/create": { title: "Add Tenant", breadcrumb: ["Tenant", "Add Tenant"] },
-
-
+  "/profile": { title: "Profile", breadcrumb: ["Manage your account settings and preferences"] },
+  "/help-support": { title: "Help & Support", breadcrumb: ["We're here to help you. Find answers or get in touch with our support team."] },
 }
 
 export function Navbar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [openLogout, setOpenLogout] = useState(false);
+
+  const handleLogout = () => {
+
+    navigate("/login");
+  };
+
   const meta = routeMeta[location.pathname] ?? {
     title: "Page",
     breadcrumb: [location.pathname.replace("/", "")],
@@ -42,7 +51,7 @@ export function Navbar() {
         <h1 className="text-lg font-semibold text-black leading-tight">
           {meta.title}
         </h1>
-        <div className="flex items-center gap-1 mt-1">
+        <div className="flex items-center gap-1 mt-0.5">
           {meta.breadcrumb.map((crumb, idx) => (
             <span key={idx} className="flex items-center gap-1">
               {idx > 0 && (
@@ -65,7 +74,7 @@ export function Navbar() {
       {/* ── Right: Search + Bell + User ── */}
       <div className="flex items-center gap-3">
 
-        {/* Search — icon on the right */}
+        {/* Search */}
         <div className="relative">
           <Input
             placeholder="Search here..."
@@ -77,38 +86,34 @@ export function Navbar() {
           />
         </div>
 
-        {/* Notification */}
+        {/* Notification bell */}
         <Button
           variant="ghost"
           size="icon"
           className="h-9 w-9 rounded-lg text-gray-500 hover:bg-gray-100 relative"
         >
           <Bell size={17} />
-          {/* Unread dot */}
           <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
         </Button>
 
-        {/* User Dropdown */}
+        {/* ── User Dropdown ── */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2.5 focus:outline-none group">
-              <Avatar className="h-8 w-8 rounded-full ring-2 ring-gray-100">
+              <Avatar className="h-8 w-8 ring-2 ring-gray-100">
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback className="text-xs font-semibold bg-blue-50 text-blue-600">
                   IS
                 </AvatarFallback>
               </Avatar>
-
-              {/* Name + Role */}
               <div className="flex flex-col items-start leading-tight">
                 <span className="text-[13px] font-semibold text-gray-800">
                   Ishaan S.
                 </span>
-                <span className="text-[11px] text-gray-400">
-                  Admin
+                <span className="text-[12px] text-gray-400">
+                  Super Admin
                 </span>
               </div>
-
               <ChevronDown
                 size={14}
                 className="text-gray-400 group-data-[state=open]:rotate-180 transition-transform duration-200"
@@ -119,22 +124,84 @@ export function Navbar() {
           <DropdownMenuContent
             align="end"
             sideOffset={8}
-            className="w-48 rounded-lg border border-gray-100 bg-white shadow-md p-1"
+            className="w-56 bg-white shadow-md py-2 px-4 rounded-none"
           >
-            <DropdownMenuItem className="text-sm text-gray-700 rounded-md cursor-pointer focus:bg-gray-50">
-              Profile
+            {/* User info */}
+            <div className="flex items-center gap-3 px-3 py-2.5">
+              <Avatar className="h-9 w-9 ring-2 ring-gray-100 flex-shrink-0">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback className="text-xs font-semibold bg-blue-50 text-blue-600">
+                  IS
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col leading-tight min-w-0">
+                <span className="text-[12px] font-semibold text-gray-800 truncate">
+                  Ishaan S.
+                </span>
+                <span className="text-[12px] text-gray-400 truncate">
+                  Super Admin
+                </span>
+              </div>
+            </div>
+
+            <DropdownMenuSeparator className="my-1 bg-gray-200" />
+
+            {/* My Profile */}
+            <DropdownMenuItem
+              className="flex items-center gap-2.5 text-xs text-gray-700 rounded-md cursor-pointer focus:bg-gray-50 px-3 py-2"
+              onClick={() => navigate("/profile")}
+            >
+              <User size={13} className="text-black" />
+              My Profile
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-sm text-gray-700 rounded-md cursor-pointer focus:bg-gray-50">
-              Settings
+
+            <DropdownMenuItem
+              className="flex items-center gap-2.5 text-xs text-gray-700 rounded-md cursor-pointer focus:bg-gray-50 px-3 py-2"
+              onClick={() => navigate("/settings")}
+            >
+              <Settings size={13} className="text-black" />
+              Account Settings
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="my-1 bg-gray-100" />
-            <DropdownMenuItem className="text-sm text-red-500 rounded-md cursor-pointer focus:bg-red-50 focus:text-red-600">
+
+            <DropdownMenuItem
+              className="flex items-center gap-2.5 text-xs text-gray-700 rounded-md cursor-pointer focus:bg-gray-50 px-3 py-2"
+              onClick={() => navigate("/settings")}
+            >
+              <Settings size={13} className="text-black" />
+              Preferences
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="my-1 bg-gray-200" />
+
+            <DropdownMenuItem
+              className="flex items-center gap-2.5 text-xs text-gray-700 rounded-md cursor-pointer focus:bg-gray-50 px-3 py-2"
+              onClick={() => navigate("/settings")}
+            >
+              <Settings size={13} className="text-black" />
+              Help and Support
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="flex items-center gap-2.5 text-xs text-red-500 rounded-md cursor-pointer focus:bg-red-50 focus:text-red-600 px-3 py-2"
+              onClick={() => setOpenLogout(true)}
+            >
+              <LogOut size={13} className="text-black" />
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
       </div>
+      <AlertPopupDialog
+        open={openLogout}
+        onOpenChange={setOpenLogout}
+        variant="danger"
+        title="Logout"
+        subtitle="Are you sure you want to logout from your account? You will need to sign in again to access your account."
+        confirmLabel="Logout"
+        cancelLabel="Cancel"
+        onConfirm={handleLogout}
+        icon={<LogOut size={22} />}
+      />
     </header>
   )
-}
+} 
