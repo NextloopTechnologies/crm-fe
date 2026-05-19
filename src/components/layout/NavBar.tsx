@@ -195,17 +195,6 @@ export function Navbar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <AlertPopupDialog
-        open={openLogout}
-        onOpenChange={setOpenLogout}
-        variant="danger"
-        title="Logout"
-        subtitle="Are you sure you want to logout from your account? You will need to sign in again to access your account."
-        confirmLabel="Logout"
-        cancelLabel="Cancel"
-        onConfirm={handleLogout}
-        icon={<LogOut size={22} />}
-      />
     </header>
   )
 } 
