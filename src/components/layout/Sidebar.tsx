@@ -15,7 +15,7 @@ const NAV = [
   { to: '/tenants', label: 'Tenants', icon: Users },
   { to: '/pipeline', label: 'Pipeline', icon: FolderKanban },
   { to: '/tasks', label: 'Tasks', icon: CheckSquare },
-  { to: '/clients', label: 'Clients', icon: Building2 },
+  { to: '/accounts/create', label: 'Accounts', icon: Building2 },
   { to: '/projects', label: 'Projects', icon: Briefcase },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
   
@@ -42,8 +42,8 @@ export function Sidebar() {
     <aside
       className={cn(
         'fixed left-0 top-0 z-40 flex h-screen flex-col bg-gradient-to-b from-[#F0F2FD] to-[#E6E4FD] text-black transition-all duration-300',
-        sidebarCollapsed ? 'w-14' : 'w-56'
-      )}
+        sidebarCollapsed ? 'w-14' : 'w-48'  // w-48 = 192px
+              )}
     >
       {/* Logo */}
       <div className="flex h-16 items-center justify-between pl-5">

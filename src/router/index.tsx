@@ -25,6 +25,8 @@ const TenantsListPage = lazy(() => import('@/pages/tenants/TenantsListPage'))
 const CreateTenantPage = lazy(() => import('@/pages/tenants/CreateTenantPage'))
 const MyProfilePage = lazy(() => import('@/pages/profile/MyProfilePage'))
 const EditProfilePage = lazy(() => import('@/pages/profile/EditProfilePage'))
+const CreateAccountPage = lazy(() => import('@/pages/accounts/CreateAccountPage'))
+const EditAccountPage = lazy(() => import('@/pages/accounts/EditAccountPage'))
 const Loading = () => (
   <div className="flex h-full items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
@@ -73,6 +75,8 @@ export const router = createBrowserRouter([
           { path: 'tenants/:id/edit', element: <Wrap><EditTenantPage /></Wrap> },
           { path: 'profile', element: <Wrap><MyProfilePage /></Wrap> },
           { path: 'profile/edit', element: <Wrap><EditProfilePage /></Wrap> },
+          { path: 'accounts/create', element: <Wrap><CreateAccountPage /></Wrap> },
+          { path: 'accounts/edit', element: <Wrap><EditAccountPage /></Wrap> },
         ],
       },
     ],

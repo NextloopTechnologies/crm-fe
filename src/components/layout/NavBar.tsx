@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, Search, ChevronDown, ChevronRight, User, Settings, LogOut } from "lucide-react"
+import { Bell, Search, ChevronDown, User, Settings, LogOut } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import { AlertPopupDialog } from "@/components/common/AlertPopupDialog";
@@ -23,9 +23,13 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/leads": { title: "Leads", breadcrumb: ["Manage and track all your incoming leads"] },
   "/leads/add": { title: "Add Lead", breadcrumb: ["Leads", "Add Lead"] },
   "/tenants": { title: "Tenants", breadcrumb: ["Manage system tenants and their system"] },
-  "/tenants/create": { title: "Add Tenant", breadcrumb: ["Tenant", "Add Tenant"] },
+  "/tenants/create": { title: "Tenants", breadcrumb: ["Tenant", "Add Tenant"] },
+  "/tenants/id/edit": { title: "Tenants", breadcrumb: ["Tenant", "Add Tenant"] },
   "/profile": { title: "Profile", breadcrumb: ["Manage your account settings and preferences"] },
-  "/help-support": { title: "Help & Support", breadcrumb: ["We're here to help you. Find answers or get in touch with our support team."] },
+  "/accounts": { title: "Accounts", breadcrumb: ["Manage your customer accounts and related information"] },
+  "/accounts/create": { title: "Accounts", breadcrumb: ["Accounts", "Create Account"] },
+  "/accounts/edit": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
+
 }
 
 export function Navbar() {
@@ -44,14 +48,14 @@ export function Navbar() {
   }
 
   return (
-    <header className="h-16 border-b border-[#EEEEEE] bg-white flex items-center justify-between px-6">
+    <header className="h-14 border-b border-[#EEEEEE] bg-white flex items-center justify-between px-6">
 
       {/* ── Left: Page title + Breadcrumb ── */}
       <div className="flex flex-col justify-center min-w-[140px]">
-        <h1 className="text-lg font-semibold text-black leading-tight">
+        <h1 className="text-xl font-semibold text-black leading-tight">
           {meta.title}
         </h1>
-        <div className="flex items-center gap-1 mt-0.5">
+        {/* <div className="flex items-center gap-1 mt-0.5">
           {meta.breadcrumb.map((crumb, idx) => (
             <span key={idx} className="flex items-center gap-1">
               {idx > 0 && (
@@ -68,7 +72,7 @@ export function Navbar() {
               </span>
             </span>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* ── Right: Search + Bell + User ── */}

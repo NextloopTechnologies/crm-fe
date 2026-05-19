@@ -49,7 +49,7 @@ const roleOptions = [
 // Types
 // ─────────────────────────────────────────────────────────────
 
-export interface TenantFormData {
+export interface AccountFormData {
   firstName: string;
   lastName: string;
   industry: string;
@@ -67,10 +67,10 @@ export interface TenantFormData {
   zipCode: string;
 }
 
-interface TenantFormProps {
+interface ClientFormProps {
   mode: "add" | "edit";
-  defaultValues?: Partial<TenantFormData>;
-  onSubmit: (data: TenantFormData) => void;
+  defaultValues?: Partial<AccountFormData>;
+  onSubmit: (data: AccountFormData) => void;
   isLoading?: boolean;
   onCancel?: () => void;
 }
@@ -79,14 +79,14 @@ interface TenantFormProps {
 // Component
 // ─────────────────────────────────────────────────────────────
 
-export default function TenantForm({
+export default function AccountForm({
   mode,
   defaultValues = {},
   onSubmit,
   isLoading,
   onCancel,
-}: TenantFormProps) {
-  const [form, setForm] = useState<TenantFormData>({
+}: ClientFormProps) {
+  const [form, setForm] = useState<AccountFormData>({
     firstName: defaultValues.firstName ?? "",
     lastName: defaultValues.lastName ?? "",
     industry: defaultValues.industry ?? "",
@@ -119,15 +119,15 @@ export default function TenantForm({
   }, [defaultValues]);
 
   const set =
-    (key: keyof TenantFormData) =>
-    (val: string) => {
-      setForm((prev) => ({
-        ...prev,
-        [key]: val,
-      }));
+    (key: keyof AccountFormData) =>
+      (val: string) => {
+        setForm((prev) => ({
+          ...prev,
+          [key]: val,
+        }));
 
-      setTouched(true);
-    };
+        setTouched(true);
+      };
 
   const handleSubmit = (
     e: React.FormEvent
@@ -143,9 +143,9 @@ export default function TenantForm({
   const sections: FormSection[] = [
     {
       icon: <UserIcon className="w-5 h-5" />,
-      title: "Tenant Information",
+      title: "Account Information",
       subtitle:
-        "Capture basic details about the tenant.",
+        "Capture basic details about the account.",
       iconBg: "bg-blue-50",
       iconColor: "text-blue-500",
 
@@ -156,7 +156,7 @@ export default function TenantForm({
             label="First Name"
             placeholder="Enter first name"
             required
-            value={form.email}
+            value={form.firstName}
             onChange={(e) =>
               set("firstName")(e.target.value)
             }
@@ -179,21 +179,6 @@ export default function TenantForm({
             }
           />
 
-          <SelectDropdown
-            label="Industry"
-            placeholder="Select industry"
-            options={roleOptions}
-            value={form.industry}
-            onChange={set("industry")}
-            required
-            leftIcon={<ShieldIcon />}
-            error={
-              touched && !form.industry
-                ? "Industry is required"
-                : undefined
-            }
-          />
-
           <Input
             id="email"
             label="Email"
@@ -210,9 +195,9 @@ export default function TenantForm({
           />
 
           <Input
-            id="username"
-            label="Username"
-            placeholder="Enter username"
+            id="accountName"
+            label="Account Name"
+            placeholder="Enter account name"
             required
             value={form.email}
             onChange={(e) =>
@@ -223,23 +208,89 @@ export default function TenantForm({
             }
           />
 
-          {mode === "add" && (
-            <Input
-              id="password"
-              label="Password"
-              placeholder="Enter password"
-              required
-              type="password"
-              value={form.password}
-              onChange={(e) =>
-                set("password")(e.target.value)
-              }
-              leftIcon={
-                <EyeOffIcon className="w-5 h-5" />
-              }
-            />
-          )}
+          <Input
+            id="accountSite"
+            label="Account Site"
+            placeholder="Enter account site"
+            required
+            value={form.email}
+            onChange={(e) =>
+              set("username")(e.target.value)
+            }
+            leftIcon={
+              <UserIcon className="w-5 h-5" />
+            }
+          />
 
+          <Input
+            id="accountType"
+            label="Account Type"
+            placeholder="Enter account type"
+            required
+            value={form.email}
+            onChange={(e) =>
+              set("username")(e.target.value)
+            }
+            leftIcon={
+              <UserIcon className="w-5 h-5" />
+            }
+          />
+
+          <Input
+            id="rating"
+            label="Rating"
+            placeholder="Enter rating"
+            required
+            value={form.email}
+            onChange={(e) =>
+              set("username")(e.target.value)
+            }
+            leftIcon={
+              <UserIcon className="w-5 h-5" />
+            }
+          />
+
+          <Input
+            id="annualRevenue"
+            label="Annual Revenue"
+            placeholder="Enter annual revenue"
+            required
+            value={form.email}
+            onChange={(e) =>
+              set("username")(e.target.value)
+            }
+            leftIcon={
+              <UserIcon className="w-5 h-5" />
+            }
+          />
+
+          <Input
+            id="employees"
+            label="Number of Employees"
+            placeholder="Enter number of employees"
+            required
+            value={form.email}
+            onChange={(e) =>
+              set("username")(e.target.value)
+            }
+            leftIcon={
+              <UserIcon className="w-5 h-5" />
+            }
+          />
+
+          <Input
+            id="title"
+            label="Title"
+            placeholder="Enter title"
+            required
+            value={form.email}
+            onChange={(e) =>
+              set("username")(e.target.value)
+            }
+            leftIcon={
+              <UserIcon className="w-5 h-5" />
+            }
+          />
           <Input
             id="website"
             label="Website"
@@ -267,7 +318,42 @@ export default function TenantForm({
         </>
       ),
     },
-
+ {
+      icon: <ShieldIcon />,
+      title: "Additional Information",
+      subtitle: "More ways to reach and connect with the lead.",
+      iconBg: "bg-green-50",
+      iconColor: "text-green-500",
+      children: (
+        <div className=" col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+          <Input
+            id="Skype ID"
+            label="Skype ID"
+            placeholder="Enter Skype ID"
+            leftIcon={<MailIcon className='w-5 h-5' />}
+          />
+          <Input
+            id="Secondary Email"
+            label="Secondary Email"
+            placeholder="Enter secondary email"
+            type="email"
+            leftIcon={<MailIcon className='w-5 h-5' />}
+          />
+           <Input
+            id="designation"
+            label="Designation"
+            placeholder="Enter designation"
+            leftIcon={<MailIcon className='w-5 h-5' />}
+          />
+           <Input
+            id="fax"
+            label="Fax" 
+            placeholder="Enter fax number"
+            leftIcon={<MailIcon className='w-5 h-5' />}
+          />
+        </div>
+      ),
+    },
     {
       icon: (
         <LocationIcon className="w-5 h-5" />
@@ -282,7 +368,7 @@ export default function TenantForm({
       iconColor: "text-[#5752FE]",
 
       children: (
-        <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 pt-6 -mx-6 px-6">
+        <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 -mx-6 px-6">
           <InlineSelectDropdown
             id="country"
             label="Country"
@@ -358,17 +444,17 @@ export default function TenantForm({
   // ───────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-white min-h-screen rounded-lx">
+    <div className="bg-white min-h-screen  rounded-lx">
       <FormPage
         heading={
           mode === "add"
-            ? "Create Tenant"
-            : "Edit Tenant"
+            ? "Create Account"
+            : "Edit Account"
         }
         subheading={
           mode === "add"
-            ? "Add a new tenant to the system."
-            : "Update tenant details."
+            ? "Add a new account to the system."
+            : "Update account details."
         }
         sections={sections}
         onSubmit={handleSubmit}

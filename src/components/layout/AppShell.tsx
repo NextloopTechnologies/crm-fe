@@ -18,7 +18,7 @@ export function AppShell() {
       <div
         className={cn(
           'flex flex-1 flex-col overflow-hidden transition-all duration-300 bg-white',
-          sidebarCollapsed ? 'ml-14' : 'ml-56' // ✅ fixed
+          sidebarCollapsed ? 'ml-14' : 'ml-48' // ✅ fixed
         )}
       >
         {/* Navbar */}

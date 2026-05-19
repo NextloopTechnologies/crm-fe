@@ -153,7 +153,7 @@ export default function UsersList() {
     );
 
     return (
-        <div className="bg-white min-h-screen p-3 rounded-xl">
+        <div className="bg-white min-h-screen rounded-xl">
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">

@@ -134,7 +134,7 @@ export default function LeadsList() {
     );
 
     return (
-        <div className="bg-white min-h-screen p-3 rounded-xl">
+        <div className="bg-white min-h-screen rounded-xl">
 
             {/* Stats Cards */}
             <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6">
