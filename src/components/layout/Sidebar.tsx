@@ -1,23 +1,23 @@
 import { NavLink } from 'react-router-dom'
 import {
-  LayoutDashboard, Users, Building2, FolderKanban,
-  CheckSquare, PieChart, BarChart3, Settings,
-  ChevronLeft, ChevronRight, Briefcase,
+  LayoutDashboard, Users, Building2,
+   PieChart, Settings, FileUser,
+  ChevronLeft, ChevronRight, BriefcaseBusiness, ClipboardList , ChartNoAxesColumnIncreasing
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/stores/ui.store'
 import { usePermission } from '@/hooks/usePermission'
-
+import { PipeLinesIcon } from '@/assets/icons/components/index'
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/leads', label: 'Leads', icon: Users },
-  { to: '/users', label: 'Users', icon: Users },
+  { to: '/users', label: 'Users', icon: FileUser },
   { to: '/tenants', label: 'Tenants', icon: Users },
-  { to: '/pipeline', label: 'Pipeline', icon: FolderKanban },
-  { to: '/tasks', label: 'Tasks', icon: CheckSquare },
-  { to: '/accounts/create', label: 'Accounts', icon: Building2 },
-  { to: '/projects', label: 'Projects', icon: Briefcase },
-  { to: '/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/pipeline', label: 'Pipeline', icon: PipeLinesIcon },
+  { to: '/tasks/create', label: 'Tasks', icon: ClipboardList },
+  { to: '/accounts', label: 'Accounts', icon: Building2 },
+  { to: '/projects', label: 'Projects', icon: BriefcaseBusiness },
+  { to: '/reports', label: 'Reports', icon: ChartNoAxesColumnIncreasing },
   
 ]
 

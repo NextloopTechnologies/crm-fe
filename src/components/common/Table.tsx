@@ -21,7 +21,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   Search, ChevronLeft, ChevronRight,
-  Pencil, Trash2, X
+  Pencil, Trash2, X , ArrowUpDownIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
@@ -461,7 +461,7 @@ export function DataTable<T extends { id?: string | number }>({
                   )}
                   onClick={() => setShowSortDropdown((prev) => !prev)}
                 >
-                  <SortingIcon />
+                  <ArrowUpDownIcon />
                   Sort
                   {sortKey && (
                     <span className="bg-[#5752FE] text-white text-[10px] font-semibold rounded-full h-4 w-4 flex items-center justify-center">

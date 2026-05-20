@@ -13,6 +13,7 @@ import {
   LocationIcon,
   EyeOffIcon,
 } from "@/assets/icons/components/index";
+import { Globe, Printer, Star } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
 // Icons
@@ -174,9 +175,9 @@ export default function AccountForm({
             onChange={(e) =>
               set("lastName")(e.target.value)
             }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            // leftIcon={
+            //   <UserIcon className="w-5 h-5" />
+            // }
           />
 
           <Input
@@ -203,9 +204,9 @@ export default function AccountForm({
             onChange={(e) =>
               set("username")(e.target.value)
             }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            // leftIcon={
+            //   <UserIcon className="w-5 h-5" />
+            // }
           />
 
           <Input
@@ -217,9 +218,9 @@ export default function AccountForm({
             onChange={(e) =>
               set("username")(e.target.value)
             }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            // leftIcon={
+            //   <UserIcon className="w-5 h-5" />
+            // }
           />
 
           <Input
@@ -231,9 +232,9 @@ export default function AccountForm({
             onChange={(e) =>
               set("username")(e.target.value)
             }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            // leftIcon={
+            //   <UserIcon className="w-5 h-5" />
+            // }
           />
 
           <Input
@@ -246,7 +247,7 @@ export default function AccountForm({
               set("username")(e.target.value)
             }
             leftIcon={
-              <UserIcon className="w-5 h-5" />
+              <Star className="w-5 h-5" />
             }
           />
 
@@ -259,9 +260,9 @@ export default function AccountForm({
             onChange={(e) =>
               set("username")(e.target.value)
             }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            // leftIcon={
+            //   <UserIcon className="w-5 h-5" />
+            // }
           />
 
           <Input
@@ -273,9 +274,9 @@ export default function AccountForm({
             onChange={(e) =>
               set("username")(e.target.value)
             }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            // leftIcon={
+            //   <UserIcon className="w-5 h-5" />
+            // }
           />
 
           <Input
@@ -287,9 +288,9 @@ export default function AccountForm({
             onChange={(e) =>
               set("username")(e.target.value)
             }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            // leftIcon={
+            //   <UserIcon className="w-5 h-5" />
+            // }
           />
           <Input
             id="website"
@@ -299,6 +300,9 @@ export default function AccountForm({
             value={form.website}
             onChange={(e) =>
               set("website")(e.target.value)
+            }
+            leftIcon={
+              <Globe className="w-5 h-5" />
             }
           />
 
@@ -330,7 +334,7 @@ export default function AccountForm({
             id="Skype ID"
             label="Skype ID"
             placeholder="Enter Skype ID"
-            leftIcon={<MailIcon className='w-5 h-5' />}
+            // leftIcon={<MailIcon className='w-5 h-5' />}
           />
           <Input
             id="Secondary Email"
@@ -343,13 +347,13 @@ export default function AccountForm({
             id="designation"
             label="Designation"
             placeholder="Enter designation"
-            leftIcon={<MailIcon className='w-5 h-5' />}
+            // leftIcon={<MailIcon className='w-5 h-5' />}
           />
            <Input
             id="fax"
             label="Fax" 
             placeholder="Enter fax number"
-            leftIcon={<MailIcon className='w-5 h-5' />}
+            leftIcon={<Printer className='w-5 h-5' />}
           />
         </div>
       ),

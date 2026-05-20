@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Trash2, } from 'lucide-react';
 import { usersData, type User } from '../../data/user.data';
-import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon } from '@/assets/icons/components/index';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
@@ -13,7 +12,6 @@ import CustomBadge from "@/components/common/CommonBadge";
 import buildingIcon from "@/assets/icons/svgs/Building.svg";
 import activeUserIcon from "@/assets/icons/svgs/ActiveUsericon.svg";
 import inActiveUserIcon from "@/assets/icons/svgs/Inactiveusericon.svg";
-import tenantsIcon from "@/assets/icons/svgs/Tenantsicon.svg";
 
 const stats = [
     {
@@ -26,9 +24,9 @@ const stats = [
                 />
             </div>
         ),
-        label: "Total Tenants",
+        label: "Total Accounts",
         value: usersData.length,
-        subtitle: "All Tenants in System",
+        subtitle: "All account in System",
     },
     {
         icon: (
@@ -40,7 +38,7 @@ const stats = [
                 />
             </div>
         ),
-        label: "Active Tenants",
+        label: "Active Accounts",
         value: usersData.filter((u) => u.status === "active").length,
         subtitle: "Currently Active",
     },
@@ -54,7 +52,7 @@ const stats = [
                 />
             </div>
         ),
-        label: "Inactive Tenants",
+        label: "Inactive Accounts",
         value: usersData.filter((u) => u.status === "inactive").length,
         subtitle: "Currently Inactive",
     },
@@ -75,7 +73,7 @@ const stats = [
 ];
 
 
-export default function TenantsListPage() {
+export default function AccountListPage() {
     const [selectedRows, setSelectedRows] = useState<User[]>([]);
     const navigate = useNavigate();
 
@@ -83,7 +81,7 @@ export default function TenantsListPage() {
     const columns: ColumnDef<User>[] = [
         {
             key: "name",
-            label: "Tenant Name",
+            label: "Account Name",
             width: "180px",
             render: (_, row) => (
                 <div className="flex items-center gap-2.5">
@@ -98,47 +96,47 @@ export default function TenantsListPage() {
             ),
         },
         {
-            key: "email",
-            label: "Domain",
+            key: "name",
+            label: "Account Owner",
             width: "220px",
             render: (val) => (
                 <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
             ),
         },
         {
-            key: "role",
-            label: "Industry",
+            key: "phone",
+            label: "Phone",
             width: "220px",
             render: (val) => (
                 <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
             ),
         },
         {
-            key: "id",
-            label: "Users",
+            key: "location",
+            label: "Website",
             width: "220px",
             render: (val) => (
                 <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
             ),
         },
-        {
-            key: "status",
-            label: "Status",
-            width: "140px",
-            render: (val) => (
-                <CustomBadge
-                    label={
-                        String(val).charAt(0).toUpperCase() +
-                        String(val).slice(1)
-                    }
-                    className={
-                        String(val) === "active"
-                            ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
-                            : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
-                    }
-                />
-            ),
-        },
+        // {
+        //     key: "location",
+        //     label: "Website",
+        //     width: "140px",
+        //     render: (val) => (
+        //         <CustomBadge
+        //             label={
+        //                 String(val).charAt(0).toUpperCase() +
+        //                 String(val).slice(1)
+        //             }
+        //             className={
+        //                 String(val) === "active"
+        //                     ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
+        //                     : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
+        //             }
+        //         />
+        //     ),
+        // },
         {
             key: "joinedAt",
             label: "Created At",
@@ -168,9 +166,9 @@ export default function TenantsListPage() {
             )}
 
             {/* Add User */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tenants/create")}>
+            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/accounts/create")}>
                 <PlusIcon />
-                Add Tenant
+                Add Account
             </Button>
         </div>
     );
@@ -203,7 +201,7 @@ export default function TenantsListPage() {
                 headerActions={headerActions}
                 onRowClick={(row) => console.log("Row clicked", row)}
                 onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(`/tenants/${row.id}/edit`)}
+                onEdit={(row) => navigate(`/accounts/${row.id}/edit`)}
                 onDelete={(row) => console.log("Delete", row)}
                 filters={[
                     {
