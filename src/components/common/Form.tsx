@@ -46,22 +46,22 @@ const FormPage: React.FC<FormPageProps> = ({
   isLoading = false,
 }) => {
   return (
-    <div className="min-h-screen p-4 border-[1.5px] border-[#ECECEC] rounded-xl bg-white">    
+    <div className="min-h-screen p-4 border-[1.5px] border-[#ECECEC] rounded-xl bg-white">
       {/* ── Page header ── */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">{heading}</h1>
+      <div className="mb-3">
+        <h1 className="text-lg font-semibold text-gray-900">{heading}</h1>
         {subheading && (
-          <p className="mt-1 text-sm text-gray-500">{subheading}</p>
+          <p className="text-xs text-gray-500">{subheading}</p>
         )}
       </div>
 
       {/* ── Form ── */}
       <form onSubmit={onSubmit} noValidate>
-        <div className="flex flex-col gap-4 -mx-4 p-3 border-t-[1.5px] border-[#ECECEC]">
+        <div className="flex flex-col gap-4 -mx-4 p-2 border-t-[1.5px] border-[#ECECEC]">
           {sections.map((section, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-xl px-4 py-4"
+              className=" bg-white rounded-xl px-4 py-4 border-b border-[#ECECEC] last:border-b-0"
             >
               {/* Section header */}
               <div className="flex items-center gap-3 mb-6">

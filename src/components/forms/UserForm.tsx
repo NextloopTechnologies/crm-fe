@@ -112,7 +112,7 @@ export default function UserForm({ mode, defaultValues = {}, onSubmit, isLoading
   ];
 
   return (
-    <div className="bg-white min-h-screen p-4 rounded-lx">
+    <div className="bg-white min-h-screen rounded-lx">
       <FormPage
         heading={mode === "add" ? "Create User" : "Edit User"}
         subheading={mode === "add" ? "Add a new user to the system." : "Update user details."}
