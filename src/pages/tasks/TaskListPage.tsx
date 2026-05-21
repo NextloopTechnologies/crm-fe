@@ -1,7 +1,6 @@
 // pages/Users/UsersList.tsx
 import { useState } from 'react';
 import { DataTable, ColumnDef } from '@/components/common/Table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Trash2, } from 'lucide-react';
 import { usersData, type User } from '../../data/user.data';
@@ -24,9 +23,9 @@ const stats = [
                 />
             </div>
         ),
-        label: "Total Accounts",
+        label: "Total Tasks",
         value: usersData.length,
-        subtitle: "All account in System",
+        subtitle: "All Tasks in System",
     },
     {
         icon: (
@@ -38,7 +37,7 @@ const stats = [
                 />
             </div>
         ),
-        label: "Active Accounts",
+        label: "Completed Tasks",
         value: usersData.filter((u) => u.status === "active").length,
         subtitle: "Currently Active",
     },
@@ -52,28 +51,14 @@ const stats = [
                 />
             </div>
         ),
-        label: "Inactive Accounts",
+        label: "InCompleted Tasks",
         value: usersData.filter((u) => u.status === "inactive").length,
         subtitle: "Currently Inactive",
     },
-    // {
-    //     icon: (
-    //         <div className="w-[55px] h-[55px] flex items-center justify-center">
-    //             <img
-    //                 src={tenantsIcon}
-    //                 alt="tenants"
-    //                 className="max-w-full max-h-full object-contain"
-    //             />
-    //         </div>
-    //     ),
-    //     label: "Total Users",
-    //     value: usersData.filter((u) => u.role === "Admin").length,
-    //     subtitle: "Across all Tenants",
-    // },
 ];
 
 
-export default function AccountListPage() {
+export default function TaskListPage() {
     const [selectedRows, setSelectedRows] = useState<User[]>([]);
     const navigate = useNavigate();
 
@@ -81,71 +66,81 @@ export default function AccountListPage() {
     const columns: ColumnDef<User>[] = [
         {
             key: "name",
-            label: "Account Name",
+            label: "Subject",
             width: "180px",
-            render: (_, row) => (
-                <div className="flex items-center gap-2.5">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
-                        <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                            {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                        </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-[#111127]">{row.name}</span>
-                </div>
-            ),
-        },
-        {
-            key: "name",
-            label: "Account Owner",
-            width: "220px",
             render: (val) => (
                 <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
             ),
         },
-        {
-            key: "phone",
-            label: "Phone",
-            width: "220px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
-            ),
-        },
-        {
-            key: "location",
-            label: "Website",
-            width: "220px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
-            ),
-        },
-        // {
-        //     key: "location",
-        //     label: "Website",
-        //     width: "140px",
-        //     render: (val) => (
-        //         <CustomBadge
-        //             label={
-        //                 String(val).charAt(0).toUpperCase() +
-        //                 String(val).slice(1)
-        //             }
-        //             className={
-        //                 String(val) === "active"
-        //                     ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
-        //                     : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
-        //             }
-        //         />
-        //     ),
-        // },
         {
             key: "joinedAt",
-            label: "Created At",
+            label: "Due Date",
             render: (val) => (
                 <span className="text-[#6b6b8d] text-sm">
                     {new Date(String(val)).toLocaleDateString("en-IN", {
                         day: "2-digit", month: "short", year: "numeric",
                     })}
                 </span>
+            ),
+        },
+        {
+            key: "status",
+            label: "Status",
+            width: "140px",
+            render: (val) => (
+                <CustomBadge
+                    label={
+                        String(val).charAt(0).toUpperCase() +
+                        String(val).slice(1)
+                    }
+                    className={
+                        String(val) === "active"
+                            ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
+                            : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
+                    }
+                />
+            ),
+        },
+        {
+            key: "status",
+            label: "Priority",
+            width: "140px",
+            render: (val) => (
+                <CustomBadge
+                    label={
+                        String(val).charAt(0).toUpperCase() +
+                        String(val).slice(1)
+                    }
+                    className={
+                        String(val) === "active"
+                            ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
+                            : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
+                    }
+                />
+            ),
+        },
+        {
+            key: "location",
+            label: "Related To",
+            width: "220px",
+            render: (val) => (
+                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
+            ),
+        },
+        {
+            key: "name",
+            label: "Contact Name",
+            width: "220px",
+            render: (val) => (
+                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
+            ),
+        },
+        {
+            key: "name",
+            label: "Task Owner",
+            width: "220px",
+            render: (val) => (
+                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
             ),
         },
     ];
@@ -166,9 +161,9 @@ export default function AccountListPage() {
             )}
 
             {/* Add User */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/accounts/create")}>
+            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tasks/create")}>
                 <PlusIcon />
-                Add Account
+                Add Task
             </Button>
         </div>
     );
@@ -201,7 +196,7 @@ export default function AccountListPage() {
                 headerActions={headerActions}
                 onRowClick={(row) => console.log("Row clicked", row)}
                 onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(`/accounts/${row.id}/edit`)}
+                onEdit={(row) => navigate(`/tasks/${row.id}/edit`)}
                 onDelete={(row) => console.log("Delete", row)}
                 filters={[
                     {
@@ -215,7 +210,7 @@ export default function AccountListPage() {
                     },
                     {
                         key: "role",
-                        label: "Industry",
+                        label: "Priority",
                         type: "select",
                         options: [
                             { label: "Admin", value: "Admin" },
@@ -224,6 +219,8 @@ export default function AccountListPage() {
                             { label: "Viewer", value: "Viewer" },
                         ],
                     },
+                    { key: "dueDateFrom", label: "Due Date From", type: "date" },
+                    { key: "dueDateTo", label: "Due Date To", type: "date" },
                     { key: "createdFrom", label: "Created From", type: "date" },
                     { key: "createdTo", label: "Created To", type: "date" },
                 ]}

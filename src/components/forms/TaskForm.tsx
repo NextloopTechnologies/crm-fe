@@ -165,7 +165,6 @@ export default function TaskForm({
                         onChange={set("priority")}
                         required
                         leftIcon={<ShieldIcon />}
-                        error={touched && !form.priority ? "Priority is required" : undefined}
                     />
 
                     <SelectDropdown
@@ -176,7 +175,6 @@ export default function TaskForm({
                         onChange={set("status")}
                         required
                         leftIcon={<ShieldIcon />}
-                        error={touched && !form.status ? "Status is required" : undefined}
                     />
                 </>
             ),

@@ -29,6 +29,8 @@ const CreateAccountPage = lazy(() => import('@/pages/accounts/CreateAccountPage'
 const EditAccountPage = lazy(() => import('@/pages/accounts/EditAccountPage'))
 const AccountListPage = lazy(() => import('@/pages/accounts/AccountListPage'))
 const CreateTaskPage = lazy(()=> import('@/pages/tasks/CreateTaskPage'));
+const TaskListPage = lazy(()=> import('@/pages/tasks/TaskListPage'));
+const EditTaskPage = lazy(()=> import('@/pages/tasks/EditTaskPage'));
 const Loading = () => (
   <div className="flex h-full items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
@@ -79,7 +81,10 @@ export const router = createBrowserRouter([
           { path: 'accounts/create', element: <Wrap><CreateAccountPage /></Wrap> },
           { path: 'accounts/:id/edit', element: <Wrap><EditAccountPage /></Wrap> },
           { path: 'accounts/' , element:<Wrap><AccountListPage/></Wrap> },
-          { path: 'tasks/create', element:<Wrap><CreateTaskPage/></Wrap>}
+          { path: 'tasks/create', element:<Wrap><CreateTaskPage/></Wrap>},
+          { path: 'tasks', element:<Wrap><TaskListPage/></Wrap>},
+          { path: 'tasks/:id/edit', element: <Wrap><EditTaskPage/></Wrap> },
+
         ],
 
       },

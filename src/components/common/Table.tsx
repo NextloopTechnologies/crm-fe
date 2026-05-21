@@ -144,7 +144,7 @@ function FilterDropdown({
           <X size={15} />
         </button>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 max-h-[180px] overflow-y-auto p-1">
         {filters.map((filter) => (
           <div key={filter.key} className="flex flex-col gap-1">
             <label className="text-xs text-[#111127]">{filter.label}</label>
