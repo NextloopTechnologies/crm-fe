@@ -135,11 +135,12 @@ export function AlertPopupDialog({
           className
         )}
       >
-        <AlertDialogHeader className="flex flex-col text-center gap-3 pb-5 items-center ">
+        <AlertDialogHeader className="flex flex-col items-center text-center gap-3 pb-5 [&>*]:text-center">
           {/* Icon */}
           <div
             className={cn(
-              "h-14 w-14 rounded-full flex items-center justify-center item-center",
+              "h-14 w-14 rounded-full flex items-center justify-center flex-shrink-0 self-center",
+              // ↑ self-center aur w-14 fixed width — parent ka width:100% override ho jayega
               styles.iconBg,
               styles.iconColor
             )}
@@ -148,7 +149,7 @@ export function AlertPopupDialog({
           </div>
 
           {/* Title */}
-          <AlertDialogTitle className="text-[#111127] text-lg font-semibold leading-snug">
+          <AlertDialogTitle className="text-[#111127] text-lg font-semibold leading-snug w-full text-center [&]:text-center">
             {title}
           </AlertDialogTitle>
 
@@ -160,8 +161,8 @@ export function AlertPopupDialog({
         </AlertDialogHeader>
 
         {/* Buttons */}
-        <AlertDialogFooter className="flex-row gap-3 pt-4 sm:justify-center">
-          <AlertDialogCancel asChild>
+        <AlertDialogFooter className="flex-row gap-3 pt-4 sm:justify-center bg-transparent [&>div]:bg-transparen">
+          <AlertDialogCancel asChild className="bg-transparent p-0 border-0 mt-0">
             <button
               type="button"
               onClick={handleCancel}

@@ -11,7 +11,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search, ChevronDown, User, Settings, LogOut } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
-import { AlertPopupDialog } from "@/components/common/AlertPopupDialog";
 
 // ── Route → label map ────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
@@ -24,13 +23,28 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/leads/add": { title: "Add Lead", breadcrumb: ["Leads", "Add Lead"] },
   "/tenants": { title: "Tenants", breadcrumb: ["Manage system tenants and their system"] },
   "/tenants/create": { title: "Tenants", breadcrumb: ["Tenant", "Add Tenant"] },
-  "/tenants/id/edit": { title: "Tenants", breadcrumb: ["Tenant", "Add Tenant"] },
+  "/tenants/:id/edit": { title: "Tenants", breadcrumb: ["Tenant", "Edit Tenant"] },
   "/profile": { title: "Profile", breadcrumb: ["Manage your account settings and preferences"] },
   "/accounts": { title: "Accounts", breadcrumb: ["Manage your customer accounts and related information"] },
   "/accounts/create": { title: "Accounts", breadcrumb: ["Accounts", "Create Account"] },
-  "/accounts/edit": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
+  "/accounts/:id/edit": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
+  "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
 
 }
+
+// ── Dynamic route matcher ─────────────────────────────────────────────────────
+const getRouteMeta = (pathname: string) => {
+  // Try exact match first
+  if (routeMeta[pathname]) return routeMeta[pathname];
+
+  // Try dynamic match (e.g. /tenants/:id/edit)
+  for (const pattern in routeMeta) {
+    const regex = new RegExp("^" + pattern.replace(/:[^\s/]+/g, "[^/]+") + "$");
+    if (regex.test(pathname)) return routeMeta[pattern];
+  }
+
+  return null;
+};
 
 export function Navbar() {
   const location = useLocation()
@@ -42,7 +56,7 @@ export function Navbar() {
     navigate("/login");
   };
 
-  const meta = routeMeta[location.pathname] ?? {
+  const meta = getRouteMeta(location.pathname) ?? {
     title: "Page",
     breadcrumb: [location.pathname.replace("/", "")],
   }
