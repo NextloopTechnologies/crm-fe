@@ -12,7 +12,6 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
 const LeadsPage = lazy(() => import('@/pages/leads/LeadsPage'))
 const ClientsPage = lazy(() => import('@/pages/ClientsPage'))
 const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'))
-const TasksPage = lazy(() => import('@/pages/TasksPage'))
 const PipelinePage = lazy(() => import('@/pages/PipelinePage'))
 const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
 const CreateUsersPage = lazy(() => import('@/pages/users/CreateUserPage'))
@@ -31,6 +30,9 @@ const AccountListPage = lazy(() => import('@/pages/accounts/AccountListPage'))
 const CreateTaskPage = lazy(()=> import('@/pages/tasks/CreateTaskPage'));
 const TaskListPage = lazy(()=> import('@/pages/tasks/TaskListPage'));
 const EditTaskPage = lazy(()=> import('@/pages/tasks/EditTaskPage'));
+const CreateReportPage = lazy(()=> import('@/pages/report/CreateReportPage'))
+const EditReportPage = lazy(()=> import('@/pages/report/EditReportPage'))
+const ReportListPage = lazy(()=> import('@/pages/report/ReportListPage'))
 const Loading = () => (
   <div className="flex h-full items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
@@ -84,6 +86,9 @@ export const router = createBrowserRouter([
           { path: 'tasks/create', element:<Wrap><CreateTaskPage/></Wrap>},
           { path: 'tasks', element:<Wrap><TaskListPage/></Wrap>},
           { path: 'tasks/:id/edit', element: <Wrap><EditTaskPage/></Wrap> },
+          { path: 'reports/:id/edit', element: <Wrap><EditReportPage/></Wrap> },
+          { path: 'reports/create', element:<Wrap><CreateReportPage/></Wrap>},
+          { path: 'reports/', element:<Wrap><ReportListPage/></Wrap>},
 
         ],
 

@@ -8,68 +8,33 @@ import { usersData, type User } from '../../data/user.data';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
-import CustomBadge from "@/components/common/CommonBadge";
-import buildingIcon from "@/assets/icons/svgs/Building.svg";
-import activeUserIcon from "@/assets/icons/svgs/ActiveUsericon.svg";
-import inActiveUserIcon from "@/assets/icons/svgs/Inactiveusericon.svg";
+import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon, UsersIcon } from '@/assets/icons/components';
 
 const stats = [
     {
-        icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={buildingIcon}
-                    alt="building"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
-        ),
+        icon: <UsersIcon />,
         label: "Total Accounts",
         value: usersData.length,
-        subtitle: "All account in System",
+        subtitle: "All accounts in system",
     },
     {
-        icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={activeUserIcon}
-                    alt="active user"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
-        ),
+        icon: <ActiveUsersIcon />,
         label: "Active Accounts",
         value: usersData.filter((u) => u.status === "active").length,
         subtitle: "Currently Active",
     },
     {
-        icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={inActiveUserIcon}
-                    alt="inactive user"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
-        ),
+        icon: <InActiveUsersIcon />,
         label: "Inactive Accounts",
         value: usersData.filter((u) => u.status === "inactive").length,
         subtitle: "Currently Inactive",
     },
-    // {
-    //     icon: (
-    //         <div className="w-[55px] h-[55px] flex items-center justify-center">
-    //             <img
-    //                 src={tenantsIcon}
-    //                 alt="tenants"
-    //                 className="max-w-full max-h-full object-contain"
-    //             />
-    //         </div>
-    //     ),
-    //     label: "Total Users",
-    //     value: usersData.filter((u) => u.role === "Admin").length,
-    //     subtitle: "Across all Tenants",
-    // },
+    {
+        icon: <TenantsIcon />,
+        label: "Total Contacts",
+        value: usersData.filter((u) => u.role === "Admin").length,
+        subtitle: "Across all accounts",
+    },
 ];
 
 
@@ -177,7 +142,7 @@ export default function AccountListPage() {
         <div className="bg-white min-h-screen rounded-xl">
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {stats.map((stat) => (
                     <StatsCard
                         key={stat.label}

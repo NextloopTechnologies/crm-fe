@@ -2,15 +2,14 @@
 import { useState } from 'react';
 import { DataTable, ColumnDef } from '@/components/common/Table';
 import { Button } from '@/components/ui/button';
-import { Calendar, ClipboardList, Clock3, Trash2, } from 'lucide-react';
+import { Clock3, Download, FileText, Trash2, } from 'lucide-react';
 import { usersData, type User } from '../../data/user.data';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
 import CustomBadge from "@/components/common/CommonBadge";
-import buildingIcon from "@/assets/icons/svgs/Building.svg";
 import activeUserIcon from "@/assets/icons/svgs/ActiveUsericon.svg";
-import inActiveUserIcon from "@/assets/icons/svgs/Inactiveusericon.svg";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A] flex items-center justify-center">
@@ -22,51 +21,51 @@ const stats = [
     {
         icon: (
             <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A]/10 flex items-center justify-center">
-            <ClipboardList className="w-6 h-6 text-[#5752FE]" />
+            <FileText className="w-6 h-6 text-[#5752FE]" />
         </div>
         ),
-        label: "Total Tasks",
+        label: "Total Reports",
         value: usersData.length,
-        subtitle: "All Tasks in System",
+        subtitle: "All Reports in System",
     },
     {
         icon: (
             <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={activeUserIcon}
-                    alt="active user"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
+            <img
+                src={activeUserIcon}
+                alt="active user"
+                className="max-w-full max-h-full object-contain"
+            />
+        </div>
         ),
-        label: "Completed Tasks",
+        label: "Scheduled Reports",
         value: usersData.filter((u) => u.status === "active").length,
-        subtitle: "% of total tasks",
+        subtitle: "Reports running on schedule",
     },
     {
         icon: (
             <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10  flex items-center justify-center">
-                <Clock3 className="w-6 h-6 text-[#FBBC05]" />
-            </div>
+            <Clock3 className="w-6 h-6 text-[#FBBC05]" />
+        </div>
         ),
-        label: "In Progress",
+        label: "Recently Viewed",
         value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "% of total tasks",
+        subtitle: "Reports viewed recently",
     },
     {
         icon: (
-            <div className="w-[55px] h-[55px] rounded-[8px] bg-red-100 flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-red-600" />
+            <div className="w-[55px] h-[55px] rounded-[8px] bg-[#4285F41A]/10 flex items-center justify-center">
+                <Download className="w-6 h-6 text-[#4285F4]" />
             </div>
         ),
-        label: "Overdue",
+        label: "Total Downloads",
         value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "% of total tasks",
+        subtitle: "All reports downloads",
     },
 ];
 
 
-export default function TaskListPage() {
+export default function ReportListPage() {
     const [selectedRows, setSelectedRows] = useState<User[]>([]);
     const navigate = useNavigate();
 
@@ -74,44 +73,23 @@ export default function TaskListPage() {
     const columns: ColumnDef<User>[] = [
         {
             key: "name",
-            label: "Subject",
+            label: "Report Name",
             width: "180px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
-            ),
-        },
-        {
-            key: "joinedAt",
-            label: "Due Date",
-            render: (val) => (
-                <span className="text-[#6b6b8d] text-sm">
-                    {new Date(String(val)).toLocaleDateString("en-IN", {
-                        day: "2-digit", month: "short", year: "numeric",
-                    })}
-                </span>
-            ),
-        },
-        {
-            key: "status",
-            label: "Status",
-            width: "140px",
-            render: (val) => (
-                <CustomBadge
-                    label={
-                        String(val).charAt(0).toUpperCase() +
-                        String(val).slice(1)
-                    }
-                    className={
-                        String(val) === "active"
-                            ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
-                            : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
-                    }
-                />
+            render: (_, row) => (
+                <div className="flex items-center gap-2.5">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
+                        <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+                            {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                        </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium text-[#111127]">{row.name}</span>
+                </div>
             ),
         },
         {
             key: "status",
-            label: "Priority",
+            label: "Category",
             width: "140px",
             render: (val) => (
                 <CustomBadge
@@ -129,7 +107,7 @@ export default function TaskListPage() {
         },
         {
             key: "location",
-            label: "Related To",
+            label: "Description",
             width: "220px",
             render: (val) => (
                 <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
@@ -137,15 +115,34 @@ export default function TaskListPage() {
         },
         {
             key: "name",
-            label: "Contact Name",
-            width: "220px",
+            label: "Created By",
+            width: "180px",
+            render: (_, row) => (
+                <div className="flex items-center gap-2.5">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
+                        <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+                            {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                        </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium text-[#111127]">{row.name}</span>
+                </div>
+            ),
+        },
+        {
+            key: "joinedAt",
+            label: "Created At",
             render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
+                <span className="text-[#6b6b8d] text-sm">
+                    {new Date(String(val)).toLocaleDateString("en-IN", {
+                        day: "2-digit", month: "short", year: "numeric",
+                    })}
+                </span>
             ),
         },
         {
             key: "name",
-            label: "Task Owner",
+            label: "Schedule",
             width: "220px",
             render: (val) => (
                 <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
@@ -168,11 +165,10 @@ export default function TaskListPage() {
                 </Button>
             )}
 
-            {/* Add User */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tasks/create")}>
+            {/* <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tasks/create")}>
                 <PlusIcon />
                 Add Task
-            </Button>
+            </Button> */}
         </div>
     );
 
@@ -204,21 +200,12 @@ export default function TaskListPage() {
                 headerActions={headerActions}
                 onRowClick={(row) => console.log("Row clicked", row)}
                 onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(`/tasks/${row.id}/edit`)}
+                onEdit={(row) => navigate(`/reports/${row.id}/edit`)}
                 onDelete={(row) => console.log("Delete", row)}
                 filters={[
                     {
-                        key: "status",
-                        label: "Status",
-                        type: "select",
-                        options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
-                        ],
-                    },
-                    {
                         key: "role",
-                        label: "Priority",
+                        label: "Category",
                         type: "select",
                         options: [
                             { label: "Admin", value: "Admin" },
@@ -227,8 +214,6 @@ export default function TaskListPage() {
                             { label: "Viewer", value: "Viewer" },
                         ],
                     },
-                    { key: "dueDateFrom", label: "Due Date From", type: "date" },
-                    { key: "dueDateTo", label: "Due Date To", type: "date" },
                     { key: "createdFrom", label: "Created From", type: "date" },
                     { key: "createdTo", label: "Created To", type: "date" },
                 ]}
