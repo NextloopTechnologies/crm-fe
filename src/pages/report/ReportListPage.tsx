@@ -1,81 +1,71 @@
 // pages/Users/UsersList.tsx
 import { useState } from 'react';
 import { DataTable, ColumnDef } from '@/components/common/Table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Trash2, } from 'lucide-react';
+import { Clock3, Download, FileText, Trash2, } from 'lucide-react';
 import { usersData, type User } from '../../data/user.data';
-import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon } from '@/assets/icons/components/index';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
 import CustomBadge from "@/components/common/CommonBadge";
-import buildingIcon from "@/assets/icons/svgs/Building.svg";
 import activeUserIcon from "@/assets/icons/svgs/ActiveUsericon.svg";
-import inActiveUserIcon from "@/assets/icons/svgs/Inactiveusericon.svg";
-import tenantsIcon from "@/assets/icons/svgs/Tenantsicon.svg";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+const IconWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A] flex items-center justify-center">
+        {children}
+    </div>
+);
 
 const stats = [
     {
         icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={buildingIcon}
-                    alt="building"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
+            <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A]/10 flex items-center justify-center">
+            <FileText className="w-6 h-6 text-[#5752FE]" />
+        </div>
         ),
-        label: "Total Tenants",
+        label: "Total Reports",
         value: usersData.length,
-        subtitle: "All Tenants in System",
+        subtitle: "All Reports in System",
     },
     {
         icon: (
             <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={activeUserIcon}
-                    alt="active user"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
+            <img
+                src={activeUserIcon}
+                alt="active user"
+                className="max-w-full max-h-full object-contain"
+            />
+        </div>
         ),
-        label: "Active Tenants",
+        label: "Scheduled Reports",
         value: usersData.filter((u) => u.status === "active").length,
-        subtitle: "Currently Active",
+        subtitle: "Reports running on schedule",
     },
     {
         icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={inActiveUserIcon}
-                    alt="inactive user"
-                    className="max-w-full max-h-full object-contain"
-                />
+            <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10  flex items-center justify-center">
+            <Clock3 className="w-6 h-6 text-[#FBBC05]" />
+        </div>
+        ),
+        label: "Recently Viewed",
+        value: usersData.filter((u) => u.status === "inactive").length,
+        subtitle: "Reports viewed recently",
+    },
+    {
+        icon: (
+            <div className="w-[55px] h-[55px] rounded-[8px] bg-[#4285F41A]/10 flex items-center justify-center">
+                <Download className="w-6 h-6 text-[#4285F4]" />
             </div>
         ),
-        label: "Inactive Tenants",
+        label: "Total Downloads",
         value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "Currently Inactive",
+        subtitle: "All reports downloads",
     },
-    // {
-    //     icon: (
-    //         <div className="w-[55px] h-[55px] flex items-center justify-center">
-    //             <img
-    //                 src={tenantsIcon}
-    //                 alt="tenants"
-    //                 className="max-w-full max-h-full object-contain"
-    //             />
-    //         </div>
-    //     ),
-    //     label: "Total Users",
-    //     value: usersData.filter((u) => u.role === "Admin").length,
-    //     subtitle: "Across all Tenants",
-    // },
 ];
 
 
-export default function TenantsListPage() {
+export default function ReportListPage() {
     const [selectedRows, setSelectedRows] = useState<User[]>([]);
     const navigate = useNavigate();
 
@@ -83,7 +73,7 @@ export default function TenantsListPage() {
     const columns: ColumnDef<User>[] = [
         {
             key: "name",
-            label: "Tenant Name",
+            label: "Report Name",
             width: "180px",
             render: (_, row) => (
                 <div className="flex items-center gap-2.5">
@@ -98,32 +88,8 @@ export default function TenantsListPage() {
             ),
         },
         {
-            key: "email",
-            label: "Domain",
-            width: "220px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
-            ),
-        },
-        {
-            key: "role",
-            label: "Industry",
-            width: "220px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
-            ),
-        },
-        {
-            key: "id",
-            label: "Users",
-            width: "220px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
-            ),
-        },
-        {
             key: "status",
-            label: "Status",
+            label: "Category",
             width: "140px",
             render: (val) => (
                 <CustomBadge
@@ -140,6 +106,30 @@ export default function TenantsListPage() {
             ),
         },
         {
+            key: "location",
+            label: "Description",
+            width: "220px",
+            render: (val) => (
+                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
+            ),
+        },
+        {
+            key: "name",
+            label: "Created By",
+            width: "180px",
+            render: (_, row) => (
+                <div className="flex items-center gap-2.5">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
+                        <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+                            {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                        </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium text-[#111127]">{row.name}</span>
+                </div>
+            ),
+        },
+        {
             key: "joinedAt",
             label: "Created At",
             render: (val) => (
@@ -148,6 +138,14 @@ export default function TenantsListPage() {
                         day: "2-digit", month: "short", year: "numeric",
                     })}
                 </span>
+            ),
+        },
+        {
+            key: "name",
+            label: "Schedule",
+            width: "220px",
+            render: (val) => (
+                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
             ),
         },
     ];
@@ -167,11 +165,10 @@ export default function TenantsListPage() {
                 </Button>
             )}
 
-            {/* Add User */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tenants/create")}>
+            {/* <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tasks/create")}>
                 <PlusIcon />
-                Add Tenant
-            </Button>
+                Add Task
+            </Button> */}
         </div>
     );
 
@@ -179,7 +176,7 @@ export default function TenantsListPage() {
         <div className="bg-white min-h-screen rounded-xl">
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {stats.map((stat) => (
                     <StatsCard
                         key={stat.label}
@@ -203,21 +200,12 @@ export default function TenantsListPage() {
                 headerActions={headerActions}
                 onRowClick={(row) => console.log("Row clicked", row)}
                 onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(`/tenants/${row.id}/edit`)}
+                onEdit={(row) => navigate(`/reports/${row.id}/edit`)}
                 onDelete={(row) => console.log("Delete", row)}
                 filters={[
                     {
-                        key: "status",
-                        label: "Status",
-                        type: "select",
-                        options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
-                        ],
-                    },
-                    {
                         key: "role",
-                        label: "Industry",
+                        label: "Category",
                         type: "select",
                         options: [
                             { label: "Admin", value: "Admin" },

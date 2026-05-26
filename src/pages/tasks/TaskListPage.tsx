@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { DataTable, ColumnDef } from '@/components/common/Table';
 import { Button } from '@/components/ui/button';
-import { Trash2, } from 'lucide-react';
+import { Calendar, ClipboardList, Clock3, Trash2, } from 'lucide-react';
 import { usersData, type User } from '../../data/user.data';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
@@ -12,16 +12,18 @@ import buildingIcon from "@/assets/icons/svgs/Building.svg";
 import activeUserIcon from "@/assets/icons/svgs/ActiveUsericon.svg";
 import inActiveUserIcon from "@/assets/icons/svgs/Inactiveusericon.svg";
 
+const IconWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A] flex items-center justify-center">
+        {children}
+    </div>
+);
+
 const stats = [
     {
         icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={buildingIcon}
-                    alt="building"
-                    className="max-w-full max-h-full object-contain"
-                />
-            </div>
+            <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A]/10 flex items-center justify-center">
+            <ClipboardList className="w-6 h-6 text-[#5752FE]" />
+        </div>
         ),
         label: "Total Tasks",
         value: usersData.length,
@@ -39,21 +41,27 @@ const stats = [
         ),
         label: "Completed Tasks",
         value: usersData.filter((u) => u.status === "active").length,
-        subtitle: "Currently Active",
+        subtitle: "% of total tasks",
     },
     {
         icon: (
-            <div className="w-[55px] h-[55px] flex items-center justify-center">
-                <img
-                    src={inActiveUserIcon}
-                    alt="inactive user"
-                    className="max-w-full max-h-full object-contain"
-                />
+            <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10  flex items-center justify-center">
+                <Clock3 className="w-6 h-6 text-[#FBBC05]" />
             </div>
         ),
-        label: "InCompleted Tasks",
+        label: "In Progress",
         value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "Currently Inactive",
+        subtitle: "% of total tasks",
+    },
+    {
+        icon: (
+            <div className="w-[55px] h-[55px] rounded-[8px] bg-red-100 flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-red-600" />
+            </div>
+        ),
+        label: "Overdue",
+        value: usersData.filter((u) => u.status === "inactive").length,
+        subtitle: "% of total tasks",
     },
 ];
 
@@ -172,7 +180,7 @@ export default function TaskListPage() {
         <div className="bg-white min-h-screen rounded-xl">
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {stats.map((stat) => (
                     <StatsCard
                         key={stat.label}

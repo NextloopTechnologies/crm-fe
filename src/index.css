@@ -213,3 +213,19 @@ ul, ol {
     --radius: 0.625rem;
   }
 }
+
+[data-sonner-toaster] {
+  top: 48px !important;       
+  right: 0 !important;
+  left: auto !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+
+[data-sonner-toaster] li {
+  margin: 0 0 8px 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none !important;
+  box-shadow: var(--shadow-md) !important;
+}
