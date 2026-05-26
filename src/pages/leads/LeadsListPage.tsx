@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
 import { NewLeadsIcon } from '@/assets/icons/components/index';
 import CustomBadge from "@/components/common/CommonBadge";
+import { ROUTES } from '@/lib/route';
 
 const roleColors: Record<string, string> = {
     Admin:
@@ -163,7 +164,7 @@ export default function LeadsList() {
                 headerActions={headerActions}
                 onRowClick={(row) => console.log("Row clicked", row)}
                 onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => console.log("Edit", row)}
+                onEdit={(row) => navigate(ROUTES.LEADS_EDIT(`${row.id}`))                }
                 onDelete={(row) => console.log("Delete", row)}
                 filters={[
                     {

@@ -1,38 +1,15 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import { ProtectedRoute } from './ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
+import { ROUTES } from '@/lib/route'
+import { protectedRoutes } from './routes.config'
 
-// Pages — lazy loaded for performance
-import { lazy, Suspense } from 'react'
-import ForgotPasswordPage from '@/pages/ForgotPassword'
-import EditTenantPage from '@/pages/tenants/EditTenantPage'
-const LoginPage = lazy(() => import('@/pages/LoginPage'))
-const SignUpPage = lazy(() => import('@/pages/SignUpPage'))
-const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
-const LeadsPage = lazy(() => import('@/pages/leads/LeadsPage'))
-const ClientsPage = lazy(() => import('@/pages/ClientsPage'))
-const ProjectsPage = lazy(() => import('@/pages/ProjectsPage'))
-const PipelinePage = lazy(() => import('@/pages/PipelinePage'))
-const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
-const CreateUsersPage = lazy(() => import('@/pages/users/CreateUserPage'))
-const EditUsersPage = lazy(() => import('@/pages/users/EditUserPage'))
-const UserListPage = lazy(() => import('@/pages/users/UserList'))
-const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
-const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'))
-const LeadsListPage = lazy(() => import('@/pages/leads/LeadsListPage'))
-const TenantsListPage = lazy(() => import('@/pages/tenants/TenantsListPage'))
-const CreateTenantPage = lazy(() => import('@/pages/tenants/CreateTenantPage'))
-const MyProfilePage = lazy(() => import('@/pages/profile/MyProfilePage'))
-const EditProfilePage = lazy(() => import('@/pages/profile/EditProfilePage'))
-const CreateAccountPage = lazy(() => import('@/pages/accounts/CreateAccountPage'))
-const EditAccountPage = lazy(() => import('@/pages/accounts/EditAccountPage'))
-const AccountListPage = lazy(() => import('@/pages/accounts/AccountListPage'))
-const CreateTaskPage = lazy(()=> import('@/pages/tasks/CreateTaskPage'));
-const TaskListPage = lazy(()=> import('@/pages/tasks/TaskListPage'));
-const EditTaskPage = lazy(()=> import('@/pages/tasks/EditTaskPage'));
-const CreateReportPage = lazy(()=> import('@/pages/report/CreateReportPage'))
-const EditReportPage = lazy(()=> import('@/pages/report/EditReportPage'))
-const ReportListPage = lazy(()=> import('@/pages/report/ReportListPage'))
+const LoginPage          = lazy(() => import('@/pages/LoginPage'))
+const SignUpPage         = lazy(() => import('@/pages/SignUpPage'))
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPassword'))
+const NotFoundPage       = lazy(() => import('@/pages/NotFoundPage'))
+
 const Loading = () => (
   <div className="flex h-full items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand border-t-transparent" />
@@ -43,19 +20,16 @@ const Wrap = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<Loading />}>{children}</Suspense>
 )
 
+const protectedChildren = protectedRoutes.map(({ path, element: Page }) => ({
+  path,
+  element: <Wrap><Page /></Wrap>,
+}))
+
 export const router = createBrowserRouter([
-  {
-    path: '/login',
-    element: <Wrap><LoginPage /></Wrap>,
-  },
-  {
-    path: '/signUp',
-    element: <Wrap><SignUpPage /></Wrap>,
-  },
-  {
-    path: '/forgot-password',
-    element: <Wrap><ForgotPasswordPage /></Wrap>,
-  },
+  { path: ROUTES.LOGIN,           element: <Wrap><LoginPage /></Wrap> },
+  { path: ROUTES.SIGNUP,         element: <Wrap><SignUpPage /></Wrap> },
+  { path: ROUTES.FORGOT_PASSWORD, element: <Wrap><ForgotPasswordPage /></Wrap> },
+
   {
     path: '/',
     element: <ProtectedRoute />,
@@ -63,40 +37,12 @@ export const router = createBrowserRouter([
       {
         element: <AppShell />,
         children: [
-          { index: true, element: <Navigate to="/dashboard" replace /> },
-          { path: 'dashboard', element: <Wrap><DashboardPage /></Wrap> },
-          { path: 'leads', element: <Wrap><LeadsListPage /></Wrap> },
-          { path: 'leads/add', element: <Wrap><LeadsPage /></Wrap> },
-          { path: 'clients', element: <Wrap><ClientsPage /></Wrap> },
-          { path: 'projects', element: <Wrap><ProjectsPage /></Wrap> },
-          { path: 'pipeline', element: <Wrap><PipelinePage /></Wrap> },
-          { path: 'reports', element: <Wrap><ReportsPage /></Wrap> },
-          { path: 'users/create', element: <Wrap><CreateUsersPage /></Wrap> },
-          { path: 'users/:id/edit', element: <Wrap><EditUsersPage /></Wrap> },
-          { path: 'users', element: <Wrap><UserListPage /></Wrap> },
-          { path: 'settings', element: <Wrap><SettingsPage /></Wrap> },
-          { path: 'tenants', element: <Wrap><TenantsListPage /></Wrap> },
-          { path: 'tenants/create', element: <Wrap><CreateTenantPage /></Wrap> },
-          { path: 'tenants/:id/edit', element: <Wrap><EditTenantPage /></Wrap> },
-          { path: 'profile', element: <Wrap><MyProfilePage /></Wrap> },
-          { path: 'profile/edit', element: <Wrap><EditProfilePage /></Wrap> },
-          { path: 'accounts/create', element: <Wrap><CreateAccountPage /></Wrap> },
-          { path: 'accounts/:id/edit', element: <Wrap><EditAccountPage /></Wrap> },
-          { path: 'accounts/' , element:<Wrap><AccountListPage/></Wrap> },
-          { path: 'tasks/create', element:<Wrap><CreateTaskPage/></Wrap>},
-          { path: 'tasks', element:<Wrap><TaskListPage/></Wrap>},
-          { path: 'tasks/:id/edit', element: <Wrap><EditTaskPage/></Wrap> },
-          { path: 'reports/:id/edit', element: <Wrap><EditReportPage/></Wrap> },
-          { path: 'reports/create', element:<Wrap><CreateReportPage/></Wrap>},
-          { path: 'reports/', element:<Wrap><ReportListPage/></Wrap>},
-
+          { index: true, element: <Navigate to={ROUTES.DASHBOARD} replace /> },
+          ...protectedChildren,
         ],
-
       },
     ],
   },
-  {
-    path: '*',
-    element: <Wrap><NotFoundPage /></Wrap>,
-  },
+
+  { path: '*', element: <Wrap><NotFoundPage /></Wrap> },
 ])

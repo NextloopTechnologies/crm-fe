@@ -1,34 +1,46 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { showToast } from '@/components/common/Toast';
-import { usersData } from '@/data/user.data';
-import AccountForm, { AccountFormData } from '@/components/forms/AccountForm';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { showToast } from '@/components/common/Toast'
+import { usersData } from '@/data/user.data'
+import AccountForm, { AccountFormData } from '@/components/forms/AccountForm'
+import { ROUTES } from '@/lib/route'
 
 export default function EditAccountPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<Partial<AccountFormData> | undefined>(undefined);
+  const { id }      = useParams()
+  const navigate    = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const timerRef    = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
-    const found = usersData.find((u) => String(u.id) === id);
-    if (found) setUser(found);
-  }, [id]);
+    return () => clearTimeout(timerRef.current)
+  }, [])
 
-  const handleSubmit = (data: AccountFormData) => {
-    setLoading(true);
-    console.log("Update account:", data);
-    // API call here
-    showToast({ title: "Account updated!", description: "Changes saved successfully.", type: "success" });
-    setTimeout(() => { setLoading(false); navigate("/accounts"); }, 1000);
-  };
+  const defaultValues = useMemo<Partial<AccountFormData> | undefined>(() => {
+    const found = usersData.find((u) => String(u.id) === id)
+    return found ?? undefined
+  }, [id])
+
+  // ── Submit ───────────────────────────────────────────────
+  const handleSubmit = useCallback((data: AccountFormData) => {
+    setLoading(true)
+    console.log("Update account:", data)
+    showToast({
+      title: "Account updated!",
+      description: "Changes saved successfully.",
+      type: "success",
+    })
+    timerRef.current = setTimeout(() => {
+      setLoading(false)
+      navigate(ROUTES.ACCOUNTS)
+    }, 1000)
+  }, [navigate])
 
   return (
     <AccountForm
       mode="edit"
-      defaultValues={user}
+      defaultValues={defaultValues}
       onSubmit={handleSubmit}
       isLoading={loading}
     />
-  );
+  )
 }

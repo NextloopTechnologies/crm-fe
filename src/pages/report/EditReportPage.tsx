@@ -1,34 +1,48 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { showToast } from '@/components/common/Toast';
-import { usersData } from '@/data/user.data';
-import ReportForm, { ReportFormData } from '@/components/forms/ReportForm';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { showToast } from '@/components/common/Toast'
+import { usersData } from '@/data/user.data'
+import { ROUTES } from '@/lib/route'
+import ReportForm, { ReportFormData } from '@/components/forms/ReportForm'
 
 export default function EditReportPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [task, setTask] = useState<Partial<ReportFormData> | undefined>(undefined);
+  const { id }      = useParams()
+  const navigate    = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const timerRef    = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
-    const found = usersData.find((u) => String(u.id) === id);
-    if (found) setTask(found);
-  }, [id]);
+    return () => clearTimeout(timerRef.current)
+  }, [])
 
-  const handleSubmit = (data: ReportFormData) => {
-    setLoading(true);
-    console.log("Update tenant:", data);
-    // API call here
-    showToast({ title: "Report updated!", description: "Changes saved successfully.", type: "success" });
-    setTimeout(() => { setLoading(false); navigate("/tasks"); }, 1000);
-  };
+  const defaultValues = useMemo<Partial<ReportFormData> | undefined>(() => {
+    const found = usersData.find((u) => String(u.id) === id)
+    return found ?? undefined
+  }, [id])
+
+  // ── Submit ───────────────────────────────────────────────
+  const handleSubmit = useCallback((data: ReportFormData) => {
+    setLoading(true)
+    console.log("Update report:", data)
+    showToast({
+      title: "Report updated!",
+      description: "Changes saved successfully.",
+      type: "success",
+    })
+    timerRef.current = setTimeout(() => {
+      setLoading(false)
+      navigate(ROUTES.REPORTS)
+    }, 1000)
+  }, [navigate])
 
   return (
     <ReportForm
       mode="edit"
-      defaultValues={task}
+      defaultValues={defaultValues}
       onSubmit={handleSubmit}
       isLoading={loading}
     />
-  );
+  )
 }
+
+

@@ -7,7 +7,7 @@ interface ToastOptions {
   title: string
   description?: string
   type?: ToastType
-  icon?: React.ReactNode  // ← bahar se pass karenge
+  icon?: React.ReactNode  
 }
 
 const configs: Record<ToastType, {
