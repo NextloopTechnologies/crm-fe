@@ -23,7 +23,6 @@ export default function EditReportPage() {
   // ── Submit ───────────────────────────────────────────────
   const handleSubmit = useCallback((data: ReportFormData) => {
     setLoading(true)
-    console.log("Update report:", data)
     showToast({
       title: "Report updated!",
       description: "Changes saved successfully.",

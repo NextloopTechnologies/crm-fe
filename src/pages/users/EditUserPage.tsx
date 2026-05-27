@@ -17,7 +17,6 @@ export default function EditUserPage() {
 
   const handleSubmit = (data: UserFormData) => {
     setLoading(true);
-    console.log("Update user:", data);
     // API call here
     showToast({ title: "User updated!", description: "Changes saved successfully.", type: "success" });
     setTimeout(() => { setLoading(false); navigate("/users"); }, 1000);

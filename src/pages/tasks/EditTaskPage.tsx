@@ -30,7 +30,6 @@ export default function EditTaskPage() {
 
   const handleSubmit = useCallback((data: TaskFormData) => {
     setLoading(true);
-    console.log("Update task:", data);
     // API call here
     showToast({ title: "Task updated!", description: "Changes saved successfully.", type: "success" });
     timerRef.current = setTimeout(() => {

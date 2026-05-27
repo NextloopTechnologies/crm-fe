@@ -71,7 +71,6 @@ export default function SignUpPage() {
 
     const onSubmit = async (data: any) => {
         try {
-          console.log('Signup data:', data)
           // API call here
         } catch (err) {
           console.error(err)

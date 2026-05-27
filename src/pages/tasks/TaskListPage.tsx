@@ -44,7 +44,7 @@ const FILTERS = [
     label: "Status",
     type: "select" as const,
     options: [
-      { label: "Active",   value: "active" },
+      { label: "Active", value: "active" },
       { label: "Inactive", value: "inactive" },
     ],
   },
@@ -53,16 +53,16 @@ const FILTERS = [
     label: "Priority",
     type: "select" as const,
     options: [
-      { label: "Admin",     value: "Admin" },
-      { label: "Manager",   value: "Manager" },
+      { label: "Admin", value: "Admin" },
+      { label: "Manager", value: "Manager" },
       { label: "Developer", value: "Developer" },
-      { label: "Viewer",    value: "Viewer" },
+      { label: "Viewer", value: "Viewer" },
     ],
   },
   { key: "dueDateFrom", label: "Due Date From", type: "date" as const },
-  { key: "dueDateTo",   label: "Due Date To",   type: "date" as const },
-  { key: "createdFrom", label: "Created From",  type: "date" as const },
-  { key: "createdTo",   label: "Created To",    type: "date" as const },
+  { key: "dueDateTo", label: "Due Date To", type: "date" as const },
+  { key: "createdFrom", label: "Created From", type: "date" as const },
+  { key: "createdTo", label: "Created To", type: "date" as const },
 ]
 
 // ── Reusable renderers ────────────────────────────────────────
@@ -107,18 +107,28 @@ export default function TaskListPage() {
         </span>
       ),
     },
-    { key: "status",   label: "Status",       width: "140px", render: (val) => <BadgeCell val={val} /> },
-    { key: "status",   label: "Priority",     width: "140px", render: (val) => <BadgeCell val={val} /> },
-    { key: "location", label: "Related To",   width: "220px", render: (val) => <TextCell val={val} /> },
-    { key: "name",     label: "Contact Name", width: "220px", render: (val) => <TextCell val={val} /> },
-    { key: "name",     label: "Task Owner",   width: "220px", render: (val) => <TextCell val={val} /> },
+    { key: "status", label: "Status", width: "140px", render: (val) => <BadgeCell val={val} /> },
+    { key: "status", label: "Priority", width: "140px", render: (val) => <BadgeCell val={val} /> },
+    { key: "location", label: "Related To", width: "220px", render: (val) => <TextCell val={val} /> },
+    { key: "name", label: "Contact Name", width: "220px", render: (val) => <TextCell val={val} /> },
+    { key: "name", label: "Task Owner", width: "220px", render: (val) => <TextCell val={val} /> },
   ], [])
 
-  const handleEdit           = useCallback((row: User)   => navigate(ROUTES.TASKS_EDIT(String(row.id))), [navigate])
-  const handleDelete     = useCallback((row: User | User[]) => console.log("Delete", row), [])
-  const handleRowClick       = useCallback((row: User)   => console.log("Row clicked", row), [])
-  const handleSelection      = useCallback((rows: User[]) => setSelectedRows(rows), [])
-  const handleDeleteSelected = useCallback(() => console.log("Delete selected", selectedRows), [selectedRows])
+  const handleEdit = useCallback(
+    (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+    [navigate]
+  )
+
+  const handleDelete = useCallback((row: User | User[]) => { }, [])
+
+  const handleRowClick = useCallback((row: User) => { }, [])
+
+  const handleSelection = useCallback(
+    (rows: User[]) => setSelectedRows(rows),
+    []
+  )
+
+  const handleDeleteSelected = useCallback(() => { }, [selectedRows])
 
   const headerActions = useMemo(() => (
     <div className="flex items-center gap-2">

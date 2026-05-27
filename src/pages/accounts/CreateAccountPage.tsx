@@ -16,7 +16,6 @@ export default function CreateAccountPage() {
 
   const handleSubmit = useCallback((data: AccountFormData) => {
     setLoading(true)
-    console.log("Create account:", data)
     showToast({
       title: "Account created!",
       description: "New account added successfully.",

@@ -31,7 +31,6 @@ export default function EditTenantPage() {
 
   const handleSubmit = useCallback((data: TenantFormData) => {
     setLoading(true);
-    console.log("Update tenant:", data);
     // API call here
     showToast({ title: "Tenant updated!", description: "Changes saved successfully.", type: "success" });
     timerRef.current = setTimeout(() => {
