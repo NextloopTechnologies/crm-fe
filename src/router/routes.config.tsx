@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 
 // ─── Lazy Imports ────────────────────────────────────────────
-const DashboardPage     = lazy(() => import('@/pages/DashboardPage'))
+const DashboardPage     = lazy(() => import('@/pages/dashboard/DashboardPage'))
 const LeadsListPage     = lazy(() => import('@/pages/leads/LeadsListPage'))
 const LeadsPage         = lazy(() => import('@/pages/leads/LeadsPage'))
 const ProjectsPage      = lazy(() => import('@/pages/ProjectsPage'))
