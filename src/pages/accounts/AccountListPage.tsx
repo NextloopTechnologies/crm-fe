@@ -12,10 +12,10 @@ import { ROUTES } from '@/lib/route'
 
 // ── Static helpers — component ke bahar ──────────────────────
 const getStats = (data: User[]) => [
-  { icon: <UsersIcon />,        label: "Total Accounts",    value: data.length,                                      subtitle: "All accounts in system" },
-  { icon: <ActiveUsersIcon />,  label: "Active Accounts",   value: data.filter(u => u.status === "active").length,   subtitle: "Currently Active" },
-  { icon: <InActiveUsersIcon />,label: "Inactive Accounts", value: data.filter(u => u.status === "inactive").length, subtitle: "Currently Inactive" },
-  { icon: <TenantsIcon />,      label: "Total Contacts",    value: data.filter(u => u.role === "Admin").length,      subtitle: "Across all accounts" },
+  { icon: <UsersIcon />, label: "Total Accounts", value: data.length, subtitle: "All accounts in system" },
+  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: data.filter(u => u.status === "active").length, subtitle: "Currently Active" },
+  { icon: <InActiveUsersIcon />, label: "Inactive Accounts", value: data.filter(u => u.status === "inactive").length, subtitle: "Currently Inactive" },
+  { icon: <TenantsIcon />, label: "Total Contacts", value: data.filter(u => u.role === "Admin").length, subtitle: "Across all accounts" },
 ]
 
 const FILTERS = [
@@ -24,7 +24,7 @@ const FILTERS = [
     label: "Status",
     type: "select" as const,
     options: [
-      { label: "Active",   value: "active" },
+      { label: "Active", value: "active" },
       { label: "Inactive", value: "inactive" },
     ],
   },
@@ -33,14 +33,14 @@ const FILTERS = [
     label: "Industry",
     type: "select" as const,
     options: [
-      { label: "Admin",     value: "Admin" },
-      { label: "Manager",   value: "Manager" },
+      { label: "Admin", value: "Admin" },
+      { label: "Manager", value: "Manager" },
       { label: "Developer", value: "Developer" },
-      { label: "Viewer",    value: "Viewer" },
+      { label: "Viewer", value: "Viewer" },
     ],
   },
   { key: "createdFrom", label: "Created From", type: "date" as const },
-  { key: "createdTo",   label: "Created To",   type: "date" as const },
+  { key: "createdTo", label: "Created To", type: "date" as const },
 ]
 
 // ── Component ─────────────────────────────────────────────────
@@ -48,7 +48,7 @@ export default function AccountListPage() {
   const [selectedRows, setSelectedRows] = useState<User[]>([])
   const navigate = useNavigate()
 
-  const stats   = useMemo(() => getStats(usersData), [])
+  const stats = useMemo(() => getStats(usersData), [])
 
   const columns = useMemo<ColumnDef<User>[]>(() => [
     {
@@ -67,9 +67,9 @@ export default function AccountListPage() {
         </div>
       ),
     },
-    { key: "name",     label: "Account Owner", width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
-    { key: "phone",    label: "Phone",         width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
-    { key: "location", label: "Website",       width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
+    { key: "name", label: "Account Owner", width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
+    { key: "phone", label: "Phone", width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
+    { key: "location", label: "Website", width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
     {
       key: "joinedAt",
       label: "Created At",
@@ -81,11 +81,21 @@ export default function AccountListPage() {
     },
   ], [])
 
-  const handleDelete     = useCallback((row: User | User[]) => console.log("Delete", row), [])
-  const handleRowClick   = useCallback((row: User)  => console.log("Row clicked", row), [])
-  const handleEdit       = useCallback((row: User)  => navigate(ROUTES.ACCOUNTS_EDIT(String(row.id))), [navigate])
-  const handleSelection  = useCallback((rows: User[]) => setSelectedRows(rows), [])
-  const handleDeleteSelected = useCallback(() => console.log("Delete selected", selectedRows), [selectedRows])
+  const handleEdit = useCallback(
+    (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+    [navigate]
+  )
+
+  const handleDelete = useCallback((row: User | User[]) => { }, [])
+
+  const handleRowClick = useCallback((row: User) => { }, [])
+
+  const handleSelection = useCallback(
+    (rows: User[]) => setSelectedRows(rows),
+    []
+  )
+
+  const handleDeleteSelected = useCallback(() => { }, [selectedRows])
 
   const headerActions = useMemo(() => (
     <div className="flex items-center gap-2">

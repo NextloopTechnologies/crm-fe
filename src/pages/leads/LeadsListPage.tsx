@@ -1,5 +1,5 @@
 // pages/Users/UsersList.tsx
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { DataTable, ColumnDef, RowAction } from '@/components/common/Table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -30,21 +30,21 @@ const stats = [
         label: "Total Users",
         value: usersData.length,
         subtitle: "All Users in System",
-        trend: { icon: <UpArrowIcon />, text: "24%" , color : "text-[#22c55e]" },
-      },
+        trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
+    },
     {
-        icon: <NewLeadsIcon/>,
+        icon: <NewLeadsIcon />,
         label: "New Leads",
         value: usersData.filter((u) => u.status === "active").length,
         subtitle: "vs last 7 days",
-        trend: { icon: <UpArrowIcon />, text: "12%" , color : "text-[#22c55e]" },
+        trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
     },
     {
         icon: <NoActivityIcon />,
         label: "No Activity",
         value: usersData.filter((u) => u.status === "inactive").length,
         subtitle: "vs last 7 days",
-        trend: { icon: <DownArrowIcon />, text: "12%" , color : "text-[#EB4335]" },
+        trend: { icon: <DownArrowIcon />, text: "12%", color: "text-[#EB4335]" },
 
     },
 ];
@@ -57,60 +57,77 @@ export default function LeadsList() {
     // ── Columns ───────────────────────────────────────────────────────────────────
     const columns: ColumnDef<User>[] = [
         {
-          key: "name",
-          label: "Name",
-          width: "220px",
-          render: (_, row) => <span>{row.name ?? "—"}</span>,
+            key: "name",
+            label: "Name",
+            width: "220px",
+            render: (_, row) => <span>{row.name ?? "—"}</span>,
         },
         {
-          key: "company",        // ← fix typo was "comapany"
-          label: "Company",
-          width: "220px",
-          render: (_, row) => <span>{(row as any).company ?? "—"}</span>,
+            key: "company",        // ← fix typo was "comapany"
+            label: "Company",
+            width: "220px",
+            render: (_, row) => <span>{(row as any).company ?? "—"}</span>,
         },
         {
-          key: "email",
-          label: "Email",
-          width: "220px",
-          render: (_, row) => <span>{row.email ?? "—"}</span>,
+            key: "email",
+            label: "Email",
+            width: "220px",
+            render: (_, row) => <span>{row.email ?? "—"}</span>,
         },
         {
-          key: "phone",
-          label: "Phone",
-          width: "220px",
-          render: (_, row) => <span>{row.phone ?? "—"}</span>,
+            key: "phone",
+            label: "Phone",
+            width: "220px",
+            render: (_, row) => <span>{row.phone ?? "—"}</span>,
         },
         {
-          key: "role",
-          label: "Role",
-          width: "140px",
-          render: (_, row) => (
-            <CustomBadge
-              label={row.role ?? "—"}
-              className={
-                roleColors[row.role ?? ""] ??
-                "bg-gray-100 text-gray-600 border border-gray-200"
-              }
-            />
-          ),
+            key: "role",
+            label: "Role",
+            width: "140px",
+            render: (_, row) => (
+                <CustomBadge
+                    label={row.role ?? "—"}
+                    className={
+                        roleColors[row.role ?? ""] ??
+                        "bg-gray-100 text-gray-600 border border-gray-200"
+                    }
+                />
+            ),
         },
         {
-          key: "name",
-          label: "Lead Owner",
-          width: "180px",
-          render: (_, row) => (
-            <div className="flex items-center gap-2.5">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
-                <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                  {row.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
-                </AvatarFallback>
-              </Avatar>
-              <span>{row.name ?? "—"}</span>
-            </div>
-          ),
+            key: "name",
+            label: "Lead Owner",
+            width: "180px",
+            render: (_, row) => (
+                <div className="flex items-center gap-2.5">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
+                        <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+                            {row.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                        </AvatarFallback>
+                    </Avatar>
+                    <span>{row.name ?? "—"}</span>
+                </div>
+            ),
         },
-      ];
+    ];
+
+        const handleEdit = useCallback(
+            (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+            [navigate]
+        )
+    
+        const handleDelete = useCallback((row: User | User[]) => { }, [])
+    
+        const handleRowClick = useCallback((row: User) => { }, [])
+    
+        const handleSelection = useCallback(
+            (rows: User[]) => setSelectedRows(rows),
+            []
+        )
+    
+        const handleDeleteSelected = useCallback(() => { }, [selectedRows])
+        
     // ── Header Actions (Filter + Add User) ────────────────────────────────────
     const headerActions = (
         <div className="flex items-center gap-2">
@@ -119,7 +136,6 @@ export default function LeadsList() {
                 <Button
                     variant="outline"
                     className="h-9 px-4 text-sm rounded-[10px] border-red-200 text-red-500 hover:bg-red-50 gap-2"
-                    onClick={() => console.log("Delete selected", selectedRows)}
                 >
                     <Trash2 size={14} />
                     Delete ({selectedRows.length})
@@ -162,10 +178,10 @@ export default function LeadsList() {
                 pageSize={8}
                 emptyMessage="No users found."
                 headerActions={headerActions}
-                onRowClick={(row) => console.log("Row clicked", row)}
-                onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(ROUTES.LEADS_EDIT(`${row.id}`))                }
-                onDelete={(row) => console.log("Delete", row)}
+                onRowClick={handleRowClick}
+                onSelectionChange={handleSelection}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 filters={[
                     {
                         key: "role",

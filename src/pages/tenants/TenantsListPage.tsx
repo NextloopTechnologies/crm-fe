@@ -163,11 +163,21 @@ export default function TenantsListPage() {
         },
     ], [])
 
-    const handleEdit = useCallback((row: User) => navigate(ROUTES.TENANTS_EDIT(String(row.id))), [navigate])
-    const handleDelete = useCallback((row: User | User[]) => console.log("Delete", row), [])
-    const handleRowClick = useCallback((row: User) => console.log("Row clicked", row), [])
-    const handleSelection = useCallback((rows: User[]) => setSelectedRows(rows), [])
-    const handleDeleteSelected = useCallback(() => console.log("Delete selected", selectedRows), [selectedRows])
+    const handleEdit = useCallback(
+        (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+        [navigate]
+      )
+      
+      const handleDelete = useCallback((row: User | User[]) => {}, [])
+      
+      const handleRowClick = useCallback((row: User) => {}, [])
+      
+      const handleSelection = useCallback(
+        (rows: User[]) => setSelectedRows(rows),
+        []
+      )
+      
+      const handleDeleteSelected = useCallback(() => {}, [selectedRows])
 
     // ── Header Actions (Filter + Add User) ────────────────────────────────────
     const headerActions = useMemo(() => (
