@@ -16,7 +16,6 @@ export default function CreateTenantPage() {
 
   const handleSubmit = useCallback((data: TenantFormData) => {
     setLoading(true);
-    console.log("Create tenant:", data);
     // API call here
     showToast({ title: "Tenant created!", description: "New Tenant added successfully.", type: "success", icon: <CreatedIcon /> });
     timerRef.current = setTimeout(() => {

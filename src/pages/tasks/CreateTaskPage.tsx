@@ -16,7 +16,6 @@ export default function CreateTaskPage() {
 
   const handleSubmit = useCallback((data: TaskFormData) => {
     setLoading(true);
-    console.log("Create tenant:", data);
     // API call here
     showToast({ title: "Task created!", description: "New Task added successfully.", type: "success", icon: <CreatedIcon /> });
     timerRef.current = setTimeout(() => {

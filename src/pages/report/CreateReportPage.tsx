@@ -16,7 +16,6 @@ export default function CreateReportPage() {
 
   const handleSubmit = useCallback((data: ReportFormData) => {
     setLoading(true);
-    console.log("Create Report:", data);
     // API call here
     showToast({ title: "Report created!", description: "New Report added successfully.", type: "success", icon: <CreatedIcon /> });
     timerRef.current = setTimeout(() => {

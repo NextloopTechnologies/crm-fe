@@ -16,7 +16,6 @@ export default function CreateUserPage() {
 
   const handleSubmit = useCallback((data: UserFormData) => {
     setLoading(true);
-    console.log("Create User:", data);
     // API call here
     showToast({ title: "User created!", description: "New User added successfully.", type: "success", icon: <CreatedIcon /> });
     timerRef.current = setTimeout(() => {

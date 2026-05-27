@@ -23,7 +23,6 @@ export default function EditAccountPage() {
   // ── Submit ───────────────────────────────────────────────
   const handleSubmit = useCallback((data: AccountFormData) => {
     setLoading(true)
-    console.log("Update account:", data)
     showToast({
       title: "Account updated!",
       description: "Changes saved successfully.",

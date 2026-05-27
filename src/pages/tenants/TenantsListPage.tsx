@@ -80,7 +80,7 @@ const FILTERS = [
         ],
     },
     { key: "createdFrom", label: "Created From", type: "date" as const },
-    { key: "createdTo", label: "Created To", type: "date" as const},
+    { key: "createdTo", label: "Created To", type: "date" as const },
 ]
 
 // ── Reusable renderers ──────────────────
@@ -166,18 +166,18 @@ export default function TenantsListPage() {
     const handleEdit = useCallback(
         (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
         [navigate]
-      )
-      
-      const handleDelete = useCallback((row: User | User[]) => {}, [])
-      
-      const handleRowClick = useCallback((row: User) => {}, [])
-      
-      const handleSelection = useCallback(
+    )
+
+    const handleDelete = useCallback((row: User | User[]) => { }, [])
+
+    const handleRowClick = useCallback((row: User) => { }, [])
+
+    const handleSelection = useCallback(
         (rows: User[]) => setSelectedRows(rows),
         []
-      )
-      
-      const handleDeleteSelected = useCallback(() => {}, [selectedRows])
+    )
+
+    const handleDeleteSelected = useCallback(() => { }, [selectedRows])
 
     // ── Header Actions (Filter + Add User) ────────────────────────────────────
     const headerActions = useMemo(() => (
