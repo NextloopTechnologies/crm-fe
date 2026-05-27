@@ -42,7 +42,6 @@ export default function ForgotPasswordPage() {
     })
 
     const onSubmit = async (data: ForgotFormValues) => {
-        console.log('Forgot password submitted:', data)
         // TODO: wire up forgot password API
     }
 

@@ -92,7 +92,7 @@ export default function UserForm({ mode, defaultValues = {}, onSubmit, isLoading
           <Input id="email"     label="Email"      placeholder="Enter email"        required value={form.email}     onChange={(e) => set("email")(e.target.value)}     type="email" leftIcon={<MailIcon className="w-5 h-5" />} />
           <Input id="firstName" label="First Name" placeholder="Enter first name"   required value={form.email} onChange={(e) => set("firstName")(e.target.value)} leftIcon={<UserIcon className="w-5 h-5" />} />
           <Input id="lastName"  label="Last Name"  placeholder="Enter last name"    required value={form.email}  onChange={(e) => set("lastName")(e.target.value)}  leftIcon={<UserIcon className="w-5 h-5" />} />
-          <Input id="phone"     label="Phone"      placeholder="Enter phone number"          value={form.phone}     onChange={(e) => set("phone")(e.target.value)}     type="tel" leftIcon={<PhoneIcon className="w-5 h-5" />} />
+          <Input id="phone"     label="Phone"      placeholder="Enter phone number" required        value={form.phone}     onChange={(e) => set("phone")(e.target.value)}     type="tel" leftIcon={<PhoneIcon className="w-5 h-5" />} />
         </>
       ),
     },

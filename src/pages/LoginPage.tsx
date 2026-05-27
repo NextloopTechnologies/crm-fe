@@ -57,7 +57,6 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormValues) => {
     // TODO: wire up login API + auth store
-    console.log('Login submitted:', data)
     await loginSubmit(data);
     navigate('/')
   }

@@ -15,12 +15,13 @@ interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 // ─── Component ───────────────────────────────────────────
 const Input = forwardRef<HTMLInputElement, CustomInputProps>(
-  ({ id, label, error, leftIcon, rightElement, className, ...props }, ref) => {
+  ({ id, label, error, leftIcon, required, rightElement, className, ...props }, ref) => {
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <Label htmlFor={id} className="text-sm font-medium text-[#111127]">
+          <Label htmlFor={id} className="text-sm font-medium text-[#111127] flex items-center gap-0.5">
             {label}
+            {required && <span className="text-red-500 leading-none">*</span>}
           </Label>
         )}
 
@@ -38,7 +39,7 @@ const Input = forwardRef<HTMLInputElement, CustomInputProps>(
               'h-11 rounded-[10px] border-[1.5px] text-[0.9375rem] text-[#111127] placeholder:text-[#9898b3]',
               'border-[#e4e4ee] focus-visible:border-[#5b5bd6] focus-visible:ring-2 focus-visible:ring-[rgba(91,91,214,0.12)] focus-visible:ring-offset-0',
               error &&
-                'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-100',
+              'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-100',
               leftIcon && 'pl-10',
               rightElement && 'pr-10',
               className

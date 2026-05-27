@@ -1,19 +1,17 @@
 // pages/Users/UsersList.tsx
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { DataTable, ColumnDef } from '@/components/common/Table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Trash2, } from 'lucide-react';
 import { usersData, type User } from '../../data/user.data';
-import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon } from '@/assets/icons/components/index';
-import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
 import CustomBadge from "@/components/common/CommonBadge";
 import buildingIcon from "@/assets/icons/svgs/Building.svg";
 import activeUserIcon from "@/assets/icons/svgs/ActiveUsericon.svg";
 import inActiveUserIcon from "@/assets/icons/svgs/Inactiveusericon.svg";
-import tenantsIcon from "@/assets/icons/svgs/Tenantsicon.svg";
+import { ROUTES } from '@/lib/route';
 
 const stats = [
     {
@@ -58,44 +56,57 @@ const stats = [
         value: usersData.filter((u) => u.status === "inactive").length,
         subtitle: "Currently Inactive",
     },
-    // {
-    //     icon: (
-    //         <div className="w-[55px] h-[55px] flex items-center justify-center">
-    //             <img
-    //                 src={tenantsIcon}
-    //                 alt="tenants"
-    //                 className="max-w-full max-h-full object-contain"
-    //             />
-    //         </div>
-    //     ),
-    //     label: "Total Users",
-    //     value: usersData.filter((u) => u.role === "Admin").length,
-    //     subtitle: "Across all Tenants",
-    // },
 ];
 
+const FILTERS = [
+    {
+        key: "status",
+        label: "Status",
+        type: "select" as const,
+        options: [
+            { label: "Active", value: "active" },
+            { label: "Inactive", value: "inactive" },
+        ],
+    },
+    {
+        key: "role",
+        label: "Industry",
+        type: "select" as const,
+        options: [
+            { label: "Admin", value: "Admin" },
+            { label: "Manager", value: "Manager" },
+            { label: "Developer", value: "Developer" },
+            { label: "Viewer", value: "Viewer" },
+        ],
+    },
+    { key: "createdFrom", label: "Created From", type: "date" as const },
+    { key: "createdTo", label: "Created To", type: "date" as const },
+]
+
+// ── Reusable renderers ──────────────────
+const UserCell = ({ name }: { name: string }) => (
+    <div className="flex items-center gap-2.5">
+        <Avatar className="h-8 w-8">
+            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${name}`} />
+            <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+                {name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+            </AvatarFallback>
+        </Avatar>
+        <span className="text-sm font-medium text-[#111127]">{name}</span>
+    </div>
+)
 
 export default function TenantsListPage() {
     const [selectedRows, setSelectedRows] = useState<User[]>([]);
     const navigate = useNavigate();
 
     // ── Columns ───────────────────────────────────────────────────────────────────
-    const columns: ColumnDef<User>[] = [
+    const columns = useMemo<ColumnDef<User>[]>(() => [
         {
             key: "name",
             label: "Tenant Name",
             width: "180px",
-            render: (_, row) => (
-                <div className="flex items-center gap-2.5">
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
-                        <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                            {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                        </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm font-medium text-[#111127]">{row.name}</span>
-                </div>
-            ),
+            render: (_, row) => <UserCell name={row.name} />,
         },
         {
             key: "email",
@@ -150,30 +161,39 @@ export default function TenantsListPage() {
                 </span>
             ),
         },
-    ];
+    ], [])
+
+    const handleEdit = useCallback(
+        (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+        [navigate]
+    )
+
+    const handleDelete = useCallback((row: User | User[]) => { }, [])
+
+    const handleRowClick = useCallback((row: User) => { }, [])
+
+    const handleSelection = useCallback(
+        (rows: User[]) => setSelectedRows(rows),
+        []
+    )
+
+    const handleDeleteSelected = useCallback(() => { }, [selectedRows])
 
     // ── Header Actions (Filter + Add User) ────────────────────────────────────
-    const headerActions = (
+    const headerActions = useMemo(() => (
         <div className="flex items-center gap-2">
-            {/* Delete Selected */}
             {selectedRows.length > 0 && (
                 <Button
                     variant="outline"
                     className="h-9 px-4 text-sm rounded-[10px] border-red-200 text-red-500 hover:bg-red-50 gap-2"
-                    onClick={() => console.log("Delete selected", selectedRows)}
+                    onClick={handleDeleteSelected}
                 >
                     <Trash2 size={14} />
                     Delete ({selectedRows.length})
                 </Button>
             )}
-
-            {/* Add User */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/tenants/create")}>
-                <PlusIcon />
-                Add Tenant
-            </Button>
         </div>
-    );
+    ), [selectedRows.length, handleDeleteSelected])
 
     return (
         <div className="bg-white min-h-screen rounded-xl">
@@ -195,40 +215,17 @@ export default function TenantsListPage() {
             <DataTable
                 data={usersData}
                 columns={columns}
+                filters={FILTERS}
                 searchable
                 searchPlaceholder="Search by name, email, location..."
                 selectable
                 pageSize={8}
                 emptyMessage="No users found."
                 headerActions={headerActions}
-                onRowClick={(row) => console.log("Row clicked", row)}
-                onSelectionChange={(rows) => setSelectedRows(rows)}
-                onEdit={(row) => navigate(`/tenants/${row.id}/edit`)}
-                onDelete={(row) => console.log("Delete", row)}
-                filters={[
-                    {
-                        key: "status",
-                        label: "Status",
-                        type: "select",
-                        options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
-                        ],
-                    },
-                    {
-                        key: "role",
-                        label: "Industry",
-                        type: "select",
-                        options: [
-                            { label: "Admin", value: "Admin" },
-                            { label: "Manager", value: "Manager" },
-                            { label: "Developer", value: "Developer" },
-                            { label: "Viewer", value: "Viewer" },
-                        ],
-                    },
-                    { key: "createdFrom", label: "Created From", type: "date" },
-                    { key: "createdTo", label: "Created To", type: "date" },
-                ]}
+                onRowClick={handleRowClick}
+                onSelectionChange={handleSelection}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
             />
         </div>
     );

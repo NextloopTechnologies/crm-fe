@@ -11,9 +11,9 @@ export default function EditProfilePage() {
       <ProfileForm
         user={user}
         mode="edit"
-        onSubmit={(data) => console.log("Saving:", data)}
+        onSubmit={(data) => { }}
         onCancel={() => navigate("/profile")}
-        onUploadPhoto={() => console.log("Upload photo")}
+        onUploadPhoto={() => { }}
       />
     </div>
   );

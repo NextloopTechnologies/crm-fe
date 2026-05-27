@@ -8,10 +8,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon } from "lucide-react"
+import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon, CheckCircle } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import { cn } from "@/lib/utils"
+import { showToast } from "../common/Toast"
 
 // ── Route → label map ────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
@@ -64,7 +65,15 @@ export function Navbar() {
     // handle send logic here
     setSubject("");
     setMessage("");
-    setShowWriteToUs(false);
+    
+    
+
+    showToast({
+      title: "Message Submitted",
+      description: "We've received your message and will get back to you shortly.",
+      type: "success",
+      icon: <CheckCircle size={22} color="#0BD901" />,
+  });
   };
 
   const meta = getRouteMeta(location.pathname) ?? {

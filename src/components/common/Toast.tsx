@@ -1,4 +1,5 @@
 import { toast } from "sonner"
+import React from "react"
 
 type ToastType = "success" | "error" | "warning" | "info"
 
@@ -6,44 +7,59 @@ interface ToastOptions {
   title: string
   description?: string
   type?: ToastType
-  icon?: React.ReactNode  // ← add karo
-  position?: "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"
+  icon?: React.ReactNode  
 }
 
-const styles: Record<ToastType, { bg: string; border: string; title: string }> = {
-  success: { bg: "#FFFFFF", border: "#0BD90180", title: "#262626" },
-  error:   { bg: "#fef2f2", border: "#fca5a5",   title: "#dc2626" },
-  warning: { bg: "#fffbeb", border: "#fcd34d",   title: "#d97706" },
-  info:    { bg: "#eff6ff", border: "#93c5fd",   title: "#2563eb" },
+const configs: Record<ToastType, {
+  border: string
+  iconBg: string
+  iconColor: string
+}> = {
+  success: { border: "#16a34a", iconBg: "#e6faf0", iconColor: "#16a34a" },
+  error:   { border: "#dc2626", iconBg: "#fef2f2", iconColor: "#dc2626" },
+  warning: { border: "#d97706", iconBg: "#fffbeb", iconColor: "#d97706" },
+  info:    { border: "#2563eb", iconBg: "#eff6ff", iconColor: "#2563eb" },
 }
 
 export function showToast({
   title,
   description,
-  type = "info",
+  type = "success",
   icon,
-  position = "top-right",
 }: ToastOptions) {
-  const s = styles[type]
+  const { border, iconBg } = configs[type]
 
   toast(title, {
     description,
-    position,
+    position: "top-right",
     icon: icon ? (
-      <div style={{ width: "44px", height: "44px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{
+        width: "44px",
+        height: "44px",
+        flexShrink: 0,
+        borderRadius: "8px",
+        background: iconBg,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}>
         {icon}
       </div>
     ) : null,
     style: {
-        background: s.bg,
-        border: `1px solid ${s.border}`,
-        borderRadius: "10px",
-        padding: "12px 16px",
-        color: s.title,
-        display: "flex",
-        alignItems: "center",
-        gap: "32px",
-      },
-    descriptionClassName: "text-xs mt-0.5",
+      background: "#FFFFFF",
+      border: `1.5px solid ${border}`,
+      borderRadius: "10px",
+      borderTopRightRadius: "0px",
+      borderBottomRightRadius: "0px",
+      borderRight: "none",
+      padding: "14px 16px",
+      display: "flex",
+      alignItems: "center",
+      gap: "38px",
+      width: "340px",
+      marginRight: "0",
+    },
+    descriptionClassName: "text-xs mt-0.5 text-muted-foreground",
   })
 }
