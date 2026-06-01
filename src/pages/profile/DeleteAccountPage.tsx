@@ -20,7 +20,7 @@ export default function DeleteAccountPage() {
 
         {/* Header */}
         <div className="px-10 py-6 border-b border-[#E0E0E0] bg-[#FAFAFA]">
-          <h1 className="text-3xl font-semibold text-[#2B2B2B]">
+          <h1 className="text-2xl font-semibold text-[#2B2B2B]">
             Deleted Account
           </h1>
         </div>
