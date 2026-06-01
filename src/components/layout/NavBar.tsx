@@ -216,7 +216,7 @@ export function Navbar() {
                   <div className=" mb-1 overflow-hidden rounded-[6px]">
                     <button
                       className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-gray-700 hover:bg-[#5752FE]/10 hover:text-[#5752FE]"
-                      onClick={() => navigate("/settings/account-info")}
+                      onClick={() => navigate("/profile/account-info")}
                     >
                       <User size={12} className="text-gray-500" />
                       Account Information

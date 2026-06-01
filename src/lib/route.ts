@@ -42,6 +42,7 @@ export const ROUTES = {
   PROFILE: "/profile",
   PROFILE_EDIT: "/profile/edit",
   DELETE_ACCOUNT_PAGE : "/profile/delete",
+  ACCOUNT_INFORMATION_PAGE : "/profile/account-info",  
   // Projects
   PROJECT: "/projects",
 

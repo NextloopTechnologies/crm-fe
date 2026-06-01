@@ -33,6 +33,7 @@ const MyProfilePage     = lazy(() => import('@/pages/profile/MyProfilePage'))
 const EditProfilePage   = lazy(() => import('@/pages/profile/EditProfilePage'))
 const SettingsPage      = lazy(() => import('@/pages/SettingsPage'))
 const DeleteAccountPage      = lazy(() => import('@/pages/profile/DeleteAccountPage'))
+const AccountInformationPage = lazy(() => import('@/pages/profile/AccountInformationPage'))
 
 // ─── Types ───────────────────────────────────────────────────
 export type SidebarGroup = "main" | "management" | "settings"
@@ -114,6 +115,7 @@ export const protectedRoutes: RouteConfig[] = [
   { path: ROUTES.PROFILE,      element: MyProfilePage },
   { path: ROUTES.PROFILE_EDIT, element: EditProfilePage },
   { path: ROUTES.DELETE_ACCOUNT_PAGE, element: DeleteAccountPage },
+  { path: ROUTES.ACCOUNT_INFORMATION_PAGE, element: AccountInformationPage },
 
   {
     path: ROUTES.SETTINGS,
