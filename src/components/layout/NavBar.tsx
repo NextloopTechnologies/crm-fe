@@ -6,9 +6,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon, CheckCircle } from "lucide-react"
+import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon, CheckCircle, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import { cn } from "@/lib/utils"
@@ -50,12 +53,22 @@ export function Navbar() {
   const navigate = useNavigate()
   const [openLogout, setOpenLogout] = useState(false);
   const [showWriteToUs, setShowWriteToUs] = useState(false);
+  const [showAccountSub, setShowAccountSub] = useState(false);
 
+  // const [role, setRole] = useState<"admin" | "manager" | "sales">("admin");
+  const [role, setRole] = useState<"admin" | "manager" | "sales">(
+    () => (localStorage.getItem("dev_role") as "admin" | "manager" | "sales") ?? "admin"
+  );
   // Form state
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
 
+  const handleRoleChange = (newRole: "admin" | "manager" | "sales") => {
+    setRole(newRole);
+    localStorage.setItem("dev_role", newRole);
+    window.location.reload(); // DashboardRouter bhi re-read kare
+  };
 
   const handleLogout = () => {
     navigate("/login");
@@ -65,15 +78,15 @@ export function Navbar() {
     // handle send logic here
     setSubject("");
     setMessage("");
-    
-    
+
+
 
     showToast({
       title: "Message Submitted",
       description: "We've received your message and will get back to you shortly.",
       type: "success",
       icon: <CheckCircle size={22} color="#0BD901" />,
-  });
+    });
   };
 
   const meta = getRouteMeta(location.pathname) ?? {
@@ -107,6 +120,19 @@ export function Navbar() {
             />
           </div>
 
+          {/* Role Switcher — dev only */}
+          <div className="flex items-center gap-1.5 rounded-lg border border-dashed border-[#5752FE]/40 bg-[#5752FE]/5 px-2 py-1">
+            <span className="text-[10px] font-medium text-[#5752FE]">Role:</span>
+            <select
+              value={role}
+              onChange={(e) => handleRoleChange(e.target.value as "admin" | "manager" | "sales")}
+              className="text-[11px] font-semibold text-[#5752FE] bg-transparent outline-none cursor-pointer"
+            >
+              <option value="admin">Admin</option>
+              <option value="manager">Manager</option>
+              <option value="sales">Sales</option>
+            </select>
+          </div>
           {/* Notification bell */}
           <Button
             variant="ghost"
@@ -167,13 +193,47 @@ export function Navbar() {
                 My Profile
               </DropdownMenuItem>
 
-              <DropdownMenuItem
-                className="flex items-center gap-2.5 text-xs text-gray-700 rounded-md cursor-pointer focus:bg-gray-50 px-3 py-2"
-                onClick={() => navigate("/settings")}
-              >
-                <Settings size={13} className="text-black" />
-                Account Settings
-              </DropdownMenuItem>
+              <div className="relative">
+                <DropdownMenuItem
+                  className="flex items-center justify-between text-xs text-gray-700 rounded-md cursor-pointer focus:bg-[#5752FE]/10 focus:text-[#5752FE] px-3 py-2"
+                  onSelect={(e) => {
+                    e.preventDefault(); // dropdown close na ho
+                    setShowAccountSub((prev) => !prev);
+                  }}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Settings size={13} className="text-black" />
+                    Account Settings
+                  </div>
+                  <ChevronDown
+                    size={12}
+                    className={`text-gray-400 transition-transform duration-200 ${showAccountSub ? "rotate-180" : ""}`}
+                  />
+                </DropdownMenuItem>
+
+                {/* Sub items — neeche slide karo */}
+                {showAccountSub && (
+                  <div className=" mb-1 overflow-hidden rounded-[6px]">
+                    <button
+                      className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-gray-700 hover:bg-[#5752FE]/10 hover:text-[#5752FE]"
+                      onClick={() => navigate("/settings/account-info")}
+                    >
+                      <User size={12} className="text-gray-500" />
+                      Account Information
+                    </button>
+
+                    <div className="mx-3 h-[0.5px] bg-gray-200" />
+
+                    <button
+                      className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-red-500 hover:bg-red-50"
+                      onClick={() => {navigate("/profile/delete") }}
+                    >
+                      <Trash2 size={12} className="text-red-400" />
+                      Delete Account
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* <DropdownMenuItem
                 className="flex items-center gap-2.5 text-xs text-gray-700 rounded-md cursor-pointer focus:bg-gray-50 px-3 py-2"

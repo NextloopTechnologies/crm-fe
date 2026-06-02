@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 
 // ─── Lazy Imports ────────────────────────────────────────────
-const DashboardPage     = lazy(() => import('@/pages/dashboard/DashboardPage'))
+const DashboardPage     = lazy(() => import('@/pages/dashboard/DashboardRouter'))
 const LeadsListPage     = lazy(() => import('@/pages/leads/LeadsListPage'))
 const LeadsPage         = lazy(() => import('@/pages/leads/LeadsPage'))
 const ProjectsPage      = lazy(() => import('@/pages/ProjectsPage'))
@@ -32,6 +32,7 @@ const EditReportPage    = lazy(() => import('@/pages/report/EditReportPage'))
 const MyProfilePage     = lazy(() => import('@/pages/profile/MyProfilePage'))
 const EditProfilePage   = lazy(() => import('@/pages/profile/EditProfilePage'))
 const SettingsPage      = lazy(() => import('@/pages/SettingsPage'))
+const DeleteAccountPage      = lazy(() => import('@/pages/profile/DeleteAccountPage'))
 
 // ─── Types ───────────────────────────────────────────────────
 export type SidebarGroup = "main" | "management" | "settings"
@@ -112,6 +113,8 @@ export const protectedRoutes: RouteConfig[] = [
   // ── Profile & Settings ───────────────────────────────────
   { path: ROUTES.PROFILE,      element: MyProfilePage },
   { path: ROUTES.PROFILE_EDIT, element: EditProfilePage },
+  { path: ROUTES.DELETE_ACCOUNT_PAGE, element: DeleteAccountPage },
+
   {
     path: ROUTES.SETTINGS,
     element: SettingsPage,
