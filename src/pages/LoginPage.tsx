@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate, Link } from 'react-router-dom'
 import { EyeIcon, EyeOffIcon, MailIcon, LockIcon, } from '@/assets/icons/components/index'
-import { useLogin } from '@/hooks/userLogin'
+import { useLogin } from '@/hooks/useLogin'
 import { Button } from '../components/common/Button'
 import { Input } from '@/components/common/Input'
 import { Checkbox } from '@/components/common/Checkbox'
@@ -17,8 +17,7 @@ import helloIcon from '../assets/icons/svgs/helloIcon.svg'
 const loginSchema = z.object({
   email: z
     .string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
+    .min(1, 'Email is required'),
   password: z
     .string()
     .min(1, 'Password is required')
@@ -40,7 +39,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
 
-  const { onSubmit: loginSubmit, isLoading } = useLogin()
+  const { onSubmit: loginSubmit, isLoading, error } = useLogin()
 
   const {
     register,
@@ -56,9 +55,8 @@ export default function LoginPage() {
   const rememberMe = watch('rememberMe')
 
   const onSubmit = async (data: LoginFormValues) => {
-    // TODO: wire up login API + auth store
-    await loginSubmit(data);
-    navigate('/')
+    const result = await loginSubmit(data)
+    if (result) navigate('/')   // only navigate on success
   }
 
   return (
@@ -137,6 +135,15 @@ export default function LoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
 
+          {error && (
+    <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.75-5.25a.75.75 0 001.5 0v-4a.75.75 0 00-1.5 0v4zm.75 2.5a.75.75 0 110-1.5.75.75 0 010 1.5z" clipRule="evenodd" />
+      </svg>
+      {error}
+    </div>
+  )}
+  
             {/* Email — using Input */}
             <Input
               id="email"

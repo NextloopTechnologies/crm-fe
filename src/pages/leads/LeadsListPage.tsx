@@ -1,5 +1,5 @@
 // pages/Users/UsersList.tsx
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DataTable, ColumnDef, RowAction } from '@/components/common/Table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,6 +14,7 @@ import StatsCard from '@/components/common/StatsCards';
 import { NewLeadsIcon } from '@/assets/icons/components/index';
 import CustomBadge from "@/components/common/CommonBadge";
 import { ROUTES } from '@/lib/route';
+import { getAllLeads } from '@/api/leads.api';
 
 const roleColors: Record<string, string> = {
     Admin:
@@ -51,19 +52,36 @@ const stats = [
 
 
 export default function LeadsList() {
-    const [selectedRows, setSelectedRows] = useState<User[]>([]);
+    const [selectedRows, setSelectedRows] = useState<any[]>([]);
+    const [leads, setLeads] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const fetchLeads = async () => {
+            try {
+                setLoading(true);
+                const response = await getAllLeads();
+                setLeads(response.data || response);
+            } catch (error) {
+                console.error("Error fetching leads:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLeads();
+    }, []);
     // ── Columns ───────────────────────────────────────────────────────────────────
-    const columns: ColumnDef<User>[] = [
+    const columns: ColumnDef<any>[] = [
         {
             key: "name",
             label: "Name",
             width: "220px",
-            render: (_, row) => <span>{row.name ?? "—"}</span>,
+            render: (_, row) => <span>{row.firstName ?? "—"}</span>,
         },
         {
-            key: "company",        // ← fix typo was "comapany"
+            key: "company",       
             label: "Company",
             width: "220px",
             render: (_, row) => <span>{(row as any).company ?? "—"}</span>,
@@ -81,53 +99,46 @@ export default function LeadsList() {
             render: (_, row) => <span>{row.phone ?? "—"}</span>,
         },
         {
-            key: "role",
-            label: "Role",
+            key: "leadSource",
+            label: "Lead Source",
             width: "140px",
-            render: (_, row) => (
-                <CustomBadge
-                    label={row.role ?? "—"}
-                    className={
-                        roleColors[row.role ?? ""] ??
-                        "bg-gray-100 text-gray-600 border border-gray-200"
-                    }
-                />
-            ),
+            render: (_, row) => <span>{row.leadSource ?? "—"}</span>,
+
         },
         {
-            key: "name",
+            key: "leadOwner",
             label: "Lead Owner",
             width: "180px",
             render: (_, row) => (
                 <div className="flex items-center gap-2.5">
                     <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
+                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.leadOwner}`} />
                         <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                            {row.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
+                            {row.leadOwner?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
                         </AvatarFallback>
                     </Avatar>
-                    <span>{row.name ?? "—"}</span>
+                    <span>{row.leadOwner ?? "—"}</span>
                 </div>
             ),
         },
     ];
 
-        const handleEdit = useCallback(
-            (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
-            [navigate]
-        )
-    
-        const handleDelete = useCallback((row: User | User[]) => { }, [])
-    
-        const handleRowClick = useCallback((row: User) => { }, [])
-    
-        const handleSelection = useCallback(
-            (rows: User[]) => setSelectedRows(rows),
-            []
-        )
-    
-        const handleDeleteSelected = useCallback(() => { }, [selectedRows])
-        
+    const handleEdit = useCallback(
+        (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+        [navigate]
+    )
+
+    const handleDelete = useCallback((row: User | User[]) => { }, [])
+
+    const handleRowClick = useCallback((row: User) => { }, [])
+
+    const handleSelection = useCallback(
+        (rows: User[]) => setSelectedRows(rows),
+        []
+    )
+
+    const handleDeleteSelected = useCallback(() => { }, [selectedRows])
+
     // ── Header Actions (Filter + Add User) ────────────────────────────────────
     const headerActions = (
         <div className="flex items-center gap-2">
@@ -153,6 +164,14 @@ export default function LeadsList() {
     return (
         <div className="bg-white min-h-screen rounded-xl">
 
+            {error && (
+                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                    <svg className="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-.75-5.25a.75.75 0 001.5 0v-4a.75.75 0 00-1.5 0v4zm.75 2.5a.75.75 0 110-1.5.75.75 0 010 1.5z" clipRule="evenodd" />
+                    </svg>
+                    {error}
+                </div>
+            )}
             {/* Stats Cards */}
             <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6">
                 {stats.map((stat) => (
@@ -170,13 +189,13 @@ export default function LeadsList() {
 
             {/* Table */}
             <DataTable
-                data={usersData}
+                data={leads}
                 columns={columns}
                 searchable
                 searchPlaceholder="Search by name, email, location..."
                 selectable
                 pageSize={8}
-                emptyMessage="No users found."
+                emptyMessage="No leads found."
                 headerActions={headerActions}
                 onRowClick={handleRowClick}
                 onSelectionChange={handleSelection}

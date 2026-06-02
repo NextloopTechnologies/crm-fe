@@ -78,15 +78,39 @@ export interface Lead {
   createdAt: string
   notes?: string
 }
-
+export interface AddressRequestDto {
+  country: string
+  flatNo: string
+  street: string
+  city: string
+  state: string
+  zipCode: string
+  latitue:string
+  longitude:string
+  organizationId: string
+}
 export interface CreateLeadRequest {
-  name: string
   company?: string
+  lastName: string
+  firstName: string
+  title?: string
   email: string
   phone?: string
-  source: string
-  dealValue?: number
-  notes?: string
+  fax?: string
+  mobile: string
+  website?: string
+  leadSource: string
+  leadStatus: string
+  industry?: string
+  noOfEmployees?: string
+  annualRevenue?: string
+  rating?: string
+  emailOptOut?: boolean
+  skypeId?: string
+  secondaryEmail?: string
+  twitter?: string
+
+  leadAddressRequestDto: AddressRequestDto
 }
 
 // ── Client ────────────────────────────────────────────────────────────────────

@@ -2,11 +2,14 @@ import { useState } from 'react';
 import FormPage, { FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
-import { UserIcon, PhoneIcon, MailIcon, LockIcon, LocationIcon } from '@/assets/icons/components/index'
+import { UserIcon, PhoneIcon, MailIcon, LockIcon, LocationIcon, CreatedIcon } from '@/assets/icons/components/index'
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
 import { InlineSelectDropdown } from '@/components/common/InlineSelectDropDown';
+import { createLead } from '@/api/leads.api';
+import { CreateLeadRequest } from '@/types/api.types';
+import { showToast } from '@/components/common/Toast';
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 
@@ -41,19 +44,124 @@ const roleOptions = [
   { label: "Viewer", value: "viewer" },
 ];
 
+const leadStatusOptions = [
+  { label: "None", value: "None" },
+  { label: "Attempted to Contact", value: "Attempted to Contact" },
+  { label: "Contact in Future", value: "Contact in Future" },
+  { label: "Contacted", value: "Contacted" },
+  { label: "Junk Lead", value: "Junk Lead" },
+  { label: "Lost Lead", value: "Lost Lead" },
+  { label: "Not Contacted", value: "Not Contacted" },
+  { label: "Pre-Qualified", value: "Pre-Qualified" },
+  { label: "Not Qualified", value: "Not Qualified" },
+
+];
+
+const leadSourceOptions = [
+  { label: "Web", value: "Web" },
+  { label: "Phone", value: "Phone" },
+  { label: "Email", value: "Email" },
+  { label: "Cold Call", value: "Cold Call" },
+  { label: "Existing Customer", value: "Existing Customer" },
+  { label: "Partner", value: "Partner" },
+  { label: "Other", value: "Other" },
+
+];
+
+const industryOptions = [
+  { label: "Technology", value: "Technology" },
+  { label: "Finance", value: "Finance" },
+  { label: "Healthcare", value: "Healthcare" },
+  { label: "Education", value: "Education" },
+  { label: "Retail", value: "Retail" },
+  { label: "Manufacturing", value: "Manufacturing" },
+  { label: "Other", value: "Other" },
+
+];
+
+const ratingOptions = [
+  { label: "None", value: "None" },
+  { label: "Acquired", value: "Acquired" },
+  { label: "Active", value: "Active" },
+  { label: "Market Failed", value: "Market Failed" },
+  { label: "Project Cancelled", value: "Project Cancelled" },
+  { label: "Shut Down", value: "Shut Down" },
+
+];
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function LeadsPage() {
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState("");
   const [touched, setTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
-  const handleSubmit = (e: React.FormEvent) => {
+  const [role, setRole] = useState("");
+  const [formData, setFormData] = useState<CreateLeadRequest>({
+    company: "",
+    lastName: "",
+    firstName: "",
+    title: "",
+    email: "",
+    phone: "",
+    fax: "",
+    mobile: "",
+    website: "",
+    leadSource: "",
+    leadStatus: "",
+    industry: "",
+    noOfEmployees: "",
+    annualRevenue: "",
+    rating: "",
+    emailOptOut: false,
+    skypeId: "",
+    secondaryEmail: "",
+    twitter: "",
+
+    leadAddressRequestDto: {
+      country: "",
+      flatNo: "",
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      latitude: "",
+      longitude: "",
+      organizationId: localStorage.getItem("organizationId") || "",
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // your API call here
-    setTimeout(() => setLoading(false), 2000);
+
+    try {
+      const response = await createLead(formData);
+      if (response.code === "0x0200") {
+        showToast({
+          title: "Lead created!",
+          description: "New lead added successfully.",
+          type: "success",
+          icon: <CreatedIcon />
+        })
+        navigation.navigate("/leads");
+      }
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Safe nested update helper
+  const updateAddress = (key: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      leadAddressRequestDto: {
+        ...prev.leadAddressRequestDto!,
+        [key]: value,
+      },
+    }));
+  };
+
 
   const sections: FormSection[] = [
     {
@@ -69,6 +177,8 @@ export default function LeadsPage() {
             label="Company Name"
             placeholder="Enter company name"
             required
+            value={formData.company}
+            onChange={(e) => setFormData({ ...formData, company: e.target.value })}
             leftIcon={<BuildingIcon />}
           />
           <Input
@@ -76,6 +186,8 @@ export default function LeadsPage() {
             label="First Name"
             placeholder="Enter first name"
             required
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
           />
           <Input
@@ -83,6 +195,8 @@ export default function LeadsPage() {
             label="Last Name"
             placeholder="Enter last name"
             required
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
           />
 
@@ -92,6 +206,8 @@ export default function LeadsPage() {
             placeholder="Enter email"
             type="email"
             required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             leftIcon={<MailIcon className='w-5 h-5' />}
           />
 
@@ -100,6 +216,8 @@ export default function LeadsPage() {
             label="Phone"
             placeholder="Enter phone number"
             type="tel"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
           />
 
@@ -108,6 +226,8 @@ export default function LeadsPage() {
             label="Fax"
             placeholder="Enter fax number"
             type="tel"
+            value={formData.fax}
+            onChange={(e) => setFormData({ ...formData, fax: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
           />
 
@@ -116,84 +236,95 @@ export default function LeadsPage() {
             label="Website"
             placeholder="Enter website URL"
             type="url"
+            value={formData.website}
+            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
           />
-           <SelectDropdown
+          <SelectDropdown
             label="Lead Status"
             placeholder="Select lead status"
-            options={roleOptions}
-            value={role}
+            options={leadStatusOptions}
+            value={formData.leadStatus}
             onChange={(val) => {
-              setRole(val);
+              setFormData({ ...formData, leadStatus: val });
               setTouched(true);
             }}
             required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !role ? "Role is required" : undefined}
+            error={(touched || isSubmitted) && !formData.leadStatus ? "Lead status is required" : undefined}
           />
 
 
           <SelectDropdown
             label="Lead Sources"
             placeholder="Select lead source"
-            options={roleOptions}
-            value={role}
+            options={leadSourceOptions}
+            value={formData.leadSource}
             onChange={(val) => {
-              setRole(val);
+              setFormData({ ...formData, leadSource: val });
               setTouched(true);
             }}
             required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !role ? "Role is required" : undefined}
+            error={(touched || isSubmitted) && !formData.leadSource ? "Lead source is required" : undefined}
           />
           <SelectDropdown
             label="Industry"
             placeholder="Select industry"
-            options={roleOptions}
-            value={role}
+            options={industryOptions}
+            value={formData.industry}
             onChange={(val) => {
-              setRole(val);
+              setFormData({ ...formData, industry: val });
               setTouched(true);
             }}
             required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !role ? "Role is required" : undefined}
+            error={(touched || isSubmitted) && !formData.industry ? "Industry is required" : undefined}
           />
           <Input
             id="Number of Employees"
             label="Number of Employees"
             placeholder="Enter number of employees"
+            value={formData.noOfEmployees}
+            onChange={(e) => setFormData({ ...formData, noOfEmployees: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
           />
           <Input
             id="Annual Revenue"
             label="Annual Revenue"
             placeholder="Enter annual revenue"
+            value={formData.annualRevenue}
+            onChange={(e) => setFormData({ ...formData, annualRevenue: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
           />
           <SelectDropdown
             label="Rating"
             placeholder="Select rating"
-            options={roleOptions}
-            value={role}
+            options={ratingOptions}
+            value={formData.rating}
             onChange={(val) => {
-              setRole(val);
+              setFormData({ ...formData, rating: val });
               setTouched(true);
             }}
             required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !role ? "Role is required" : undefined}
+            error={(touched || isSubmitted) && !formData.rating ? "Rating is required" : undefined}
           />
-          <div className="col-span-full -mx-7 border-b-[1.5px] border-[#ECECEC] mt-2 pb-6">
+          <div className="col-span-full mt-2 pb-6">
 
             <div className="px-6 flex flex-col gap-2">
               <span className="text-[12px]">Email Opt Out</span>
 
               <Checkbox
-                className="border-[#dcdcf0] hover:border-[#5b5bd6]"
-                labelClassName="text-[12px]"
-                id="rememberMe"
+                id="emailOptOut"
                 label="Do not contact this lead via email"
+                checked={formData.emailOptOut}
+                onCheckedChange={(checked) =>
+                  setFormData({
+                    ...formData,
+                    emailOptOut: checked,
+                  })
+                }
               />
             </div>
 
@@ -209,11 +340,13 @@ export default function LeadsPage() {
       iconBg: "bg-green-50",
       iconColor: "text-green-500",
       children: (
-        <div className="-mx-7 px-6 pt-10 pb-10 border-b-[1.5px] border-[#ECECEC] col-span-full grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className=" px-6 col-span-full grid grid-cols-1 md:grid-cols-2 gap-10">
           <Input
             id="Skype ID"
             label="Skype ID"
             placeholder="Enter Skype ID"
+            value={formData.skypeId}
+            onChange={(e) => setFormData({ ...formData, skypeId: e.target.value })}
             leftIcon={<MailIcon className='w-5 h-5' />}
           />
           <Input
@@ -221,6 +354,8 @@ export default function LeadsPage() {
             label="Secondary Email"
             placeholder="Enter secondary email"
             type="email"
+            value={formData.secondaryEmail}
+            onChange={(e) => setFormData({ ...formData, secondaryEmail: e.target.value })}
             leftIcon={<MailIcon className='w-5 h-5' />}
           />
         </div>
@@ -233,26 +368,20 @@ export default function LeadsPage() {
       iconBg: "bg-[#5752FE1A]",
       iconColor: "text-[#5752FE]",
       children: (
-        <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 pt-6 -mx-6 px-6">
-          <InlineSelectDropdown
+        <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 pt-6 px-6">
+          <InlineInput
             id="country"
             label="Country"
             placeholder="Select country"
-            options={roleOptions}
-            value={role}
-            onChange={(val) => {
-              setRole(val);
-              setTouched(true);
-            }}
+            value={formData.leadAddressRequestDto?.country || ''}
+            onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })}
             required
-            leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !role ? "Role is required" : undefined}
           />
-          <InlineInput id="street" label="Street" placeholder="Enter street address" />
-          <InlineInput id="state" label="State" placeholder="Enter state / province" />
-          <InlineInput id="flatNo" label="Flat No." placeholder="Enter flat number" />
-          <InlineInput id="city" label="City" placeholder="Enter city" />
-          <InlineInput id="zipCode" label="Zip Code" placeholder="Enter zip / postal code" />
+          <InlineInput id="street" label="Street" placeholder="Enter street address" value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} />
+          <InlineInput id="state" label="State" placeholder="Enter state / province" value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} />
+          <InlineInput id="flatNo" label="Flat No." placeholder="Enter flat number" value={formData.leadAddressRequestDto?.flatNo || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, flatNo: e.target.value } })} />
+          <InlineInput id="city" label="City" placeholder="Enter city" value={formData.leadAddressRequestDto?.city || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, city: e.target.value } })} />
+          <InlineInput id="zipCode" label="Zip Code" placeholder="Enter zip / postal code" value={formData.leadAddressRequestDto?.zipCode || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, zipCode: e.target.value } })} />
         </div>
       ),
     },

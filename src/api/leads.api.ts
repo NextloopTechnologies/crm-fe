@@ -10,14 +10,48 @@ export interface LeadFilters {
   size?: number
 }
 
-export const getLeads = (filters?: LeadFilters) =>
-  api.get<PaginatedResponse<Lead>>('/leads', { params: filters }).then((r) => r.data)
+import axios from "axios";
+
+const API_URL =
+  "https://peakily-idioplasmatic-kimbra.ngrok-free.dev/api/lead";
+
+export const getAllLeads = async () => {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await axios.get(
+    `${API_URL}/getAllLeads`,
+    {
+      headers: {
+        'ngrok-skip-browser-warning': 'true', // ← required for ngrok URLs
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
+
+export const createLead = async (data: CreateLeadRequest) => {
+  const token = localStorage.getItem("accessToken");
+
+  const response = await axios.post(
+    `${API_URL}/register`,
+    data,
+    {
+      headers: {
+        'ngrok-skip-browser-warning': 'true', // ← required for ngrok URLs
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+};
 
 export const getLeadById = (id: number) =>
   api.get<Lead>(`/leads/${id}`).then((r) => r.data)
 
-export const createLead = (data: CreateLeadRequest) =>
-  api.post<Lead>('/leads', data).then((r) => r.data)
+
 
 export const updateLead = (id: number, data: Partial<CreateLeadRequest>) =>
   api.put<Lead>(`/leads/${id}`, data).then((r) => r.data)
