@@ -28,15 +28,13 @@ export const useLogin = () => {
   const onSubmit = async (payload: LoginPayload): Promise<LoginResponse | null> => {
     setIsLoading(true)
     setError(null)
-
     try {
       const response = await fetch(
-        'https://peakily-idioplasmatic-kimbra.ngrok-free.dev/api/auth/login',
+        `${import.meta.env.VITE_API_URL}auth/login`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': 'true', // ← required for ngrok URLs
           },
           body: JSON.stringify({
             usernameOrEmail: payload.email, // adjust key if backend expects 'username'

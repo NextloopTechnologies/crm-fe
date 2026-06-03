@@ -85,7 +85,7 @@ export interface AddressRequestDto {
   city: string
   state: string
   zipCode: string
-  latitue:string
+  latitude:string
   longitude:string
   organizationId: string
 }

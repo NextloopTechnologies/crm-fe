@@ -10,6 +10,7 @@ import { InlineSelectDropdown } from '@/components/common/InlineSelectDropDown';
 import { createLead } from '@/api/leads.api';
 import { CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
+import { ResponseCode } from '@/constants/statusCodes';
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 
@@ -136,7 +137,7 @@ export default function LeadsPage() {
 
     try {
       const response = await createLead(formData);
-      if (response.code === "0x0200") {
+      if (response.code === ResponseCode.SUCCESS) {
         showToast({
           title: "Lead created!",
           description: "New lead added successfully.",

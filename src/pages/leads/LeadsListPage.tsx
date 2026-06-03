@@ -112,7 +112,7 @@ export default function LeadsList() {
             render: (_, row) => (
                 <div className="flex items-center gap-2.5">
                     <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.leadOwner}`} />
+                        <AvatarImage src={`${import.meta.env.VITE_AVATAR_URL}&seed=${row.leadOwner}`} />
                         <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
                             {row.leadOwner?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
                         </AvatarFallback>
