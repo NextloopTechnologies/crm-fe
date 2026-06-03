@@ -12,6 +12,7 @@ import {
 const DashboardPage     = lazy(() => import('@/pages/dashboard/DashboardRouter'))
 const LeadsListPage     = lazy(() => import('@/pages/leads/LeadsListPage'))
 const LeadsPage         = lazy(() => import('@/pages/leads/LeadsPage'))
+const EditLeadPage      = lazy(() => import('@/pages/leads/EditLeadPage'))
 const ProjectsPage      = lazy(() => import('@/pages/ProjectsPage'))
 const PipelinePage      = lazy(() => import('@/pages/PipelinePage'))
 const UserListPage      = lazy(() => import('@/pages/users/UserList'))
@@ -63,6 +64,7 @@ export const protectedRoutes: RouteConfig[] = [
     sidebar: { label: "Leads", icon: Briefcase, group: "main" },
   },
   { path: 'leads/add',         element: LeadsPage },
+  { path: 'leads/edit/:id',    element: EditLeadPage },
   {
     path: ROUTES.PROJECT,
     element: ProjectsPage,

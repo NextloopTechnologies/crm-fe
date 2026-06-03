@@ -16,15 +16,6 @@ import CustomBadge from "@/components/common/CommonBadge";
 import { ROUTES } from '@/lib/route';
 import { getAllLeads } from '@/api/leads.api';
 
-const roleColors: Record<string, string> = {
-    Admin:
-        "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
-    Manager:
-        "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
-    Sales:
-        "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
-};
-
 const stats = [
     {
         icon: <UsersIcon />,
@@ -124,7 +115,7 @@ export default function LeadsList() {
     ];
 
     const handleEdit = useCallback(
-        (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+        (row: any ) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
         [navigate]
     )
 
