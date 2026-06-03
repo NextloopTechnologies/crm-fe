@@ -28,13 +28,28 @@ export const getAllLeads = async () => {
     return response.data;
   };
 
+  export const getLeadByLeadNumber = async (leadNumber: string) => {
+    const response = await api.get(
+      `/lead/getLead?leadNoOrMobileOrEmail=${leadNumber}`
+    );
+    console.log("Lead details response:", response.data); // Debug log
+  
+    return response.data;
+  };
+
+  export const updateLead = async (
+    accountNumber: string,
+    payload: CreateLeadRequest
+  ) => {
+    const response = await api.patch(
+      `/lead/updateLeadDetails?accountNumber=${accountNumber}`,
+      payload
+    );
+  
+    return response.data;
+  };
 export const getLeadById = (id: number) =>
   api.get<Lead>(`/leads/${id}`).then((r) => r.data)
-
-
-
-export const updateLead = (id: number, data: Partial<CreateLeadRequest>) =>
-  api.put<Lead>(`/leads/${id}`, data).then((r) => r.data)
 
 export const updateLeadStage = (id: number, stage: string, reason?: string) =>
   api.patch<Lead>(`/leads/${id}/stage`, { newStage: stage, reason }).then((r) => r.data)
