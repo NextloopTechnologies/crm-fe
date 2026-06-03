@@ -16,6 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import { cn } from "@/lib/utils"
 import { showToast } from "../common/Toast"
+import NotificationSidebar from "../common/NotificationSidebar"
 
 // ── Route → label map ────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
@@ -54,21 +55,12 @@ export function Navbar() {
   const [openLogout, setOpenLogout] = useState(false);
   const [showWriteToUs, setShowWriteToUs] = useState(false);
   const [showAccountSub, setShowAccountSub] = useState(false);
-
-  // const [role, setRole] = useState<"admin" | "manager" | "sales">("admin");
-  const [role, setRole] = useState<"admin" | "manager" | "sales">(
-    () => (localStorage.getItem("dev_role") as "admin" | "manager" | "sales") ?? "admin"
-  );
+  const [showNotification, setShowNotification] = useState(false);
+  
   // Form state
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
-
-  const handleRoleChange = (newRole: "admin" | "manager" | "sales") => {
-    setRole(newRole);
-    localStorage.setItem("dev_role", newRole);
-    window.location.reload(); // DashboardRouter bhi re-read kare
-  };
 
   const handleLogout = () => {
     navigate("/login");
@@ -78,8 +70,6 @@ export function Navbar() {
     // handle send logic here
     setSubject("");
     setMessage("");
-
-
 
     showToast({
       title: "Message Submitted",
@@ -120,28 +110,22 @@ export function Navbar() {
             />
           </div>
 
-          {/* Role Switcher — dev only */}
-          <div className="flex items-center gap-1.5 rounded-lg border border-dashed border-[#5752FE]/40 bg-[#5752FE]/5 px-2 py-1">
-            <span className="text-[10px] font-medium text-[#5752FE]">Role:</span>
-            <select
-              value={role}
-              onChange={(e) => handleRoleChange(e.target.value as "admin" | "manager" | "sales")}
-              className="text-[11px] font-semibold text-[#5752FE] bg-transparent outline-none cursor-pointer"
-            >
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-              <option value="sales">Sales</option>
-            </select>
-          </div>
           {/* Notification bell */}
           <Button
             variant="ghost"
             size="icon"
             className="h-9 w-9 rounded-lg text-gray-500 hover:bg-gray-100 relative"
+            onClick={() => setShowNotification(true)}
+
           >
             <Bell size={17} />
             <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
           </Button>
+
+          <NotificationSidebar
+            open={showNotification}
+            onClose={() => setShowNotification(false)}
+          />
 
           {/* ── User Dropdown ── */}
           <DropdownMenu>
@@ -216,7 +200,7 @@ export function Navbar() {
                   <div className=" mb-1 overflow-hidden rounded-[6px]">
                     <button
                       className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-gray-700 hover:bg-[#5752FE]/10 hover:text-[#5752FE]"
-                      onClick={() => navigate("/settings/account-info")}
+                      onClick={() => navigate("/profile/account-info")}
                     >
                       <User size={12} className="text-gray-500" />
                       Account Information

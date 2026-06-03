@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FormPage, { FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
@@ -7,10 +7,12 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
 import { InlineSelectDropdown } from '@/components/common/InlineSelectDropDown';
-import { createLead } from '@/api/leads.api';
+import { createLead, getLeadByLeadNumber, updateLead } from '@/api/leads.api';
 import { CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
+import { useParams } from "react-router-dom";
+
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 
@@ -27,23 +29,6 @@ const BuildingIcon = () => (
     <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 );
-
-const AddUserIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-    <line x1="19" y1="8" x2="19" y2="14" />
-    <line x1="16" y1="11" x2="22" y2="11" />
-  </svg>
-);
-
-// flat options
-const roleOptions = [
-  { label: "Admin", value: "admin" },
-  { label: "Manager", value: "manager" },
-  { label: "Developer", value: "developer" },
-  { label: "Viewer", value: "viewer" },
-];
 
 const leadStatusOptions = [
   { label: "None", value: "None" },
@@ -91,60 +76,84 @@ const ratingOptions = [
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
-export default function LeadsPage() {
+export default function EditLeadPage() {
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState("");
-  const [role, setRole] = useState("");
-  const [formData, setFormData] = useState<CreateLeadRequest>({
-    company: "",
-    lastName: "",
-    firstName: "",
-    title: "",
-    email: "",
-    phone: "",
-    fax: "",
-    mobile: "",
-    website: "",
-    leadSource: "",
-    leadStatus: "",
-    industry: "",
-    noOfEmployees: "",
-    annualRevenue: "",
-    rating: "",
-    emailOptOut: false,
-    skypeId: "",
-    secondaryEmail: "",
-    twitter: "",
+  const { id } = useParams();
+  const [formData, setFormData] = useState<CreateLeadRequest>({} as CreateLeadRequest);
+  useEffect(() => {
+    if (id) {
+      fetchLeadDetails();
+    }
+  }, [id]);
 
-    leadAddressRequestDto: {
-      country: "",
-      flatNo: "",
-      street: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      latitude: "",
-      longitude: "",
-      organizationId: localStorage.getItem("organizationId") || "",
-    },
-  });
+  const fetchLeadDetails = async () => {
+    try {
+      setLoading(true);
+
+      const response = await getLeadByLeadNumber(id!);
+
+      const lead = response.data;
+
+      setFormData({
+        company: lead.company ?? "",
+        firstName: lead.firstName ?? "",
+        lastName: lead.lastName ?? "",
+        title: lead.title ?? "",
+        email: lead.email ?? "",
+        phone: lead.phone ?? "",
+        fax: lead.fax ?? "",
+        mobile: lead.mobile ?? "",
+        website: lead.website ?? "",
+        leadSource: lead.leadSource ?? "",
+        leadStatus: lead.leadStatus ?? "",
+        industry: lead.industry ?? "",
+        noOfEmployees: String(lead.noOfEmployees ?? ""),
+        annualRevenue: String(lead.annualRevenue ?? ""),
+        rating: lead.rating ?? "",
+        emailOptOut: lead.emailOptOut ?? false,
+        skypeId: lead.skypeId ?? "",
+        secondaryEmail: lead.secondaryEmail ?? "",
+        twitter: lead.twitter ?? "",
+
+        leadAddressRequestDto: {
+          country: lead.leadAddressResponseDto?.country ?? "",
+          flatNo: lead.leadAddressResponseDto?.flatNo ?? "",
+          street: lead.leadAddressResponseDto?.street ?? "",
+          city: lead.leadAddressResponseDto?.city ?? "",
+          state: lead.leadAddressResponseDto?.state ?? "",
+          zipCode: lead.leadAddressResponseDto?.zipCode ?? "",
+          latitude: String(
+            lead.leadAddressResponseDto?.latitude ?? ""
+          ),
+          longitude: String(
+            lead.leadAddressResponseDto?.longitude ?? ""
+          ),
+          organizationId:
+            lead.leadAddressResponseDto?.organizationId ?? "",
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const response = await createLead(formData);
+      const response = await updateLead(id!, formData);
       if (response.code === ResponseCode.SUCCESS) {
         showToast({
-          title: "Lead created!",
-          description: "New lead added successfully.",
+          title: "Lead updated!",
+          description: "Lead details updated successfully.",
           type: "success",
           icon: <CreatedIcon />
         })
-        navigation.navigate("/leads");
       }
     } catch (error) {
     } finally {
@@ -391,8 +400,8 @@ export default function LeadsPage() {
   return (
     <div className="bg-white min-h-screen p-4 rounded-lx">
       <FormPage
-        heading="Create Lead"
-        subheading="Add a new lead to the system."
+        heading="Update Lead"
+        subheading="Edit the lead's information."
         sections={sections}
         onSubmit={handleSubmit}
         onCancel={() => history.back()}
@@ -406,10 +415,10 @@ export default function LeadsPage() {
             disabled={loading}>
             {loading ? (
               <div className='flex items-center gap-2'>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent">
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent">
                 </span>
               </div>) : (
-              'Add Lead'
+              'Update Lead'
             )}
           </Button>
         }

@@ -12,6 +12,7 @@ import {
 const DashboardPage     = lazy(() => import('@/pages/dashboard/DashboardRouter'))
 const LeadsListPage     = lazy(() => import('@/pages/leads/LeadsListPage'))
 const LeadsPage         = lazy(() => import('@/pages/leads/LeadsPage'))
+const EditLeadPage      = lazy(() => import('@/pages/leads/EditLeadPage'))
 const ProjectsPage      = lazy(() => import('@/pages/ProjectsPage'))
 const PipelinePage      = lazy(() => import('@/pages/PipelinePage'))
 const UserListPage      = lazy(() => import('@/pages/users/UserList'))
@@ -33,6 +34,7 @@ const MyProfilePage     = lazy(() => import('@/pages/profile/MyProfilePage'))
 const EditProfilePage   = lazy(() => import('@/pages/profile/EditProfilePage'))
 const SettingsPage      = lazy(() => import('@/pages/SettingsPage'))
 const DeleteAccountPage      = lazy(() => import('@/pages/profile/DeleteAccountPage'))
+const AccountInformationPage = lazy(() => import('@/pages/profile/AccountInformationPage'))
 
 // ─── Types ───────────────────────────────────────────────────
 export type SidebarGroup = "main" | "management" | "settings"
@@ -62,6 +64,7 @@ export const protectedRoutes: RouteConfig[] = [
     sidebar: { label: "Leads", icon: Briefcase, group: "main" },
   },
   { path: 'leads/add',         element: LeadsPage },
+  { path: 'leads/edit/:id',    element: EditLeadPage },
   {
     path: ROUTES.PROJECT,
     element: ProjectsPage,
@@ -114,6 +117,7 @@ export const protectedRoutes: RouteConfig[] = [
   { path: ROUTES.PROFILE,      element: MyProfilePage },
   { path: ROUTES.PROFILE_EDIT, element: EditProfilePage },
   { path: ROUTES.DELETE_ACCOUNT_PAGE, element: DeleteAccountPage },
+  { path: ROUTES.ACCOUNT_INFORMATION_PAGE, element: AccountInformationPage },
 
   {
     path: ROUTES.SETTINGS,

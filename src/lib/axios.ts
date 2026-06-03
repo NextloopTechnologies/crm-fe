@@ -2,37 +2,40 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api/v1',
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
+  headers: { 'Content-Type': 'application/json' ,
+    'ngrok-skip-browser-warning': 'true',
+  },
   timeout: 15000,
 })
 
 // Attach JWT token to every outgoing request
 api.interceptors.request.use((config) => {
   // Import lazily to avoid circular dependency
-  const raw = localStorage.getItem('crm-auth')
-  if (raw) {
-    try {
-      const state = JSON.parse(raw)
-      const token = state?.state?.token
-      if (token) config.headers.Authorization = `Bearer ${token}`
-    } catch {
-      // ignore malformed storage
-    }
-  }
-  return config
-})
+  const token = localStorage.getItem('accessToken')
 
-// Handle 401 — clear session and redirect to login
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
+    return config
+  },
+  (error) => Promise.reject(error),
+)
+
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('crm-auth')
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('auth')
+
       window.location.href = '/login'
     }
+
     return Promise.reject(error)
-  }
+  },
 )
 
 export default api
