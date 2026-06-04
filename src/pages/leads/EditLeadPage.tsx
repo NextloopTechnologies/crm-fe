@@ -153,7 +153,11 @@ export default function EditLeadPage() {
           description: "Lead details updated successfully.",
           type: "success",
           icon: <CreatedIcon />
-        })
+        });
+      
+        setTimeout(() => {
+          navigation.navigate("/leads");
+        }, 500);
       }
     } catch (error) {
     } finally {
@@ -398,7 +402,7 @@ export default function EditLeadPage() {
   ];
 
   return (
-    <div className="bg-white min-h-screen p-4 rounded-lx">
+    <div className="bg-white min-h-screen p-2 rounded-lx">
       <FormPage
         heading="Update Lead"
         subheading="Edit the lead's information."

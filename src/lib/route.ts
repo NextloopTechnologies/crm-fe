@@ -26,7 +26,7 @@ export const ROUTES = {
   // Accounts
   ACCOUNTS: "/accounts",
   ACCOUNTS_CREATE: "/accounts/create",
-  ACCOUNTS_EDIT: (id: string) => `/accounts/${id}/edit`,
+  ACCOUNTS_EDIT: (id: string) => `/accounts/edit/${id}`,
 
   // Tasks
   TASKS: "/tasks",
