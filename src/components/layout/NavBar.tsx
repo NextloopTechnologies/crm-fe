@@ -27,13 +27,14 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/roles": { title: "Roles", breadcrumb: ["Roles"] },
   "/leads": { title: "Leads", breadcrumb: ["Manage and track all your incoming leads"] },
   "/leads/add": { title: "Add Lead", breadcrumb: ["Leads", "Add Lead"] },
+  "/leads/edit/:id": { title: "Edit Lead", breadcrumb: ["Leads", "Edit Lead"] },
   "/tenants": { title: "Tenants", breadcrumb: ["Manage system tenants and their system"] },
   "/tenants/create": { title: "Tenants", breadcrumb: ["Tenant", "Add Tenant"] },
   "/tenants/:id/edit": { title: "Tenants", breadcrumb: ["Tenant", "Edit Tenant"] },
   "/profile": { title: "Profile", breadcrumb: ["Manage your account settings and preferences"] },
   "/accounts": { title: "Accounts", breadcrumb: ["Manage your customer accounts and related information"] },
   "/accounts/create": { title: "Accounts", breadcrumb: ["Accounts", "Create Account"] },
-  "/accounts/:id/edit": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
+  "/accounts/edit/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
   "/tasks/:id/edit": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
@@ -63,7 +64,9 @@ export function Navbar() {
   const [attachment, setAttachment] = useState<File | null>(null);
 
   const handleLogout = () => {
-    navigate("/login");
+   const response = logout();
+    localStorage.clear();
+     navigate("/login");
   };
 
   const handleSend = () => {
@@ -240,7 +243,7 @@ export function Navbar() {
 
               <DropdownMenuItem
                 className="flex items-center gap-2.5 text-xs text-red-500 rounded-md cursor-pointer focus:bg-red-50 focus:text-red-600 px-3 py-2"
-                onClick={() => setOpenLogout(true)}
+                onClick={() => handleLogout() }
               >
                 <LogOut size={13} className="text-black" />
                 Logout

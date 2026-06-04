@@ -111,7 +111,7 @@ export const protectedRoutes: RouteConfig[] = [
     sidebar: { label: "Accounts", icon: UserCircle, group: "management" },
   },
   { path: ROUTES.ACCOUNTS_CREATE, element: CreateAccountPage },
-  { path: 'accounts/:id/edit',    element: EditAccountPage },
+  { path: 'accounts/edit/:id',    element: EditAccountPage },
 
   // ── Profile & Settings ───────────────────────────────────
   { path: ROUTES.PROFILE,      element: MyProfilePage },

@@ -1,5 +1,5 @@
 import api from '@/lib/axios'
-import type { Lead, CreateLeadRequest, PaginatedResponse } from '@/types/api.types'
+import type { Lead, CreateLeadRequest } from '@/types/api.types'
 
 export interface LeadFilters {
   stage?: string
@@ -14,7 +14,7 @@ import axios from "axios";
 
 export const getAllLeads = async () => {
 
-  const response = await api.get('lead/getAllLeads');
+  const response = await api.get('lead/getAllActiveLeads');
 
   return response.data;
 };
@@ -31,9 +31,7 @@ export const getAllLeads = async () => {
   export const getLeadByLeadNumber = async (leadNumber: string) => {
     const response = await api.get(
       `/lead/getLead?leadNoOrMobileOrEmail=${leadNumber}`
-    );
-    console.log("Lead details response:", response.data); // Debug log
-  
+    );  
     return response.data;
   };
 
@@ -48,6 +46,7 @@ export const getAllLeads = async () => {
   
     return response.data;
   };
+
 export const getLeadById = (id: number) =>
   api.get<Lead>(`/leads/${id}`).then((r) => r.data)
 

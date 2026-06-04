@@ -113,6 +113,48 @@ export interface CreateLeadRequest {
   leadAddressRequestDto: AddressRequestDto
 }
 
+export interface CreateAccountRequest {
+  accountName: string
+  accountSite?: string
+  accountType?: string
+  rating?: string
+  website?: string
+  tickerSymbol?: string
+  ownership?: string
+  parentAccount?: string
+  employees?: string
+  annualRevenue?: string
+
+  contacts?: ContactRequestDto[]
+  addresses?: AccountAddressRequestDto[]
+}
+
+export interface ContactRequestDto {
+  title?: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  secondaryEmail?: string
+  phone?: string
+  mobile?: string
+  skypeId?: string
+  designation?: string
+  department?: string
+  dateOfBirth?: string
+  fax?: string
+}
+
+export interface AccountAddressRequestDto {
+  addressType?: string
+  country?: string
+  flatNo?: string
+  street?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  latitude?: string
+  longitude?: string
+}
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface Client {
   id: number
