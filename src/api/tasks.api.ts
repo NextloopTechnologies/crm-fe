@@ -1,20 +1,50 @@
 import api from '@/lib/axios'
-import type { Task, PaginatedResponse } from '@/types/api.types'
+import type { CreateTaskRequest, PaginatedResponse } from '@/types/api.types'
 
-export const getTasks = (params?: { assignedTo?: number; status?: string; page?: number }) =>
-  api.get<PaginatedResponse<Task>>('/tasks', { params }).then((r) => r.data)
+export const createTask = async (data: CreateTaskRequest) => {
+  const response = await api.post(
+    '/task/register',
+    data
+  );
 
-export const getMyTasks = () =>
-  api.get<Task[]>('/tasks/my').then((r) => r.data)
+  return response.data;
+};
+export const getAllTasks = async () => {
 
-export const getOverdueTasks = () =>
-  api.get<Task[]>('/tasks/overdue').then((r) => r.data)
+  const response = await api.get('task/getAllTask');
 
-export const createTask = (data: Partial<Task>) =>
-  api.post<Task>('/tasks', data).then((r) => r.data)
+  return response.data;
+};
+export const getTaskByTaskNumber = async (taskNumber: string) => {
+  const response = await api.get(
+    `task/getTask?taskNumber=${taskNumber}`
+  );  
+  return response.data;
+};
 
-export const updateTask = (id: number, data: Partial<Task>) =>
-  api.put<Task>(`/tasks/${id}`, data).then((r) => r.data)
+ export const updateTask = async (
+    taskNumber: string,
+    payload: CreateTaskRequest
+  ) => {
+    const response = await api.patch(
+      `task/updateTaskDetails?taskNumber=${taskNumber}`,
+      payload
+    );
+  
+    return response.data;
+  };
 
-export const completeTask = (id: number) =>
-  api.patch<Task>(`/tasks/${id}/complete`).then((r) => r.data)
+export const getMyCreateTaskRequests = () =>
+  api.get<CreateTaskRequest[]>('/CreateTaskRequests/my').then((r) => r.data)
+
+export const getOverdueCreateTaskRequests = () =>
+  api.get<CreateTaskRequest[]>('/CreateTaskRequests/overdue').then((r) => r.data)
+
+export const createCreateTaskRequest = (data: Partial<CreateTaskRequest>) =>
+  api.post<CreateTaskRequest>('/CreateTaskRequests', data).then((r) => r.data)
+
+export const updateCreateTaskRequest = (id: number, data: Partial<CreateTaskRequest>) =>
+  api.put<CreateTaskRequest>(`/CreateTaskRequests/${id}`, data).then((r) => r.data)
+
+export const completeCreateTaskRequest = (id: number) =>
+  api.patch<CreateTaskRequest>(`/CreateTaskRequests/${id}/complete`).then((r) => r.data)

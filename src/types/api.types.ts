@@ -155,6 +155,29 @@ export interface AccountAddressRequestDto {
   latitude?: string
   longitude?: string
 }
+
+export interface CreateTaskRequest {
+  subject: string;
+  description: string;
+  dueDate: string;
+  status: string;
+  priority: string;
+  // Related To
+  accountNumber: string;
+  contactId: string;
+  isReminder: boolean;
+  isRepeat: boolean;
+  relatedToType: string;
+  repeatDetails : {
+  repeatType: string;
+  frequency: string;
+  everyX: number;
+  endType: string;
+  endAfterTimes: number;
+  endOnDate: string;
+  }
+}
+
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface Client {
   id: number
@@ -178,21 +201,6 @@ export interface Project {
   status: string
   startDate: string
   endDate?: string
-  createdAt: string
-}
-
-// ── Task ──────────────────────────────────────────────────────────────────────
-export interface Task {
-  id: number
-  leadId?: number
-  leadName?: string
-  title: string
-  description?: string
-  assignedTo: number
-  assignedToName: string
-  dueDate: string
-  status: string
-  autoCreated: boolean
   createdAt: string
 }
 

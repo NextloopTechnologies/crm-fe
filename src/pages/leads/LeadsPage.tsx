@@ -11,6 +11,8 @@ import { createLead } from '@/api/leads.api';
 import { CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/lib/route';
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 
@@ -97,6 +99,8 @@ export default function LeadsPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [role, setRole] = useState("");
+
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<CreateLeadRequest>({
     company: "",
     lastName: "",
@@ -133,9 +137,9 @@ export default function LeadsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
+      setLoading(true);
       const response = await createLead(formData);
       if (response.code === ResponseCode.SUCCESS) {
         showToast({
@@ -144,9 +148,16 @@ export default function LeadsPage() {
           type: "success",
           icon: <CreatedIcon />
         })
-        navigation.navigate("/leads");
+        navigate(ROUTES.LEADS);
       }
     } catch (error) {
+      console.error(error);
+
+      showToast({
+        title: "Failed!",
+        description: "Unable to create account.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -219,6 +230,16 @@ export default function LeadsPage() {
             type="tel"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            leftIcon={<PhoneIcon className='w-5 h-5' />}
+          />
+
+          <Input
+            id="mobile"
+            label="Mobile"
+            placeholder="Enter mobile number"
+            type="tel"
+            value={formData.mobile}
+            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
           />
 

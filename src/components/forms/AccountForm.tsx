@@ -25,6 +25,13 @@ const ratingOptions = [
   { label: "Shut Down", value: "Shut Down" },
 ];
 
+const ownershipOptions = [
+  { label: "Public", value: "Public" },
+  { label: "Private", value: "Private" },
+  { label: "Subsidiary", value: "Subsidiary" },
+  { label: "Other", value: "Other" },
+];
+
 const ShieldIcon = () => (
   <svg
     width="18"
@@ -240,6 +247,19 @@ export default function AccountForm({
             leftIcon={<ShieldIcon />}
           />
 
+          <SelectDropdown
+            label="Ownership"
+            placeholder="Select ownership"
+            options={ownershipOptions}
+            value={formData.ownership}
+            onChange={(val) => {
+              setFormData({ ...formData, ownership: val });
+              setTouched(true);
+            }}
+            required
+            leftIcon={<ShieldIcon />}
+          />
+
           <Input
             id="annualRevenue"
             label="Annual Revenue"
@@ -280,9 +300,9 @@ export default function AccountForm({
 
           {/* FIX 6: was formData.phone / set("phone") → contacts[0] */}
           <Input
-            id="phone"
-            label="Phone"
-            placeholder="Enter phone number"
+            id="mobile"
+            label="Mobile"
+            placeholder="Enter mobile number"
             type="tel"
             value={formData.contacts?.[0].mobile}
             onChange={(e) => setContact("mobile")(e.target.value)}
@@ -355,6 +375,20 @@ export default function AccountForm({
         <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 -mx-6 px-6">
           {/* FIX 8: was formData.addresses.country (object access on array) → addresses[0] */}
           {/* FIX 9: was missing onChange handler */}
+
+         <InlineSelectDropdown
+         id="addressType"
+         label="Address Type"
+         placeholder="Select address type"
+         value={formData.addresses?.[0].addressType || ""}
+         onChange={(val) => setAddress("addressType")(val)}
+         options={[
+           { label: "Billing", value: "Billing" },
+           { label: "Shipping", value: "Shipping" },
+           { label: "Other", value: "Other" },
+         ]}
+       />
+       
           <InlineInput
             id="country"
             label="Country"

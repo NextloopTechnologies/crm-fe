@@ -86,11 +86,13 @@ export default function AccountListPage() {
       ),
     },
     { key: "accountOwner", label: "Account Owner", width: "220px", render: (_, row) => <span>{(row as any).accountOwner ?? "—"}</span>, },
-    { key: "phone", label: "Phone", width: "220px", render: (_, row) => <span>{(row as any).phone ?? "—"}</span> },
+    { key: "phone", label: "Phone", width: "220px", render: (_, row) => {
+      return (row as any).contacts?.[0]?.phone ?? "—";
+    },},
     { key: "website", label: "Website", width: "220px", render: (_, row) => <span>{(row as any).website ?? "—"}</span>, },
     {
       key: "accountSite",
-      label: "Created At",
+      label: "Account",
       render: (_, row) => <span>{(row as any).accountSite ?? "—"}</span>,
     },
   ], [])

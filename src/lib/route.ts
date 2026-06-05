@@ -31,7 +31,7 @@ export const ROUTES = {
   // Tasks
   TASKS: "/tasks",
   TASKS_CREATE: "/tasks/create",
-  TASKS_EDIT: (id: string) => `/tasks/${id}/edit`,
+  TASKS_EDIT: (id: string) => `/tasks/edit/${id}`,
 
   // Reports
   REPORTS: "/reports",

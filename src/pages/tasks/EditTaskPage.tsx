@@ -2,8 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import { usersData } from '@/data/user.data';
-import TaskForm, { TaskFormData } from '@/components/forms/TaskForm';
+import TaskForm from '@/components/forms/TaskForm';
 import { ROUTES } from '@/lib/route'
+import { CreateAccountRequest, CreateTaskRequest } from '@/types/api.types';
+import { getTaskByTaskNumber, updateTask } from '@/api/tasks.api';
+import { CreatedIcon } from '@/assets/icons/components/CreatedIcon';
+import { ResponseCode } from '@/constants/statusCodes';
 
 export default function EditTaskPage() {
   const { id } = useParams();
@@ -12,36 +16,81 @@ export default function EditTaskPage() {
   const timerRef    = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
-    return () => clearTimeout(timerRef.current)
-  }, [])
+    if (id) {
+     fetchAccountDetails();
+   }
+ }, [id]);
 
 
-  const [task, setTask] = useState<Partial<TaskFormData> | undefined>(undefined);
+  const [task, setTask] = useState<Partial<CreateTaskRequest> | undefined>(undefined);
+  const fetchAccountDetails = async () => {
+      try {
+        setLoading(true);
+  
+        const response = await getTaskByTaskNumber(id!);
+  
+        const task = response.data;
+        setTask({
+          subject: task.subject ?? "",
+          description: task.description ?? "",
+          dueDate: task.dueDate ?? "",
+          status: task.status ?? "",
+          priority: task.priority ?? "",
+          accountNumber: task.accountNumber ?? "",
+          contactId: task.contactId ?? "",
+          isReminder: task.isReminder === true || task.isReminder === ("true" as any),
+          isRepeat: task.isRepeat === true || task.isRepeat === ("true" as any),
+          relatedToType: task.relatedToType ?? "",
+          repeatDetails: {
+            repeatType: task.repeatDetails?.repeatType ?? "",
+            frequency: task.repeatDetails?.frequency ?? "",
+            everyX: task.repeatDetails?.everyX ?? 0,
+            endType: task.repeatDetails?.endType ?? "",
+            endAfterTimes: task.repeatDetails?.endAfterTimes ?? 0,
+            endOnDate: task.repeatDetails?.endOnDate ?? "",
+          },
+        });
+      }catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+ 
 
-  useEffect(() => {
-    const found = usersData.find((u) => String(u.id) === id);
-    if (found) setTask(found);
-  }, [id]);
-
-  const defaultValues = useMemo<Partial<TaskFormData> | undefined>(() => {
-    const found = usersData.find((u) => String(u.id) === id)
-    return found ?? undefined
-  }, [id])
-
-  const handleSubmit = useCallback((data: TaskFormData) => {
-    setLoading(true);
-    // API call here
-    showToast({ title: "Task updated!", description: "Changes saved successfully.", type: "success" });
-    timerRef.current = setTimeout(() => {
-      setLoading(false)
-      navigate(ROUTES.TASKS)
-    }, 1000)
-  }, [navigate])
+  // ── Submit ───────────────────────────────────────────────
+  const handleSubmit = useCallback(
+    async (data: CreateTaskRequest) => {
+      try {
+        setLoading(true);
+  
+        const response = await updateTask(id!, data);
+        
+        if (response.code === ResponseCode.SUCCESS) {
+          showToast({
+            title: "Task updated!",
+            description: "Task details updated successfully.",
+            type: "success",
+            icon: <CreatedIcon />,
+          });
+  
+          setTimeout(() => {
+            navigate(ROUTES.TASKS);
+          }, 500);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id, navigate]
+  );
 
   return (
     <TaskForm
       mode="edit"
-      defaultValues={defaultValues}
+      defaultValues={task}
       onSubmit={handleSubmit}
       isLoading={loading}
     />

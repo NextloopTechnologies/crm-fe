@@ -81,7 +81,7 @@ export const protectedRoutes: RouteConfig[] = [
     sidebar: { label: "Tasks", icon: CheckSquare, group: "main" },
   },
   { path: ROUTES.TASKS_CREATE, element: CreateTaskPage },
-  { path: 'tasks/:id/edit',    element: EditTaskPage },
+  { path: 'tasks/edit/:id',    element: EditTaskPage },
   {
     path: ROUTES.REPORTS,
     element: ReportListPage,
