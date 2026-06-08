@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { showToast } from '@/components/common/Toast'
-import { usersData } from '@/data/user.data'
 import AccountForm from '@/components/forms/AccountForm'
 import { ROUTES } from '@/lib/route'
 import { CreateAccountRequest } from '@/types/api.types'
 import { getAccountByAccountNumber, updateAccount } from '@/api/account.api'
 import { ResponseCode } from '@/constants/statusCodes'
-import { CreatedIcon } from '@/assets/icons/components'
+import { getSuccessToast } from '@/components/common/toastMessages'
 
 export default function EditAccountPage() {
   const navigate    = useNavigate()
@@ -94,12 +93,7 @@ export default function EditAccountPage() {
         const response = await updateAccount(id!, data);
   
         if (response.code === ResponseCode.SUCCESS) {
-          showToast({
-            title: "Account updated!",
-            description: "Account details updated successfully.",
-            type: "success",
-            icon: <CreatedIcon />,
-          });
+          showToast(getSuccessToast("Account", "updated"));
   
           setTimeout(() => {
             navigate(ROUTES.ACCOUNTS);
