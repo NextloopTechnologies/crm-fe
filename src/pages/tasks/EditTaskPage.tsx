@@ -8,6 +8,7 @@ import { CreateAccountRequest, CreateTaskRequest } from '@/types/api.types';
 import { getTaskByTaskNumber, updateTask } from '@/api/tasks.api';
 import { CreatedIcon } from '@/assets/icons/components/CreatedIcon';
 import { ResponseCode } from '@/constants/statusCodes';
+import { getSuccessToast } from '@/components/common/toastMessages';
 
 export default function EditTaskPage() {
   const { id } = useParams();
@@ -67,12 +68,8 @@ export default function EditTaskPage() {
         const response = await updateTask(id!, data);
         
         if (response.code === ResponseCode.SUCCESS) {
-          showToast({
-            title: "Task updated!",
-            description: "Task details updated successfully.",
-            type: "success",
-            icon: <CreatedIcon />,
-          });
+          showToast(getSuccessToast("Task", "updated"));
+
   
           setTimeout(() => {
             navigate(ROUTES.TASKS);

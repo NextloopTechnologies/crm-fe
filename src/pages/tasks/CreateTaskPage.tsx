@@ -7,6 +7,7 @@ import { ROUTES } from '@/lib/route'
 import { CreateTaskRequest } from '@/types/api.types';
 import { ResponseCode } from '@/constants/statusCodes';
 import { createTask } from '@/api/tasks.api';
+import { getErrorToast, getSuccessToast } from '@/components/common/toastMessages';
 
 export default function CreateTaskPage() {
   const [loading, setLoading] = useState(false);
@@ -22,23 +23,14 @@ export default function CreateTaskPage() {
            setLoading(true);
            const response = await createTask(data);
            if (response?.code === ResponseCode.SUCCESS) {
-             showToast({
-               title: "Task created!",
-               description: "New task added successfully.",
-               type: "success",
-               icon: <CreatedIcon />,
-             });
+            showToast(getSuccessToast("Task", "created"));
    
                navigate(ROUTES.TASKS);
            }
          } catch (error) {
            console.error(error);
    
-           showToast({
-             title: "Failed!",
-             description: "Unable to create task.",
-             type: "error",
-           });
+           showToast(getErrorToast("create", "Task"));
          } finally {
            setLoading(false);
          }
