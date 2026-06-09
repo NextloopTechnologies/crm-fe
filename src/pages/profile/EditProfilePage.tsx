@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ResponseCode } from "@/constants/statusCodes";
 import { showToast } from "@/components/common/Toast";
 import { CreatedIcon } from "@/assets/icons/components";
+import { getErrorToast, getSuccessToast } from "@/components/common/toastMessages";
 
 export default function EditProfilePage() {
   const navigate = useNavigate();
@@ -42,23 +43,14 @@ export default function EditProfilePage() {
       const response = await updateProfileDetail(payload);
 
       if (response.code === ResponseCode.SUCCESS) {
-        showToast({
-          title: "Profile updated!",
-          description: "Profile details updated successfully.",
-          type: "success",
-          icon: <CreatedIcon />,
-        });
+       showToast(getSuccessToast("Profile", "updated"));
 
         navigate("/profile");
       }
     } catch (error) {
       console.error("Failed to update profile:", error);
 
-      showToast({
-        title: "Update Failed",
-        description: "Unable to update profile.",
-        type: "error",
-      });
+      showToast(getErrorToast("Profile", "updated"));
     } finally {
       setIsLoading(false);
     }
