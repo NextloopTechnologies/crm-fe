@@ -4,7 +4,7 @@ import { ROUTES } from "@/lib/route"
 import {
   LayoutDashboard, Users, Briefcase,
   Settings, Building2, CheckSquare,
-  BarChart2, UserCircle, BookUser,
+  BarChart2, UserCircle,
   FolderKanban, KanbanSquare,
 } from "lucide-react"
 
@@ -97,7 +97,7 @@ export const protectedRoutes: RouteConfig[] = [
     sidebar: { label: "Users", icon: Users, group: "management" },
   },
   { path: ROUTES.USERS_CREATE, element: CreateUsersPage },
-  { path: 'users/:id/edit',    element: EditUsersPage },
+  { path: 'users/edit/:email',    element: EditUsersPage },
   {
     path: ROUTES.TENANTS,
     element: TenantsListPage,

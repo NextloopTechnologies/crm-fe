@@ -1,138 +1,170 @@
 // pages/Users/UsersList.tsx
-import { useCallback, useMemo, useState } from 'react';
-import { DataTable, ColumnDef, } from '@/components/common/Table';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DataTable, ColumnDef } from '@/components/common/Table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Trash2, } from 'lucide-react';
-import { usersData, type User } from '../../data/user.data';
+import { PlusIcon, Trash2 } from 'lucide-react';
 import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon, UsersIcon } from '@/assets/icons/components/index';
 import { useNavigate } from "react-router-dom";
 import StatsCard from '@/components/common/StatsCards';
 import CustomBadge from "@/components/common/CommonBadge";
 import { ROUTES } from '@/lib/route';
+import { getAllUsers } from '@/api/user.api';
+
+// ── Types ─────────────────────────────────────────────────────
+interface User {
+    id: string | number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    roleName: string;   // API field
+    isActive: boolean;  // API field
+    phone: string;
+    creationDate: string;
+}
 
 const roleColors: Record<string, string> = {
-    Admin:
-        "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
-    Manager:
-        "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
-    Sales:
-        "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
+    SUPER_ADMIN: "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
+    ADMIN: "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
+    MANAGER: "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
+    SALES: "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
 };
 
-const stats = [
+const getStats = (data: User[]) => [
     {
         icon: <UsersIcon />,
         label: "Total Users",
-        value: usersData.length,
+        value: data.length,
         subtitle: "All Users in System",
     },
     {
         icon: <ActiveUsersIcon />,
         label: "Active",
-        value: usersData.filter((u) => u.status === "active").length,
+        value: data.filter((u) => u.isActive === true).length,
         subtitle: "Currently Active",
     },
     {
         icon: <InActiveUsersIcon />,
         label: "Inactive",
-        value: usersData.filter((u) => u.status === "inactive").length,
+        value: data.filter((u) => u.isActive === false).length,
         subtitle: "Currently Inactive",
     },
     {
         icon: <TenantsIcon />,
         label: "Admins",
-        value: usersData.filter((u) => u.role === "Admin").length,
-        subtitle: "Tenants",
+        value: data.filter((u) => u.roleName?.toUpperCase() === "ADMIN").length,
+        subtitle: "Admin Users",
     },
 ];
 
 const FILTERS = [
     {
-        key: "role",
+        key: "roleName",   // ← API field name
         label: "Role",
         type: "select" as const,
         options: [
-            { label: "Admin", value: "Admin" },
-            { label: "Manager", value: "Manager" },
-            { label: "Developer", value: "Developer" },
-            { label: "Viewer", value: "Viewer" },
+            { label: "Super Admin", value: "SUPER_ADMIN" },
+            { label: "Admin", value: "ADMIN" },
+            { label: "Manager", value: "MANAGER" },
+            { label: "Sales", value: "SALES" },
         ],
     },
     {
-        key: "status",
+        key: "isActive",   // ← API field name
         label: "Status",
         type: "select" as const,
         options: [
-            { label: "Active", value: "active" },
-            { label: "Inactive", value: "inactive" },
+            { label: "Active", value: "true" },
+            { label: "Inactive", value: "false" },
         ],
     },
     { key: "createdFrom", label: "Created From", type: "date" as const },
     { key: "createdTo", label: "Created To", type: "date" as const },
     { key: "lastLoginFrom", label: "Last Login From", type: "date" as const },
     { key: "lastLoginTo", label: "Last Login To", type: "date" as const },
-]
+];
 
-// ── Reusable renderers ──────────────────
-const UserCell = ({ name }: { name: string }) => (
-    <div className="flex items-center gap-2.5">
-        <Avatar className="h-8 w-8">
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${name}`} />
-            <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                {name.split(" ").map(n => n[0]).join("").slice(0, 2)}
-            </AvatarFallback>
-        </Avatar>
-        <span className="text-sm font-medium text-[#111127]">{name}</span>
-    </div>
-)
+// ── User Avatar Cell ──────────────────────────────────────────
+const UserCell = ({ firstName, lastName }: { firstName: string; lastName: string }) => {
+    const fullName = `${firstName} ${lastName}`;
+    return (
+        <div className="flex items-center gap-2.5">
+            <Avatar className="h-8 w-8">
+                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${fullName}`} />
+                <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+                    {`${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase()}
+                </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium text-[#111127]">{fullName}</span>
+        </div>
+    );
+};
 
+// ── Main Component ────────────────────────────────────────────
 export default function UsersList() {
     const [selectedRows, setSelectedRows] = useState<User[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // ── Columns ───────────────────────────────────────────────────────────────────
+    const stats = useMemo(() => getStats(users), [users]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                setLoading(true);
+                const response = await getAllUsers();
+                setUsers(response.data ?? response);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUsers();
+    }, []);
+
+    // ── Columns ───────────────────────────────────────────────
     const columns = useMemo<ColumnDef<User>[]>(() => [
         {
-            key: "name",
+            key: "firstName",
             label: "Name",
             width: "180px",
-            render: (_, row) => <UserCell name={row.name} />,
+            render: (_, row) => (
+                <UserCell firstName={row.firstName} lastName={row.lastName} />
+            ),
         },
         {
             key: "email",
             label: "Email",
             width: "220px",
-            render: (val) => (
-                <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
+            render: (_, row) => (
+                <span className="text-sm text-[#6b6b8d]">{row.email}</span>
             ),
         },
         {
-            key: "role",
+            key: "roleName",
             label: "Role",
-            width: "140px",
-            render: (val) => (
+            width: "120px",
+            render: (_, row) => (
                 <CustomBadge
-                    label={String(val)}
+                    label={row.roleName}
                     className={
-                        roleColors[String(val)] ??
-                        "bg-gray-100 text-gray-600 border border-gray-200"
+                        roleColors[row.roleName?.toUpperCase()] ??
+                        "bg-gray-100  text-gray-600 border border-gray-200 "
                     }
                 />
             ),
         },
         {
-            key: "status",
+            key: "isActive",
             label: "Status",
-            width: "140px",
-            render: (val) => (
+            width: "120px",
+            render: (_, row) => (
                 <CustomBadge
-                    label={
-                        String(val).charAt(0).toUpperCase() +
-                        String(val).slice(1)
-                    }
+                    label={row.isActive ? "Active" : "Inactive"}
                     className={
-                        String(val) === "active"
+                        row.isActive
                             ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
                             : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
                     }
@@ -140,39 +172,31 @@ export default function UsersList() {
             ),
         },
         {
-            key: "location",
-            label: "Last Login",
+            key: "phone",
+            label: "Phone",
+            render: (_, row) => (
+                <span className="text-sm text-[#6b6b8d]">{row.phone}</span>
+            ),
         },
         {
-            key: "joinedAt",
+            key: "creationDate",
             label: "Created At",
-            render: (val) => (
+            render: (_, row) => (
                 <span className="text-[#6b6b8d] text-sm">
-                    {new Date(String(val)).toLocaleDateString("en-IN", {
+                    {new Date(row.creationDate).toLocaleDateString("en-IN", {
                         day: "2-digit", month: "short", year: "numeric",
                     })}
                 </span>
             ),
         },
-    ], [])
+    ], []);
 
-    const handleEdit = useCallback(
-        (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
-        [navigate]
-    )
+    const handleEdit = useCallback((row: User) => navigate(ROUTES.USERS_EDIT(String(row.email)), {state : row.email}), [navigate]);
+    const handleDelete = useCallback((_row: User | User[]) => { }, []);
+    const handleRowClick = useCallback((_row: User) => { }, []);
+    const handleSelection = useCallback((rows: User[]) => setSelectedRows(rows), []);
+    const handleDeleteSelected = useCallback(() => { }, [selectedRows]);
 
-    const handleDelete = useCallback((row: User | User[]) => { }, [])
-
-    const handleRowClick = useCallback((row: User) => { }, [])
-
-    const handleSelection = useCallback(
-        (rows: User[]) => setSelectedRows(rows),
-        []
-    )
-
-    const handleDeleteSelected = useCallback(() => { }, [selectedRows])
-
-    // ── Header Actions (Filter + Add User) ────────────────────────────────────
     const headerActions = useMemo(() => (
         <div className="flex items-center gap-2">
             {selectedRows.length > 0 && (
@@ -185,8 +209,15 @@ export default function UsersList() {
                     Delete ({selectedRows.length})
                 </Button>
             )}
+            <Button
+                className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1"
+                onClick={() => navigate(ROUTES.USERS_CREATE)}
+            >
+                <PlusIcon />
+                Add User
+            </Button>
         </div>
-    ), [selectedRows.length, handleDeleteSelected])
+    ), [selectedRows.length, handleDeleteSelected, navigate]);
 
     return (
         <div className="bg-white min-h-screen rounded-xl">
@@ -206,13 +237,14 @@ export default function UsersList() {
 
             {/* Table */}
             <DataTable
-                data={usersData}
+                data={users}
                 columns={columns}
                 filters={FILTERS}
                 searchable
-                searchPlaceholder="Search by name, email, location..."
+                searchPlaceholder="Search by name, email"
                 selectable
                 pageSize={8}
+                loading={loading}
                 emptyMessage="No users found."
                 headerActions={headerActions}
                 onRowClick={handleRowClick}
