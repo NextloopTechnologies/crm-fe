@@ -14,10 +14,23 @@ import {
   EyeOffIcon,
 } from "@/assets/icons/components/index";
 import { Globe, Printer, Star } from "lucide-react";
+import { AccountAddressRequestDto, ContactRequestDto, CreateAccountRequest } from "@/types/api.types";
 
-// ─────────────────────────────────────────────────────────────
-// Icons
-// ─────────────────────────────────────────────────────────────
+const ratingOptions = [
+  { label: "None", value: "None" },
+  { label: "Acquired", value: "Acquired" },
+  { label: "Active", value: "Active" },
+  { label: "Market Failed", value: "Market Failed" },
+  { label: "Project Cancelled", value: "Project Cancelled" },
+  { label: "Shut Down", value: "Shut Down" },
+];
+
+const ownershipOptions = [
+  { label: "Public", value: "Public" },
+  { label: "Private", value: "Private" },
+  { label: "Subsidiary", value: "Subsidiary" },
+  { label: "Other", value: "Other" },
+];
 
 const ShieldIcon = () => (
   <svg
@@ -35,50 +48,13 @@ const ShieldIcon = () => (
   </svg>
 );
 
-// ─────────────────────────────────────────────────────────────
-// Dropdown Options
-// ─────────────────────────────────────────────────────────────
-
-const roleOptions = [
-  { label: "Admin", value: "admin" },
-  { label: "Manager", value: "manager" },
-  { label: "Developer", value: "developer" },
-  { label: "Viewer", value: "viewer" },
-];
-
-// ─────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────
-
-export interface AccountFormData {
-  firstName: string;
-  lastName: string;
-  industry: string;
-  email: string;
-  username: string;
-  password: string;
-  website: string;
-  phone: string;
-
-  country: string;
-  street: string;
-  state: string;
-  flatNo: string;
-  city: string;
-  zipCode: string;
-}
-
 interface ClientFormProps {
   mode: "add" | "edit";
-  defaultValues?: Partial<AccountFormData>;
-  onSubmit: (data: AccountFormData) => void;
+  defaultValues?: Partial<CreateAccountRequest>;
+  onSubmit: (data: CreateAccountRequest) => void;
   isLoading?: boolean;
   onCancel?: () => void;
 }
-
-// ─────────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────────
 
 export default function AccountForm({
   mode,
@@ -87,32 +63,85 @@ export default function AccountForm({
   isLoading,
   onCancel,
 }: ClientFormProps) {
-  const [form, setForm] = useState<AccountFormData>({
-    firstName: defaultValues.firstName ?? "",
-    lastName: defaultValues.lastName ?? "",
-    industry: defaultValues.industry ?? "",
-    email: defaultValues.email ?? "",
-    username: defaultValues.username ?? "",
-    password: defaultValues.password ?? "",
-    website: defaultValues.website ?? "",
-    phone: defaultValues.phone ?? "",
+  const [formData, setFormData] = useState<CreateAccountRequest>({
+    accountName: "",
+    accountSite: "",
+    accountType: "",
+    rating: "",
+    website: "",
+    tickerSymbol: "",
+    ownership: "",
+    parentAccount: "",
+    employees: "",
+    annualRevenue: "",
 
-    country: defaultValues.country ?? "",
-    street: defaultValues.street ?? "",
-    state: defaultValues.state ?? "",
-    flatNo: defaultValues.flatNo ?? "",
-    city: defaultValues.city ?? "",
-    zipCode: defaultValues.zipCode ?? "",
+    contacts: [
+      {
+        title: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        secondaryEmail: "",
+        phone: "",
+        mobile: "",
+        skypeId: "",
+        designation: "",
+        department: "",
+        dateOfBirth: "",
+        fax: "",
+      },
+    ],
+
+    addresses: [
+      {
+        addressType: "",
+        country: "",
+        flatNo: "",
+        street: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        latitude: "",
+        longitude: "",
+      },
+    ],
   });
 
   const [touched, setTouched] = useState(false);
 
+  const setAddress =
+    (key: keyof AccountAddressRequestDto) =>
+      (val: string) => {
+        setFormData((prev) => ({
+          ...prev,
+          addresses: [
+            {
+              ...(prev.addresses?.[0] ?? {}),
+              [key]: val,
+            },
+          ],
+        }));
+        setTouched(true);
+      };
+
+  const setContact =
+    (key: keyof ContactRequestDto) =>
+      (val: string) => {
+        setFormData((prev) => ({
+          ...prev,
+          contacts: [
+            {
+              ...(prev.contacts?.[0] ?? {}),
+              [key]: val,
+            },
+          ],
+        }));
+        setTouched(true);
+      };
+
   useEffect(() => {
-    if (
-      defaultValues &&
-      Object.keys(defaultValues).length > 0
-    ) {
-      setForm((prev) => ({
+    if (defaultValues && Object.keys(defaultValues).length > 0) {
+      setFormData((prev) => ({
         ...prev,
         ...defaultValues,
       }));
@@ -120,79 +149,62 @@ export default function AccountForm({
   }, [defaultValues]);
 
   const set =
-    (key: keyof AccountFormData) =>
+    (key: keyof CreateAccountRequest) =>
       (val: string) => {
-        setForm((prev) => ({
+        setFormData((prev) => ({
           ...prev,
           [key]: val,
         }));
-
         setTouched(true);
       };
 
-  const handleSubmit = (
-    e: React.FormEvent
-  ) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    onSubmit(formData);
   };
-
-  // ───────────────────────────────────────────────────────────
-  // Sections
-  // ───────────────────────────────────────────────────────────
 
   const sections: FormSection[] = [
     {
       icon: <UserIcon className="w-5 h-5" />,
       title: "Account Information",
-      subtitle:
-        "Capture basic details about the account.",
+      subtitle: "Capture basic details about the account.",
       iconBg: "bg-blue-50",
       iconColor: "text-blue-500",
 
       children: (
         <>
+          {/* FIX 1: was `formData.` (syntax error) → formData.contacts[0].firstName */}
+          {/* FIX 2: was set("firstName") (wrong helper) → setContact("firstName") */}
           <Input
             id="firstName"
             label="First Name"
             placeholder="Enter first name"
             required
-            value={form.firstName}
-            onChange={(e) =>
-              set("firstName")(e.target.value)
-            }
-            leftIcon={
-              <UserIcon className="w-5 h-5" />
-            }
+            value={formData.contacts?.[0].firstName}
+            onChange={(e) => setContact("firstName")(e.target.value)}
+            leftIcon={<UserIcon className="w-5 h-5" />}
           />
 
+          {/* FIX 3: was formData.lastName / set("lastName") → contacts[0] */}
           <Input
             id="lastName"
             label="Last Name"
             placeholder="Enter last name"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("lastName")(e.target.value)
-            }
-            // leftIcon={
-            //   <UserIcon className="w-5 h-5" />
-            // }
+            value={formData.contacts?.[0].lastName}
+            onChange={(e) => setContact("lastName")(e.target.value)}
           />
 
+          {/* FIX 4: was formData.email / set("email") → contacts[0] */}
           <Input
             id="email"
             label="Email"
             placeholder="Enter email"
             type="email"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("email")(e.target.value)
-            }
-            leftIcon={
-              <MailIcon className="w-5 h-5" />
-            }
+            value={formData.contacts?.[0].email}
+            onChange={(e) => setContact("email")(e.target.value)}
+            leftIcon={<MailIcon className="w-5 h-5" />}
           />
 
           <Input
@@ -200,13 +212,8 @@ export default function AccountForm({
             label="Account Name"
             placeholder="Enter account name"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("username")(e.target.value)
-            }
-            // leftIcon={
-            //   <UserIcon className="w-5 h-5" />
-            // }
+            value={formData.accountName}
+            onChange={(e) => set("accountName")(e.target.value)}
           />
 
           <Input
@@ -214,13 +221,8 @@ export default function AccountForm({
             label="Account Site"
             placeholder="Enter account site"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("username")(e.target.value)
-            }
-            // leftIcon={
-            //   <UserIcon className="w-5 h-5" />
-            // }
+            value={formData.accountSite}
+            onChange={(e) => set("accountSite")(e.target.value)}
           />
 
           <Input
@@ -228,27 +230,34 @@ export default function AccountForm({
             label="Account Type"
             placeholder="Enter account type"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("username")(e.target.value)
-            }
-            // leftIcon={
-            //   <UserIcon className="w-5 h-5" />
-            // }
+            value={formData.accountType}
+            onChange={(e) => set("accountType")(e.target.value)}
           />
 
-          <Input
-            id="rating"
+          <SelectDropdown
             label="Rating"
-            placeholder="Enter rating"
+            placeholder="Select rating"
+            options={ratingOptions}
+            value={formData.rating}
+            onChange={(val) => {
+              setFormData({ ...formData, rating: val });
+              setTouched(true);
+            }}
             required
-            value={form.email}
-            onChange={(e) =>
-              set("username")(e.target.value)
-            }
-            leftIcon={
-              <Star className="w-5 h-5" />
-            }
+            leftIcon={<ShieldIcon />}
+          />
+
+          <SelectDropdown
+            label="Ownership"
+            placeholder="Select ownership"
+            options={ownershipOptions}
+            value={formData.ownership}
+            onChange={(val) => {
+              setFormData({ ...formData, ownership: val });
+              setTouched(true);
+            }}
+            required
+            leftIcon={<ShieldIcon />}
           />
 
           <Input
@@ -256,13 +265,8 @@ export default function AccountForm({
             label="Annual Revenue"
             placeholder="Enter annual revenue"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("username")(e.target.value)
-            }
-            // leftIcon={
-            //   <UserIcon className="w-5 h-5" />
-            // }
+            value={formData.annualRevenue}
+            onChange={(e) => set("annualRevenue")(e.target.value)}
           />
 
           <Input
@@ -270,40 +274,39 @@ export default function AccountForm({
             label="Number of Employees"
             placeholder="Enter number of employees"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("username")(e.target.value)
-            }
-            // leftIcon={
-            //   <UserIcon className="w-5 h-5" />
-            // }
+            value={formData.employees}
+            onChange={(e) => set("employees")(e.target.value)}
           />
 
+          {/* FIX 5: was formData.title / set("title") → contacts[0] */}
           <Input
             id="title"
             label="Title"
             placeholder="Enter title"
             required
-            value={form.email}
-            onChange={(e) =>
-              set("username")(e.target.value)
-            }
-            // leftIcon={
-            //   <UserIcon className="w-5 h-5" />
-            // }
+            value={formData.contacts?.[0].title}
+            onChange={(e) => setContact("title")(e.target.value)}
           />
+
           <Input
             id="website"
             label="Website"
             placeholder="Enter website URL"
             type="url"
-            value={form.website}
-            onChange={(e) =>
-              set("website")(e.target.value)
-            }
-            leftIcon={
-              <Globe className="w-5 h-5" />
-            }
+            value={formData.website}
+            onChange={(e) => set("website")(e.target.value)}
+            leftIcon={<Globe className="w-5 h-5" />}
+          />
+
+          {/* FIX 6: was formData.phone / set("phone") → contacts[0] */}
+          <Input
+            id="mobile"
+            label="Mobile"
+            placeholder="Enter mobile number"
+            type="tel"
+            value={formData.contacts?.[0].mobile}
+            onChange={(e) => setContact("mobile")(e.target.value)}
+            leftIcon={<PhoneIcon className="w-5 h-5" />}
           />
 
           <Input
@@ -311,150 +314,139 @@ export default function AccountForm({
             label="Phone"
             placeholder="Enter phone number"
             type="tel"
-            value={form.phone}
-            onChange={(e) =>
-              set("phone")(e.target.value)
-            }
-            leftIcon={
-              <PhoneIcon className="w-5 h-5" />
-            }
+            value={formData.contacts?.[0].phone}
+            onChange={(e) => setContact("phone")(e.target.value)}
+            leftIcon={<PhoneIcon className="w-5 h-5" />}
           />
         </>
       ),
     },
- {
+    {
       icon: <ShieldIcon />,
       title: "Additional Information",
       subtitle: "More ways to reach and connect with the lead.",
       iconBg: "bg-green-50",
       iconColor: "text-green-500",
       children: (
-        <div className=" col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+        <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+          {/* FIX 7: all 4 inputs were uncontrolled → wired to contacts[0] via setContact */}
           <Input
-            id="Skype ID"
+            id="skypeId"
             label="Skype ID"
             placeholder="Enter Skype ID"
-            // leftIcon={<MailIcon className='w-5 h-5' />}
+            value={formData.contacts?.[0].skypeId}
+            onChange={(e) => setContact("skypeId")(e.target.value)}
           />
           <Input
-            id="Secondary Email"
+            id="secondaryEmail"
             label="Secondary Email"
             placeholder="Enter secondary email"
             type="email"
-            leftIcon={<MailIcon className='w-5 h-5' />}
+            value={formData.contacts?.[0].secondaryEmail}
+            onChange={(e) => setContact("secondaryEmail")(e.target.value)}
+            leftIcon={<MailIcon className="w-5 h-5" />}
           />
-           <Input
+          <Input
             id="designation"
             label="Designation"
             placeholder="Enter designation"
-            // leftIcon={<MailIcon className='w-5 h-5' />}
+            value={formData.contacts?.[0].designation}
+            onChange={(e) => setContact("designation")(e.target.value)}
           />
-           <Input
+          <Input
             id="fax"
-            label="Fax" 
+            label="Fax"
             placeholder="Enter fax number"
-            leftIcon={<Printer className='w-5 h-5' />}
+            value={formData.contacts?.[0].fax}
+            onChange={(e) => setContact("fax")(e.target.value)}
+            leftIcon={<Printer className="w-5 h-5" />}
           />
         </div>
       ),
     },
     {
-      icon: (
-        <LocationIcon className="w-5 h-5" />
-      ),
-
+      icon: <LocationIcon className="w-5 h-5" />,
       title: "Address Information",
-
-      subtitle:
-        "Capture the physical address details.",
-
+      subtitle: "Capture the physical address details.",
       iconBg: "bg-[#5752FE1A]",
       iconColor: "text-[#5752FE]",
 
       children: (
         <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 -mx-6 px-6">
-          <InlineSelectDropdown
+          {/* FIX 8: was formData.addresses.country (object access on array) → addresses[0] */}
+          {/* FIX 9: was missing onChange handler */}
+
+         <InlineSelectDropdown
+         id="addressType"
+         label="Address Type"
+         placeholder="Select address type"
+         value={formData.addresses?.[0].addressType || ""}
+         onChange={(val) => setAddress("addressType")(val)}
+         options={[
+           { label: "Billing", value: "Billing" },
+           { label: "Shipping", value: "Shipping" },
+           { label: "Other", value: "Other" },
+         ]}
+       />
+       
+          <InlineInput
             id="country"
             label="Country"
             placeholder="Select country"
-            options={roleOptions}
-            value={form.country}
-            onChange={set("country")}
+            value={formData.addresses?.[0].country}
+            onChange={(e) => setAddress("country")(e.target.value)}
             required
-            leftIcon={<ShieldIcon />}
-            error={
-              touched && !form.country
-                ? "Country is required"
-                : undefined
-            }
           />
 
+          {/* FIX 10: was formData.addresses.street etc. → addresses[0] */}
           <InlineInput
             id="street"
             label="Street"
             placeholder="Enter street address"
-            value={form.street}
-            onChange={(e) =>
-              set("street")(e.target.value)
-            }
+            value={formData.addresses?.[0].street}
+            onChange={(e) => setAddress("street")(e.target.value)}
           />
 
           <InlineInput
             id="state"
             label="State"
             placeholder="Enter state"
-            value={form.state}
-            onChange={(e) =>
-              set("state")(e.target.value)
-            }
+            value={formData.addresses?.[0].state}
+            onChange={(e) => setAddress("state")(e.target.value)}
           />
 
           <InlineInput
             id="flatNo"
             label="Flat No."
             placeholder="Enter flat number"
-            value={form.flatNo}
-            onChange={(e) =>
-              set("flatNo")(e.target.value)
-            }
+            value={formData.addresses?.[0].flatNo}
+            onChange={(e) => setAddress("flatNo")(e.target.value)}
           />
 
           <InlineInput
             id="city"
             label="City"
             placeholder="Enter city"
-            value={form.city}
-            onChange={(e) =>
-              set("city")(e.target.value)
-            }
+            value={formData.addresses?.[0].city}
+            onChange={(e) => setAddress("city")(e.target.value)}
           />
 
           <InlineInput
             id="zipCode"
             label="Zip Code"
             placeholder="Enter zip code"
-            value={form.zipCode}
-            onChange={(e) =>
-              set("zipCode")(e.target.value)
-            }
+            value={formData.addresses?.[0].zipCode}
+            onChange={(e) => setAddress("zipCode")(e.target.value)}
           />
         </div>
       ),
     },
   ];
 
-  // ───────────────────────────────────────────────────────────
-  // Render
-  // ───────────────────────────────────────────────────────────
-
   return (
-    <div className="bg-white min-h-screen  rounded-lx">
+    <div className="bg-white min-h-screen rounded-lx">
       <FormPage
-        heading={
-          mode === "add"
-            ? "Create Account"
-            : "Edit Account"
-        }
+        heading={mode === "add" ? "Create Account" : "Edit Account"}
         subheading={
           mode === "add"
             ? "Add a new account to the system."
@@ -462,10 +454,7 @@ export default function AccountForm({
         }
         sections={sections}
         onSubmit={handleSubmit}
-        onCancel={
-          onCancel ??
-          (() => history.back())
-        }
+        onCancel={onCancel ?? (() => history.back())}
         isLoading={isLoading}
         submitLabel={
           <Button
@@ -479,9 +468,7 @@ export default function AccountForm({
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                {mode === "add"
-                  ? "Creating..."
-                  : "Updating..."}
+                {mode === "add" ? "Creating..." : "Updating..."}
               </div>
             ) : mode === "add" ? (
               "Save"

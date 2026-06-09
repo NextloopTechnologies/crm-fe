@@ -26,12 +26,12 @@ export const ROUTES = {
   // Accounts
   ACCOUNTS: "/accounts",
   ACCOUNTS_CREATE: "/accounts/create",
-  ACCOUNTS_EDIT: (id: string) => `/accounts/${id}/edit`,
+  ACCOUNTS_EDIT: (id: string) => `/accounts/edit/${id}`,
 
   // Tasks
   TASKS: "/tasks",
   TASKS_CREATE: "/tasks/create",
-  TASKS_EDIT: (id: string) => `/tasks/${id}/edit`,
+  TASKS_EDIT: (id: string) => `/tasks/edit/${id}`,
 
   // Reports
   REPORTS: "/reports",

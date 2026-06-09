@@ -11,7 +11,8 @@ import { createLead, getLeadByLeadNumber, updateLead } from '@/api/leads.api';
 import { CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { ROUTES } from '@/lib/route';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -80,6 +81,8 @@ export default function EditLeadPage() {
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const navigate = useNavigate();
   const { id } = useParams();
   const [formData, setFormData] = useState<CreateLeadRequest>({} as CreateLeadRequest);
   useEffect(() => {
@@ -143,9 +146,9 @@ export default function EditLeadPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
+      setLoading(true);
       const response = await updateLead(id!, formData);
       if (response.code === ResponseCode.SUCCESS) {
         showToast({
@@ -153,9 +156,19 @@ export default function EditLeadPage() {
           description: "Lead details updated successfully.",
           type: "success",
           icon: <CreatedIcon />
-        })
+        });
+
+        setTimeout(() => {
+          navigate(ROUTES.LEADS);
+        }, 500);
       }
     } catch (error) {
+      console.error(error);
+      showToast({
+        title: "Failed!",
+        description: "Unable to update lead.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -228,6 +241,16 @@ export default function EditLeadPage() {
             type="tel"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            leftIcon={<PhoneIcon className='w-5 h-5' />}
+          />
+
+          <Input
+            id="mobile"
+            label="Mobile"
+            placeholder="Enter mobile number"
+            type="tel"
+            value={formData.mobile}
+            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
           />
 
@@ -398,7 +421,7 @@ export default function EditLeadPage() {
   ];
 
   return (
-    <div className="bg-white min-h-screen p-4 rounded-lx">
+    <div className="bg-white min-h-screen p-2 rounded-lx">
       <FormPage
         heading="Update Lead"
         subheading="Edit the lead's information."
@@ -415,7 +438,7 @@ export default function EditLeadPage() {
             disabled={loading}>
             {loading ? (
               <div className='flex items-center gap-2'>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent">
                 </span>
               </div>) : (
               'Update Lead'

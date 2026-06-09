@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
 import { Calendar, ClipboardList, Clock3, Trash2 } from 'lucide-react'
@@ -9,6 +9,8 @@ import StatsCard from '@/components/common/StatsCards'
 import CustomBadge from '@/components/common/CommonBadge'
 import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
 import { ROUTES } from '@/lib/route'
+import { getAllAccounts } from '@/api/account.api'
+import { getAllTasks } from '@/api/tasks.api'
 
 // ── Static constants — component ke bahar ────────────────────
 const getStats = (data: User[]) => [
@@ -86,36 +88,53 @@ const BadgeCell = ({ val }: { val: unknown }) => {
 
 // ── Component ─────────────────────────────────────────────────
 export default function TaskListPage() {
-  const [selectedRows, setSelectedRows] = useState<User[]>([])
+  const [selectedRows, setSelectedRows] = useState<any[]>([])
+  const [tasks, setTasks] = useState<any[]>([]);
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false);
 
-  const stats = useMemo(() => getStats(usersData), [])
+  const stats = useMemo(() => getStats(tasks), [])
 
-  const columns = useMemo<ColumnDef<User>[]>(() => [
+  useEffect(() => {
+      const fetchAccounts = async () => {
+        try {
+          setLoading(true);
+          const response = await getAllTasks();
+          setTasks(response.data || response);
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchAccounts();
+    }, []);
+    
+  const columns = useMemo<ColumnDef<any>[]>(() => [
     {
-      key: "name",
+      key: "subject",
       label: "Subject",
       width: "180px",
-      render: (val) => <TextCell val={val} />,
-    },
+      render: (_, row) => <span>{(row as any).subject ?? "—"}</span>, },
+    
     {
       key: "joinedAt",
       label: "Due Date",
-      render: (val) => (
+      render: (_, row) => (
         <span className="text-[#6b6b8d] text-sm">
-          {new Date(String(val)).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+          {new Date(String((row as any).dueDate ?? "-")).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
         </span>
       ),
     },
-    { key: "status", label: "Status", width: "140px", render: (val) => <BadgeCell val={val} /> },
-    { key: "status", label: "Priority", width: "140px", render: (val) => <BadgeCell val={val} /> },
-    { key: "location", label: "Related To", width: "220px", render: (val) => <TextCell val={val} /> },
-    { key: "name", label: "Contact Name", width: "220px", render: (val) => <TextCell val={val} /> },
-    { key: "name", label: "Task Owner", width: "220px", render: (val) => <TextCell val={val} /> },
+    { key: "status", label: "Status", width: "140px", render: (_,row) => <BadgeCell val={(row as any).status} /> },
+    { key: "priority", label: "Priority", width: "140px", render: (_,row) => <BadgeCell val={(row as any).priority} /> },
+    { key: "location", label: "Related To", width: "220px", render: (_,row) => <TextCell val={(row as any).relatedToType} /> },
+    // { key: "contactName", label: "Contact Name", width: "220px", render: (_,row) => <TextCell val={(row as any).contactName} /> },
+    { key: "taskOwner", label: "Task Owner", width: "220px", render: (_,row) => <TextCell val={(row as any).taskOwner} /> },
   ], [])
 
   const handleEdit = useCallback(
-    (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+    (row: any) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
     [navigate]
   )
 
@@ -159,7 +178,7 @@ export default function TaskListPage() {
       </div>
 
       <DataTable
-        data={usersData}
+        data={tasks}
         columns={columns}
         filters={FILTERS}
         searchable

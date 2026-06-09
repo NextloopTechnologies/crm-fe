@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
 import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon, UsersIcon } from '@/assets/icons/components'
 import { ROUTES } from '@/lib/route'
+import { getAllAccounts } from '@/api/account.api'
 
 // ── Static helpers — component ke bahar ──────────────────────
 const getStats = (data: User[]) => [
@@ -45,44 +46,59 @@ const FILTERS = [
 
 // ── Component ─────────────────────────────────────────────────
 export default function AccountListPage() {
-  const [selectedRows, setSelectedRows] = useState<User[]>([])
+  const [selectedRows, setSelectedRows] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate()
 
   const stats = useMemo(() => getStats(usersData), [])
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllAccounts();
+        setAccounts(response.data || response);
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAccounts();
+  }, []);
 
-  const columns = useMemo<ColumnDef<User>[]>(() => [
+  const columns = useMemo<ColumnDef<any>[]>(() => [
     {
-      key: "name",
+      key: "accountName",
       label: "Account Name",
       width: "180px",
       render: (_, row) => (
         <div className="flex items-center gap-2.5">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.name}`} />
+            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.accountName}`} />
             <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-              {row.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+              {row.accountName?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium text-[#111127]">{row.name}</span>
+          <span className="text-sm font-medium text-[#111127]">{row.accountName}</span>
         </div>
       ),
     },
-    { key: "name", label: "Account Owner", width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
-    { key: "phone", label: "Phone", width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
-    { key: "location", label: "Website", width: "220px", render: (val) => <span className="text-sm text-[#6b6b8d]">{String(val)}</span> },
+    { key: "accountOwner", label: "Account Owner", width: "220px", render: (_, row) => <span>{(row as any).accountOwner ?? "—"}</span>, },
+    { key: "phone", label: "Phone", width: "220px", render: (_, row) => {
+      return (row as any).contacts?.[0]?.phone ?? "—";
+    },},
+    { key: "website", label: "Website", width: "220px", render: (_, row) => <span>{(row as any).website ?? "—"}</span>, },
     {
-      key: "joinedAt",
-      label: "Created At",
-      render: (val) => (
-        <span className="text-[#6b6b8d] text-sm">
-          {new Date(String(val)).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
-        </span>
-      ),
+      key: "accountSite",
+      label: "Account",
+      render: (_, row) => <span>{(row as any).accountSite ?? "—"}</span>,
     },
   ], [])
 
   const handleEdit = useCallback(
-    (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+    (row: any) => navigate(ROUTES.ACCOUNTS_EDIT(String(row.accountNumber))),
     [navigate]
   )
 
@@ -128,7 +144,7 @@ export default function AccountListPage() {
       </div>
 
       <DataTable
-        data={usersData}
+        data={accounts}
         columns={columns}
         filters={FILTERS}
         searchable

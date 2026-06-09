@@ -1,32 +1,49 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { showToast } from '@/components/common/Toast'
-import { CreatedIcon } from '@/assets/icons/components/index'
-import AccountForm, { AccountFormData } from '@/components/forms/AccountForm'
-import { ROUTES } from '@/lib/route'
-
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CreatedIcon } from "@/assets/icons/components";
+import AccountForm from "@/components/forms/AccountForm";
+import { ROUTES } from "@/lib/route";
+import { CreateAccountRequest } from "@/types/api.types";
+import { createAccount } from "@/api/account.api";
+import { ResponseCode } from "@/constants/statusCodes";
+import { getSuccessToast , getErrorToast } from "@/components/common/toastMessages";
+import { showToast } from "@/components/common/Toast";
 export default function CreateAccountPage() {
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    return () => clearTimeout(timerRef.current)
-  }, [])
+    return () => {
+    };
+  }, []);
 
-  const handleSubmit = useCallback((data: AccountFormData) => {
-    setLoading(true)
-    showToast({
-      title: "Account created!",
-      description: "New account added successfully.",
-      type: "success",
-      icon: <CreatedIcon />
-    })
-    timerRef.current = setTimeout(() => {
-      setLoading(false)
-      navigate(ROUTES.ACCOUNTS)
-    }, 1000)
-  }, [navigate])
+  const handleSubmit = useCallback(
+    async (data: CreateAccountRequest) => {
+      try {
+        setLoading(true);
+        const response = await createAccount(data);
+        if (response?.code === ResponseCode.SUCCESS) {
+          showToast(getSuccessToast("Account", "created"));
 
-  return <AccountForm mode="add" onSubmit={handleSubmit} isLoading={loading} />
+            navigate(ROUTES.ACCOUNTS);
+        }
+      } catch (error) {
+        console.error(error);
+
+        showToast(getErrorToast("create", "Account"));
+        
+      } finally {
+        setLoading(false);
+      }
+    },
+    [navigate]
+  );
+
+  return (
+    <AccountForm
+      mode="add"
+      onSubmit={handleSubmit}
+      isLoading={loading}
+    />
+  );
 }

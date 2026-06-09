@@ -9,6 +9,8 @@ import { User, usersData } from "@/data/user.data";
 import  goggleLogo from "@/assets/icons/svgs/Google-icon.svg";
 import  microSoftLogo from "@/assets/icons/svgs/MicroSoft-icon.svg";
 import  linkedInLogo from "@/assets/icons/svgs/LinkedIn-icon.svg";
+import { myProfile } from "@/api/profile.api";
+import { useEffect, useState } from "react";
 
 // ─────────────────────────────────────────────────────────────
 // Props
@@ -127,13 +129,28 @@ function InfoField({ icon, label, value }: InfoFieldProps) {
 
 export default function MyProfilePage({ data, onEditClick }: ProfilePageProps) {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await myProfile();
+        setProfile(response.data);
+      } catch (error) {
+        console.error("Failed to fetch profile", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
 
   const user = data || usersData[0];
 
-  const fullName = user.name ?? "";
+  const fullName = profile?.firstName + " " + profile?.lastName;
 
   const initials =
-    user.name
+    profile?.firstName
       ?.split(" ")
       .map((w) => w[0])
       .join("")
@@ -147,7 +164,7 @@ export default function MyProfilePage({ data, onEditClick }: ProfilePageProps) {
       navigate("/profile/edit");
     }
   };
-
+  
   return (
     <div className="p-6 flex flex-col gap-4 bg-[#FFFFFF] min-h-screen">
 
@@ -198,27 +215,27 @@ export default function MyProfilePage({ data, onEditClick }: ProfilePageProps) {
             <InfoField
               icon={<BriefcaseIcon />}
               label="Role"
-              value={user.role}
+              value={profile?.roleName}
             />
             <InfoField
               icon={<MailIcon />}
               label="Email Address"
-              value={user.email}
+              value={profile?.email}
             />
             <InfoField
               icon={<BuildingIcon />}
               label="Location"
-              value={user.location}
+              value={profile?.isActive}
             />
             <InfoField
               icon={<PhoneIcon  />}
               label="Phone Number"
-              value={user.phone}
+              value={profile?.phone}
             />
             <InfoField
               icon={<CalendarIcon />}
               label="Joined At"
-              value={user.joinedAt}
+              value={profile?.creationDate}
             />
           </div>
         </div>

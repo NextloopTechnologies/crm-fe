@@ -2,8 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import { CreatedIcon } from '@/assets/icons/components/index';
-import TaskForm, { TaskFormData } from '@/components/forms/TaskForm';
+import TaskForm from '@/components/forms/TaskForm';
 import { ROUTES } from '@/lib/route'
+import { CreateTaskRequest } from '@/types/api.types';
+import { ResponseCode } from '@/constants/statusCodes';
+import { createTask } from '@/api/tasks.api';
+import { getErrorToast, getSuccessToast } from '@/components/common/toastMessages';
 
 export default function CreateTaskPage() {
   const [loading, setLoading] = useState(false);
@@ -14,14 +18,24 @@ export default function CreateTaskPage() {
     return () => clearTimeout(timerRef.current)
   }, [])
 
-  const handleSubmit = useCallback((data: TaskFormData) => {
-    setLoading(true);
-    // API call here
-    showToast({ title: "Task created!", description: "New Task added successfully.", type: "success", icon: <CreatedIcon /> });
-    timerRef.current = setTimeout(() => {
-      setLoading(false)
-      navigate(ROUTES.TASKS)
-    }, 1000)
-  }, [navigate])
+  const handleSubmit = useCallback(async (data: CreateTaskRequest) => {
+    try {
+           setLoading(true);
+           const response = await createTask(data);
+           if (response?.code === ResponseCode.SUCCESS) {
+            showToast(getSuccessToast("Task", "created"));
+   
+               navigate(ROUTES.TASKS);
+           }
+         } catch (error) {
+           console.error(error);
+   
+           showToast(getErrorToast("create", "Task"));
+         } finally {
+           setLoading(false);
+         }
+       },
+       [navigate]
+      );
   return <TaskForm mode="add" onSubmit={handleSubmit} isLoading={loading} />;
 }
