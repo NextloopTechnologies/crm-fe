@@ -161,7 +161,9 @@ export default function MyProfilePage({ data, onEditClick }: ProfilePageProps) {
     if (onEditClick) {
       onEditClick();
     } else {
-      navigate("/profile/edit");
+      navigate("/profile/edit" , {state : 
+        {profile}
+      });
     }
   };
   

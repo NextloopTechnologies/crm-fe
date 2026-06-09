@@ -1,7 +1,5 @@
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
-import { User } from "@/data/user.data";
-import { TenantFormData } from "@/components/forms/TenantForm";
 import { useRef, useState } from "react";
 
 // ─────────────────────────────────────────────────────────────
@@ -42,6 +40,29 @@ const CalendarIcon = () => (
   </svg>
 );
 
+const UserIcon = () => (
+  <svg className="w-full h-full" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const PhoneIcon = () => (
+  <svg className="w-full h-full" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.4a16 16 0 0 0 7.69 7.69l1.41-1.41a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg className="w-full h-full" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+
 // ─────────────────────────────────────────────────────────────
 // Info Field (view mode)
 // ─────────────────────────────────────────────────────────────
@@ -75,54 +96,59 @@ function InfoField({ icon, label, value }: InfoFieldProps) {
 // ─────────────────────────────────────────────────────────────
 
 interface ProfileFormProps {
-  user: User;
+  profile?: any;           // API response from myProfile()
   mode?: "view" | "edit";
-  onSubmit?: (data: TenantFormData) => void;
+  onSubmit?: (data: ProfileFormData) => void;
   onCancel?: () => void;
   onEditClick?: () => void;
   onUploadPhoto?: () => void;
   isLoading?: boolean;
 }
-
+export interface ProfileFormData {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  roleName: string;
+  creationDate : string;
+  username : string;
+}
 // ─────────────────────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────────────────────
 
-// add useRef to imports
-
 export function ProfileForm({
-  user,
+  profile,
   mode = "view",
   onSubmit,
   onCancel,
   onEditClick,
-  onUploadPhoto,
   isLoading,
 }: ProfileFormProps) {
+
+  // ── Derived values from API profile ──
+  const fullName = profile
+    ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim()
+    : "—";
+
   const initials =
-    user.name
+    profile?.firstName
       ?.split(" ")
-      .map((w) => w[0])
+      .map((w: string) => w[0])
       .join("")
       .slice(0, 2)
       .toUpperCase() || "?";
 
-  const [form, setForm] = useState<TenantFormData>({
-    firstName: user.name ?? "",
-    lastName: "",
-    industry: "",
-    email: user.email ?? "",
-    username: "",
-    password: "",
-    website: "",
-    phone: user.phone ?? "",
-    country: "",
-    street: "",
-    state: "",
-    flatNo: "",
-    city: "",
-    zipCode: "",
-  });
+  // ── Form state — prefilled from API profile ──
+  const [form, setForm] = useState<ProfileFormData>({
+      firstName: profile?.firstName ?? "",
+      lastName: profile?.lastName ?? "",
+      phone: profile?.phone ?? "",
+      email: profile?.email ?? "",
+      roleName: profile?.roleName ?? "",
+      creationDate : profile?.creationDate ?? "",
+      username : profile?.username ?? "",
+    });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -135,7 +161,7 @@ export function ProfileForm({
     }
   };
 
-  const set = (field: keyof TenantFormData) => (value: string) =>
+  const set = (field: keyof ProfileFormData) => (value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleSubmit = () => onSubmit?.(form);
@@ -143,9 +169,9 @@ export function ProfileForm({
   const isEdit = mode === "edit";
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl ">
+    <div className="bg-white border border-gray-200 rounded-xl p-6">
 
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-base font-bold text-gray-900">Personal Information</h1>
         {!isEdit && (
@@ -161,18 +187,17 @@ export function ProfileForm({
         )}
       </div>
 
-      {/* Avatar + Content */}
+      {/* ── Avatar + Content ── */}
       <div className="flex items-start gap-[4.25rem]">
 
         {/* Avatar */}
         <div className="flex-shrink-0 ml-5 mt-10 flex flex-col items-center">
           <div className="relative w-[150px] h-[150px]">
 
-            {/* Image or initials */}
-            {previewUrl || user.avatar ? (
+            {previewUrl || profile?.avatar ? (
               <img
-                src={previewUrl ?? user.avatar}
-                alt={user.name}
+                src={previewUrl ?? profile?.avatar}
+                alt={fullName}
                 className="w-full h-full rounded-full object-cover ring-4 ring-gray-100"
               />
             ) : (
@@ -181,11 +206,12 @@ export function ProfileForm({
               </div>
             )}
 
-            {/* Camera overlay — only in edit mode */}
+            {/* Camera overlay — edit mode only */}
             {isEdit && (
               <>
                 <button
                   type="button"
+                  onClick={() => fileInputRef.current?.click()}
                   className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white border border-[#D6D6D6] flex items-center justify-center shadow-md hover:bg-gray-50 transition-colors"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -194,8 +220,6 @@ export function ProfileForm({
                     <circle cx="12" cy="13" r="4" />
                   </svg>
                 </button>
-
-                {/* Hidden file input */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -206,6 +230,7 @@ export function ProfileForm({
               </>
             )}
           </div>
+
           {isEdit && (
             <button
               type="button"
@@ -216,40 +241,110 @@ export function ProfileForm({
               Upload New Photo
             </button>
           )}
-          {/* Remove "Upload New Photo" button since camera icon replaces it */}
         </div>
 
-        {/* Fields */}
+        {/* ── Fields ── */}
         <div className="grid grid-cols-2 gap-x-8 gap-y-5 flex-1 min-w-0">
           {isEdit ? (
             <>
-              <Input id="firstName" label="Full Name" placeholder="Enter full name"
-                required value={form.firstName} onChange={(e) => set("firstName")(e.target.value)} />
-              <Input id="jobTitle" label="Job Title" placeholder="Enter job title"
-                required value={form.industry} onChange={(e) => set("industry")(e.target.value)} />
-              <Input id="email" label="Email" placeholder="Enter email"
-                required value={form.email} onChange={(e) => set("email")(e.target.value)} />
-              <Input id="department" label="Department" placeholder="Enter department"
-                value={form.username} onChange={(e) => set("username")(e.target.value)} />
-              <Input id="phone" label="Phone Number" placeholder="Enter phone number"
-                required value={form.phone} onChange={(e) => set("phone")(e.target.value)} />
-              <Input id="dob" label="Date of Birth" placeholder="Enter date of birth"
-                value={form.website} onChange={(e) => set("website")(e.target.value)} />
+              <Input
+                id="fullname"
+                label="Full Name"
+                placeholder="Enter full name"
+                required
+                value={form.firstName + " " + form.lastName}
+                onChange={(e) => {
+                  const [firstName, lastName] = e.target.value.split(" ");
+                  set("firstName")(firstName);
+                  set("lastName")(lastName);
+                }}
+              />
+              <Input
+                id="firstName"
+                label="First Name"
+                placeholder="Enter first name"
+                required
+                value={form.firstName}
+                onChange={(e) => set("firstName")(e.target.value)}
+              />
+                <Input
+                id="lastName"
+                label="Last Name"
+                placeholder="Enter last name"
+                required
+                value={form.lastName}
+                onChange={(e) => set("lastName")(e.target.value)}
+              />
+              <Input
+                id="email"
+                label="Email"
+                placeholder="Enter email"
+                required
+                value={form.email}
+                onChange={(e) => set("email")(e.target.value)}
+              />
+              <Input
+                id="rollName"
+                label="Roll Name"
+                placeholder="Enter roll name"
+                value={form.roleName}
+                readOnly
+                onChange={(e) => set("roleName")(e.target.value)}
+              />
+              <Input
+                id="phone"
+                label="Phone Number"
+                placeholder="Enter phone number"
+                required
+                value={form.phone}
+                onChange={(e) => set("phone")(e.target.value)}
+              />
+              <Input
+                id="joinedAt"
+                label="Joined At"
+                placeholder="Enter joined date"
+                value={form.creationDate}
+                onChange={(e) => set("creationDate")(e.target.value)}
+              />
             </>
           ) : (
             <>
-              <InfoField icon={<BriefcaseIcon />} label="Full Name" value={user.name} />
-              <InfoField icon={<BriefcaseIcon />} label="Role" value={user.role} />
-              <InfoField icon={<BuildingIcon />} label="Email Address" value={user.email} />
-              <InfoField icon={<BuildingIcon />} label="Location" value={user.location} />
-              <InfoField icon={<CalendarIcon />} label="Phone Number" value={user.phone} />
-              <InfoField icon={<CalendarIcon />} label="Joined At" value={user.joinedAt} />
+              <InfoField
+                icon={<UserIcon />}
+                label="Full Name"
+                value={fullName}
+              />
+              <InfoField
+                icon={<BriefcaseIcon />}
+                label="Role"
+                value={profile?.roleName}
+              />
+              <InfoField
+                icon={<MailIcon />}
+                label="Email Address"
+                value={profile?.email}
+              />
+              <InfoField
+                icon={<BuildingIcon />}
+                label="Status"
+                value={profile?.isActive ? "Active" : "Inactive"}
+              />
+              <InfoField
+                icon={<PhoneIcon />}
+                label="Phone Number"
+                value={profile?.phone}
+              />
+              <InfoField
+                icon={<CalendarIcon />}
+                label="Joined At"
+                value={profile?.creationDate}
+              />
             </>
           )}
         </div>
       </div>
 
-      {/* Actions — only in edit mode */}
+      {/* ── Actions — edit mode only ── */}
       {isEdit && (
         <div className="flex justify-end gap-4 mt-10">
           <button
@@ -272,7 +367,6 @@ export function ProfileForm({
           </Button>
         </div>
       )}
-
     </div>
   );
 }
