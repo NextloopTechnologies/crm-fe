@@ -1,4 +1,4 @@
-// lib/routes.ts
+  // lib/routes.ts
 export const ROUTES = {
   // Auth
   LOGIN: "/login",
@@ -16,7 +16,7 @@ export const ROUTES = {
   // Users
   USERS: "/users",
   USERS_CREATE: "/users/create",
-  USERS_EDIT: (id: string) => `/users/${id}/edit`,
+  USERS_EDIT: (email :  string) => `/users/edit/${encodeURIComponent(email)}`,
 
   // Tenants
   TENANTS: "/tenants",
