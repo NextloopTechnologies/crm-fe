@@ -1,4 +1,4 @@
-  // lib/routes.ts
+// lib/routes.ts
 export const ROUTES = {
   // Auth
   LOGIN: "/login",
@@ -45,7 +45,8 @@ export const ROUTES = {
   ACCOUNT_INFORMATION_PAGE : "/profile/account-info",  
   // Projects
   PROJECT: "/projects",
-
+  PROJECT_CREATE: "/project/create",
+  PROJECT_EDIT: (id: string) => `/project/edit/${id}`,
   // Pieline
   PIPELINE: "/pipeline",
 

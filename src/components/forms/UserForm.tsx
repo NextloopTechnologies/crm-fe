@@ -62,7 +62,7 @@ export default function UserForm({
     [mode, initialShowAssignToManager]
   );
 
-  const { form, set, fieldError, handleSubmit } = useZodForm(schema, {
+  const { form, set, fieldError } = useZodForm(schema, {
     username: defaultValues.username ?? "",
     password: defaultValues.password ?? "",
     email: defaultValues.email ?? "",
@@ -84,6 +84,11 @@ export default function UserForm({
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(form);
+  };
+
   const roleOptions = getRoleOptions(callerRole);
 
   // ─── Sections ───────────────────────────────────────────────
@@ -98,11 +103,11 @@ export default function UserForm({
         <>
           {mode === "add" && <Input id="username" label="Username" placeholder="Enter username" required value={form.username} onChange={(e) => set("username")(e.target.value)} leftIcon={<UserIcon className="w-5 h-5" />} error={fieldError("username")} />}
           {mode === "add" && <Input id="password" label="Password" placeholder="Enter password" required value={form.password ?? ""} onChange={(e) => set("password")(e.target.value)} type="password" leftIcon={<LockIcon className="w-5 h-5" />} error={fieldError("password")} />}
-          <Input id="email"     label="Email"      placeholder="Enter email"        required value={form.email}     onChange={(e) => set("email")(e.target.value)}     type="email" leftIcon={<MailIcon className="w-5 h-5" />} error={fieldError("email")} />
+          {mode === "add" && <Input id="email" label="Email" placeholder="Enter email" required value={form.email ?? ""} onChange={(e) => set("email")(e.target.value)} leftIcon={<MailIcon className="w-5 h-5" />} error={fieldError("email")} />}
           <Input id="firstName" label="First Name" placeholder="Enter first name"   required value={form.firstName} onChange={(e) => set("firstName")(e.target.value)} leftIcon={<UserIcon className="w-5 h-5" />} error={fieldError("firstName")} />
           <Input id="lastName"  label="Last Name"  placeholder="Enter last name"    required value={form.lastName} onChange={(e) => set("lastName")(e.target.value)}  leftIcon={<UserIcon className="w-5 h-5" />} error={fieldError("lastName")} />
-          <Input id="phone"     label="Phone"      placeholder="Enter phone number" required        value={form.phone}     onChange={(e) => set("phone")(e.target.value)}      type="tel" leftIcon={<PhoneIcon className="w-5 h-5" />} error={fieldError("phone")} />
-        </>
+          {mode === "add" && <Input id="phone" label="Phone" placeholder="Enter phone" required value={form.phone ?? ""} onChange={(e) => set("phone")(e.target.value)}  leftIcon={<PhoneIcon className="w-5 h-5" />} error={fieldError("phone")} />}
+          </>
       ),
     },
     {
@@ -152,20 +157,31 @@ export default function UserForm({
         heading={mode === "add" ? "Create User" : "Edit User"}
         subheading={mode === "add" ? "Add a new user to the system." : "Update user details."}
         sections={sections}
-        onSubmit={handleSubmit(onSubmit)}   
+        onSubmit={handleSubmit}   
         onCancel={onCancel ?? (() => history.back())}
         isLoading={isLoading}
         submitLabel={
-          <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1" disabled={isLoading}>
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                {mode === "add" ? "Creating..." : "Updating..."}
-              </div>
-            ) : mode === "add" ? "Add User" : "Update User"}
-          </Button>
-        }
-      />
+          <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          className="mt-1"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              {mode === "add" ? "Creating..." : "Updating..."}
+            </div>
+          ) : mode === "add" ? (
+            "Save"
+          ) : (
+            "Update"
+          )}
+        </Button>
+      }
+    />
     </div>
   );
 }

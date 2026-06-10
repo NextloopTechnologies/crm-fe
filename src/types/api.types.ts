@@ -194,22 +194,10 @@ export interface CreateProjectRequest {
   projectName: string;
   description: string;
   projectStatus: string;
-  priority: string;
   projectType: string;
-  phase : string;
-  accountNumber: string;
-  contactId: string;
-  isReminder: boolean;
-  isRepeat: boolean;
-  relatedToType: string;
-  repeatDetails : {
-  repeatType: string;
-  frequency: string;
-  everyX: number;
-  endType: string;
-  endAfterTimes: number;
-  endOnDate: string;
-  }
+  endDate: string;
+  startDate: string;
+
 }
 
 // ── Client ────────────────────────────────────────────────────────────────────

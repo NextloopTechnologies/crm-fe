@@ -17,17 +17,25 @@ interface User {
     firstName: string;
     lastName: string;
     email: string;
-    roleName: string;   // API field
-    isActive: boolean;  // API field
+    roleName: string;
+    isActive: boolean;
     phone: string;
     creationDate: string;
 }
 
+// ── Role hierarchy ────────────────────────────────────────────
+const ROLE_HIERARCHY: Record<string, string[]> = {
+    SUPER_ADMIN: ["SUPER_ADMIN", "ADMIN", "MANAGER", "SALES"],
+    ADMIN:       ["ADMIN", "MANAGER", "SALES"],
+    MANAGER:     ["MANAGER", "SALES"],
+    SALES:       ["SALES"],
+};
+
 const roleColors: Record<string, string> = {
     SUPER_ADMIN: "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
-    ADMIN: "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
-    MANAGER: "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
-    SALES: "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
+    ADMIN:       "bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-50",
+    MANAGER:     "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
+    SALES:       "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
 };
 
 const getStats = (data: User[]) => [
@@ -59,29 +67,29 @@ const getStats = (data: User[]) => [
 
 const FILTERS = [
     {
-        key: "roleName",   // ← API field name
+        key: "roleName",
         label: "Role",
         type: "select" as const,
         options: [
             { label: "Super Admin", value: "SUPER_ADMIN" },
-            { label: "Admin", value: "ADMIN" },
-            { label: "Manager", value: "MANAGER" },
-            { label: "Sales", value: "SALES" },
+            { label: "Admin",       value: "ADMIN" },
+            { label: "Manager",     value: "MANAGER" },
+            { label: "Sales",       value: "SALES" },
         ],
     },
     {
-        key: "isActive",   // ← API field name
+        key: "isActive",
         label: "Status",
         type: "select" as const,
         options: [
-            { label: "Active", value: "true" },
+            { label: "Active",   value: "true" },
             { label: "Inactive", value: "false" },
         ],
     },
-    { key: "createdFrom", label: "Created From", type: "date" as const },
-    { key: "createdTo", label: "Created To", type: "date" as const },
-    { key: "lastLoginFrom", label: "Last Login From", type: "date" as const },
-    { key: "lastLoginTo", label: "Last Login To", type: "date" as const },
+    { key: "createdFrom",    label: "Created From",    type: "date" as const },
+    { key: "createdTo",      label: "Created To",      type: "date" as const },
+    { key: "lastLoginFrom",  label: "Last Login From", type: "date" as const },
+    { key: "lastLoginTo",    label: "Last Login To",   type: "date" as const },
 ];
 
 // ── User Avatar Cell ──────────────────────────────────────────
@@ -107,6 +115,9 @@ export default function UsersList() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    // Get logged-in user's role — adjust based on your auth hook/store
+    const currentRole = localStorage.getItem("roleName") ?? "SALES";
+
     const stats = useMemo(() => getStats(users), [users]);
 
     useEffect(() => {
@@ -114,7 +125,15 @@ export default function UsersList() {
             try {
                 setLoading(true);
                 const response = await getAllUsers();
-                setUsers(response.data ?? response);
+                const allUsers: User[] = response.data ?? response;
+
+                // Filter users based on current role's visibility
+                const visibleRoles = ROLE_HIERARCHY[currentRole] ?? ["SALES"];
+                const filtered = allUsers.filter(u =>
+                    visibleRoles.includes(u.roleName?.toUpperCase())
+                );
+
+                setUsers(filtered);
             } catch (error) {
                 console.error("Error fetching users:", error);
             } finally {
@@ -122,7 +141,7 @@ export default function UsersList() {
             }
         };
         fetchUsers();
-    }, []);
+    }, [currentRole]);
 
     // ── Columns ───────────────────────────────────────────────
     const columns = useMemo<ColumnDef<User>[]>(() => [
@@ -151,7 +170,7 @@ export default function UsersList() {
                     label={row.roleName}
                     className={
                         roleColors[row.roleName?.toUpperCase()] ??
-                        "bg-gray-100  text-gray-600 border border-gray-200 "
+                        "bg-gray-100 text-gray-600 border border-gray-200"
                     }
                 />
             ),
@@ -191,9 +210,24 @@ export default function UsersList() {
         },
     ], []);
 
-    const handleEdit = useCallback((row: User) => navigate(ROUTES.USERS_EDIT(String(row.email)), {state : row.email}), [navigate]);
-    const handleDelete = useCallback((_row: User | User[]) => { }, []);
-    const handleRowClick = useCallback((_row: User) => { }, []);
+    // Disable edit if current user is NOT SUPER_ADMIN and target user is SUPER_ADMIN
+    const canEdit = useCallback((row: User) => {
+        if (currentRole !== "SUPER_ADMIN" && row.roleName?.toUpperCase() === "SUPER_ADMIN") {
+            return false;
+        }
+        return true;
+    }, [currentRole]);
+
+    const handleEdit = useCallback(
+        (row: User) => {
+            if (!canEdit(row)) return;
+            navigate(ROUTES.USERS_EDIT(String(row.email)), { state: row.email });
+        },
+        [navigate, canEdit]
+    );
+
+    const handleDelete    = useCallback((_row: User | User[]) => { }, []);
+    const handleRowClick  = useCallback((_row: User) => { }, []);
     const handleSelection = useCallback((rows: User[]) => setSelectedRows(rows), []);
     const handleDeleteSelected = useCallback(() => { }, [selectedRows]);
 
@@ -222,7 +256,6 @@ export default function UsersList() {
     return (
         <div className="bg-white min-h-screen rounded-xl">
 
-            {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {stats.map((stat) => (
                     <StatsCard
@@ -235,7 +268,6 @@ export default function UsersList() {
                 ))}
             </div>
 
-            {/* Table */}
             <DataTable
                 data={users}
                 columns={columns}
@@ -251,6 +283,8 @@ export default function UsersList() {
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                // Pass canEdit so table can disable the icon visually
+                isEditDisabled={(row) => !canEdit(row as User)}
             />
         </div>
     );

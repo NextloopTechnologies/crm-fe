@@ -4,7 +4,7 @@ import { ROUTES } from "@/lib/route"
 import {
   LayoutDashboard, Users, Briefcase,
   Settings, Building2, CheckSquare,
-  BarChart2, UserCircle,
+  BarChart2, UserCircle, BookUser,
   FolderKanban, KanbanSquare,
 } from "lucide-react"
 
@@ -13,7 +13,9 @@ const DashboardPage     = lazy(() => import('@/pages/dashboard/DashboardRouter')
 const LeadsListPage     = lazy(() => import('@/pages/leads/LeadsListPage'))
 const LeadsPage         = lazy(() => import('@/pages/leads/LeadsPage'))
 const EditLeadPage      = lazy(() => import('@/pages/leads/EditLeadPage'))
-const ProjectsPage      = lazy(() => import('@/pages/ProjectsPage'))
+const CreateProjectPage      = lazy(() => import('@/pages/project/CreateProjectPage'))
+const ProjectsPage      = lazy(() => import('@/pages/project/ProjectListPage'))
+const EditProjectPage      = lazy(() => import('@/pages/project/EditProjectPage'))
 const PipelinePage      = lazy(() => import('@/pages/PipelinePage'))
 const UserListPage      = lazy(() => import('@/pages/users/UserList'))
 const CreateUsersPage   = lazy(() => import('@/pages/users/CreateUserPage'))
@@ -70,6 +72,10 @@ export const protectedRoutes: RouteConfig[] = [
     element: ProjectsPage,
     sidebar: { label: "Projects", icon: FolderKanban, group: "main" },
   },
+    { path: 'project/create',         element: CreateProjectPage },
+    { path: 'project/edit/:id',         element: EditProjectPage },
+
+
   {
     path: ROUTES.PIPELINE,
     element: PipelinePage,
