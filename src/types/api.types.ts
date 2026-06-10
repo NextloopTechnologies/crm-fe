@@ -178,6 +178,40 @@ export interface CreateTaskRequest {
   }
 }
 
+export interface CreateUserRequest {
+
+  firstName?: string
+  lastName?: string
+  email?: string
+  phone?: string
+  username?: string 
+  password?: string
+  roleName?: string
+  assignToManagerUsername?: string
+
+}
+export interface CreateProjectRequest {
+  projectName: string;
+  description: string;
+  projectStatus: string;
+  priority: string;
+  projectType: string;
+  phase : string;
+  accountNumber: string;
+  contactId: string;
+  isReminder: boolean;
+  isRepeat: boolean;
+  relatedToType: string;
+  repeatDetails : {
+  repeatType: string;
+  frequency: string;
+  everyX: number;
+  endType: string;
+  endAfterTimes: number;
+  endOnDate: string;
+  }
+}
+
 // ── Client ────────────────────────────────────────────────────────────────────
 export interface Client {
   id: number
