@@ -12,6 +12,7 @@ export const ROUTES = {
   LEADS: "/leads",
   LEADS_CREATE: "/leads/create",
   LEADS_EDIT: (id: string) => `/leads/edit/${id}`,
+  LEADS_DETAIL: (id: string) => `/leads/detail/${id}`,
 
   // Users
   USERS: "/users",
