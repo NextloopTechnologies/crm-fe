@@ -145,7 +145,7 @@ export default function LeadsList() {
             )}
 
             {/* Add Lead */}
-            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate("/leads/add")}>
+            <Button className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1" onClick={() => navigate(ROUTES.LEADS_CREATE)}>
                 <PlusIcon />
                 Add Lead
             </Button>
