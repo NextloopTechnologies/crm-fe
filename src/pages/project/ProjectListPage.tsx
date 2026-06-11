@@ -10,16 +10,8 @@ import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
 import { ROUTES } from '@/lib/route'
 import { getAllProjects } from '@/api/projects.api'
 import { Label } from 'radix-ui'
+import { parseDate } from '@/lib/utils'
 
-// ── Date parser for dd-MM-yyyy HH:mm format ──────────────────
-const parseDate = (dateStr: string) => {
-  if (!dateStr || dateStr === "NA") return "—";
-  const [datePart] = dateStr.split(" ");
-  const [dd, mm, yyyy] = datePart.split("-");
-  return new Date(`${yyyy}-${mm}-${dd}`).toLocaleDateString("en-IN", {
-    day: "2-digit", month: "short", year: "numeric"
-  });
-};
 
 // ── Static constants ──────────────────────────────────────────
 const getStats = (data: any[]) => [
