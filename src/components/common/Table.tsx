@@ -21,7 +21,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   Search, ChevronLeft, ChevronRight,
-  Pencil, Trash2, X , ArrowUpDownIcon
+  Pencil, Trash2, X, ArrowUpDownIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
@@ -67,6 +67,8 @@ interface DataTableProps<T> {
   onEdit?: (row: T) => void;
   onDelete?: (row: T | T[]) => void;
   filters?: FilterConfig[];
+  isEditDisabled?: (row: T) => boolean;
+
 }
 
 type SortDir = "asc" | "desc" | null;
@@ -314,6 +316,7 @@ export function DataTable<T extends { id?: string | number }>({
   onEdit,
   onDelete,
   filters,
+  isEditDisabled
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -630,8 +633,14 @@ export function DataTable<T extends { id?: string | number }>({
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
-                                onClick={() => onEdit(row)}
+                                className={cn(
+                                  "h-8 w-8",
+                                  isEditDisabled?.(row)
+                                    ? "opacity-30 cursor-not-allowed text-[#6b6b8d]"
+                                    : "hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
+                                )}
+                                disabled={isEditDisabled?.(row)}
+                                onClick={() => !isEditDisabled?.(row) && onEdit(row)}
                               >
                                 <Pencil size={15} />
                               </Button>

@@ -14,15 +14,19 @@ export default function EditUserPage() {
   const [loading, setLoading]             = useState(false);
   const [fetching, setFetching]           = useState(true);
   const [defaultValues, setDefaultValues] = useState<Partial<UserFormData>>();
-  const [userId, setUserId]               = useState<number | number>(); 
+  const [userId, setUserId]               = useState<number>();
 
-  const navigate  = useNavigate();
-  const timerRef  = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const navigate   = useNavigate();
+  const timerRef   = useRef<ReturnType<typeof setTimeout>>(undefined);
   const callerRole = localStorage.getItem("roleName") || "SUPER_ADMIN";
 
   useEffect(() => {
     return () => clearTimeout(timerRef.current);
   }, []);
+
+  // ← Move it here, at the top level
+  useEffect(() => {
+\  }, [userId]);
 
   useEffect(() => {
     if (!email) {
@@ -36,9 +40,8 @@ export default function EditUserPage() {
         setFetching(true);
         const response = await getUserByEmail(email);
         const data = response.data ?? response;
-
-        setUserId(data.userId ?? data.id);
-
+        const resolvedId = data.userId ?? data.id;
+        setUserId(Number(resolvedId));
         setDefaultValues({
           email:     data.email     ?? "",
           firstName: data.firstName ?? "",
@@ -56,7 +59,7 @@ export default function EditUserPage() {
     };
 
     fetchUser();
-  }, [email, navigate]); 
+  }, [email, navigate]);
 
   // ─── Submit ───────────────────────────────────────────────
   const handleSubmit = useCallback((data: UserFormData) => {
@@ -71,7 +74,7 @@ export default function EditUserPage() {
 
     updateUser(userId, updatePayload)
       .then(() => {
-        showToast(getSuccessToast("User" , "updated"));
+        showToast(getSuccessToast("User", "updated"));
         timerRef.current = setTimeout(() => {
           setLoading(false);
           navigate(ROUTES.USERS);
@@ -79,7 +82,7 @@ export default function EditUserPage() {
       })
       .catch((error) => {
         console.error("Error updating user:", error);
-        showToast(getErrorToast("User" , "updated"));
+        showToast(getErrorToast("User", "updated"));
         setLoading(false);
       });
   }, [userId, navigate]);

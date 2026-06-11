@@ -29,7 +29,7 @@ import type { CreateUserRequest } from '@/types/api.types'
     id: number,
       payload: CreateUserRequest
     ) => {
-      const response = await api.patch(
+      const response = await api.post(
         `user/updateUserDetails?userId=${id}`,
         payload
       );
