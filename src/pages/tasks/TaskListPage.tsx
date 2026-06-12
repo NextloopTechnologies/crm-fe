@@ -91,20 +91,20 @@ export default function TaskListPage() {
   const [selectedRows, setSelectedRows] = useState<any[]>([])
   const [tasks, setTasks] = useState<any[]>([]);
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false);
+  const [tasksLoading, setTasksLoading] = useState(true);
 
   const stats = useMemo(() => getStats(tasks), [])
 
   useEffect(() => {
       const fetchAccounts = async () => {
         try {
-          setLoading(true);
+          setTasksLoading(true);
           const response = await getAllTasks();
           setTasks(response.data || response);
         } catch (error) {
           console.error("Error fetching tasks:", error);
         } finally {
-          setLoading(false);
+          setTasksLoading(false);
         }
       };
       fetchAccounts();
@@ -187,6 +187,7 @@ export default function TaskListPage() {
         pageSize={8}
         emptyMessage="No users found."
         headerActions={headerActions}
+        loading={tasksLoading}
         onRowClick={handleRowClick}
         onSelectionChange={handleSelection}
         onEdit={handleEdit}

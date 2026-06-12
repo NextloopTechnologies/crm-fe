@@ -48,7 +48,7 @@ const FILTERS = [
 export default function AccountListPage() {
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [accountsLoading, setAccountsLoading] = useState(true);
 
   const navigate = useNavigate()
 
@@ -56,13 +56,13 @@ export default function AccountListPage() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        setLoading(true);
+        setAccountsLoading(true);
         const response = await getAllAccounts();
         setAccounts(response.data || response);
       } catch (error) {
         console.error("Error fetching accounts:", error);
       } finally {
-        setLoading(false);
+        setAccountsLoading(false);
       }
     };
     fetchAccounts();
@@ -153,6 +153,7 @@ export default function AccountListPage() {
         pageSize={8}
         emptyMessage="No users found."
         headerActions={headerActions}
+        loading={accountsLoading}
         onRowClick={handleRowClick}
         onSelectionChange={handleSelection}
         onEdit={handleEdit}

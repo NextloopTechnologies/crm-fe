@@ -16,19 +16,20 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import { cn } from "@/lib/utils"
 import { showToast } from "../common/Toast"
+import NotificationSidebar from "../common/NotificationSidebar"
 import { logout } from "@/api/auth.api"
-import { ResponseCode } from "@/constants/statusCodes"
 
 // ── Route → label map ────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/users": { title: "Users", breadcrumb: ["Manage system users and their access"] },
-  "/users/create": { title: "Create User", breadcrumb: ["Users", "Create User"] },
+  "/users/create": { title: "Users", breadcrumb: ["Users", "Create User"] },
+  "/users/edit/:id": { title: "Users", breadcrumb: ["Users", "Create User"] },
   "/dashboard": { title: "Dashboard", breadcrumb: ["Dashboard"] },
   "/settings": { title: "Settings", breadcrumb: ["Settings"] },
   "/roles": { title: "Roles", breadcrumb: ["Roles"] },
   "/leads": { title: "Leads", breadcrumb: ["Manage and track all your incoming leads"] },
-  "/leads/add": { title: "Add Lead", breadcrumb: ["Leads", "Add Lead"] },
-  "/leads/edit/:id": { title: "Edit Lead", breadcrumb: ["Leads", "Edit Lead"] },
+  "/leads/create": { title: "Leads", breadcrumb: ["Leads", "Add Lead"] },
+  "/leads/edit/:id": { title: "Leads", breadcrumb: ["Leads", "Edit Lead"] },
   "/tenants": { title: "Tenants", breadcrumb: ["Manage system tenants and their system"] },
   "/tenants/create": { title: "Tenants", breadcrumb: ["Tenant", "Add Tenant"] },
   "/tenants/:id/edit": { title: "Tenants", breadcrumb: ["Tenant", "Edit Tenant"] },
@@ -38,8 +39,11 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/accounts/edit/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
-  "/tasks/:id/edit": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
-  "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]}
+  "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
+  "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]},
+  "/project/edit/:id" : {title : "Project" , breadcrumb : ["Projects" , "Edit Project"]},
+  "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]}
+
 }
 
 // ── Dynamic route matcher ─────────────────────────────────────────────────────
@@ -57,7 +61,10 @@ export function Navbar() {
   const navigate = useNavigate()
   const [openLogout, setOpenLogout] = useState(false);
   const [showWriteToUs, setShowWriteToUs] = useState(false);
-  const [showAccountSub, setShowAccountSub] = useState(false);  // Form state
+  const [showAccountSub, setShowAccountSub] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  
+  // Form state
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
@@ -72,8 +79,6 @@ export function Navbar() {
     // handle send logic here
     setSubject("");
     setMessage("");
-
-
 
     showToast({
       title: "Message Submitted",
@@ -119,10 +124,17 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             className="h-9 w-9 rounded-lg text-gray-500 hover:bg-gray-100 relative"
+            onClick={() => setShowNotification(true)}
+
           >
             <Bell size={17} />
             <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
           </Button>
+
+          <NotificationSidebar
+            open={showNotification}
+            onClose={() => setShowNotification(false)}
+          />
 
           {/* ── User Dropdown ── */}
           <DropdownMenu>

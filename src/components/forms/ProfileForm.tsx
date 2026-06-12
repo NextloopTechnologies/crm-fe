@@ -358,7 +358,6 @@ export function ProfileForm({
           <Button
             type="button"
             size="sm"
-            disabled={isLoading}
             loading={isLoading}
             onClick={handleSubmit}
             className="w-28 px-5 rounded-lg text-xs font-medium"

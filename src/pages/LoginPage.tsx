@@ -147,9 +147,9 @@ export default function LoginPage() {
             {/* Email — using Input */}
             <Input
               id="email"
-              label="Email address"
+              label="Email address / Username"
               type="email"
-              placeholder="Enter your email"
+              placeholder="Enter your username/email"
               autoComplete="email"
               leftIcon={<MailIcon className="w-4 h-4" />}
               error={errors.email?.message}

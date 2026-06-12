@@ -10,7 +10,7 @@ import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
 import { ROUTES } from '@/lib/route'
 import { getAllProjects } from '@/api/projects.api'
 import { Label } from 'radix-ui'
-import { parseDate } from '@/lib/utils'
+import { formatDate, parseDateOnly } from '@/lib/utils'
 
 
 // ── Static constants ──────────────────────────────────────────
@@ -113,7 +113,7 @@ const PriorityBadge = ({ val }: { val: unknown }) => {
 export default function ProjectListPage() {
   const [selectedRows, setSelectedRows] = useState<any[]>([])
   const [projects, setProjects] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
+  const [projectsloading, setProjectsLoading] = useState(false)
   const navigate = useNavigate()
 
   const stats = useMemo(() => getStats(projects), [projects])
@@ -121,13 +121,13 @@ export default function ProjectListPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        setLoading(true)
+        setProjectsLoading(true)
         const response = await getAllProjects()
         setProjects(response.data || response)
       } catch (error) {
         console.error("Error fetching projects:", error)
       } finally {
-        setLoading(false)
+        setProjectsLoading(false)
       }
     }
     fetchProjects()
@@ -168,7 +168,7 @@ export default function ProjectListPage() {
       width: "130px",
       render: (_, row) => (
         <span className="text-[#6b6b8d] text-sm">
-          {parseDate(String((row as any).startDate ?? "NA"))}
+          {parseDateOnly(String((row as any).startDate ?? "NA"))}
         </span>
       ),
     },
@@ -178,7 +178,7 @@ export default function ProjectListPage() {
       width: "130px",
       render: (_, row) => (
         <span className="text-[#6b6b8d] text-sm">
-          {parseDate(String((row as any).endDate ?? "NA"))}
+          {parseDateOnly(String((row as any).endDate ?? "NA"))}
         </span>
       ),
     },
@@ -238,7 +238,7 @@ export default function ProjectListPage() {
         searchPlaceholder="Search by project name, owner, assignee..."
         selectable
         pageSize={8}
-        loading={loading}
+        loading={projectsloading}
         emptyMessage="No projects found."
         headerActions={headerActions}
         onRowClick={handleRowClick}

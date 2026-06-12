@@ -579,7 +579,6 @@ export default function TaskForm({
         sections={sections}
         onSubmit={handleSubmit}
         onCancel={onCancel ?? (() => history.back())}
-        isLoading={isLoading}
         submitLabel={
           <Button
             type="submit"
@@ -592,7 +591,7 @@ export default function TaskForm({
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                {mode === "add" ? "Creating..." : "Updating..."}
+                {mode === "add" ? "Saving..." : "Updating..."}
               </div>
             ) : mode === "add" ? "Save" : "Update"}
           </Button>

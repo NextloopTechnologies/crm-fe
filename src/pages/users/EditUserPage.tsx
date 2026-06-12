@@ -26,7 +26,7 @@ export default function EditUserPage() {
 
   // ← Move it here, at the top level
   useEffect(() => {
-\  }, [userId]);
+  }, [userId]);
 
   useEffect(() => {
     if (!email) {

@@ -568,25 +568,16 @@ export function DataTable<T extends { id?: string | number }>({
 
             <TableBody>
               {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={`skeleton-${i}`} className="border-b border-[#ECECEC]">
-                    {selectable && (
-                      <TableCell className="px-4">
-                        <div className="h-4 w-4 rounded bg-[#f0f0f8] animate-pulse" />
-                      </TableCell>
-                    )}
-                    {columns.map((col) => (
-                      <TableCell key={`skeleton-${i}-${col.key as string}`} className="px-4 py-3 text-[#000000]">
-                        <div className="h-4 rounded bg-[#f0f0f8] animate-pulse w-3/4" />
-                      </TableCell>
-                    ))}
-                    {hasActions && (
-                      <TableCell className="px-4">
-                        <div className="h-4 w-4 rounded bg-[#f0f0f8] animate-pulse" />
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length + (selectable ? 1 : 0) + (hasActions ? 1 : 0)}
+                    className="py-16 text-center"
+                  >
+                    <div className="flex justify-center items-center">
+                      <div className="loader" />
+                    </div>
+                  </TableCell>
+                </TableRow>
               ) : paginated.length === 0 ? (
                 <TableRow>
                   <TableCell
