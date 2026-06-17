@@ -13,3 +13,7 @@ export const  formatDate = (value: string) => {
 
   return `${day}-${month}-${year} ${time}`;
 };
+
+export const parseDateOnly = (dateTime: string): string => {
+  return dateTime.split(" ")[0];
+};

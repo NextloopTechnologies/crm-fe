@@ -45,20 +45,20 @@ const stats = [
 export default function LeadsList() {
     const [selectedRows, setSelectedRows] = useState<any[]>([]);
     const [leads, setLeads] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [leadsLoading, setLeadsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchLeads = async () => {
             try {
-                setLoading(true);
+                setLeadsLoading(true);
                 const response = await getAllLeads();
                 setLeads(response.data || response);
             } catch (error) {
                 console.error("Error fetching leads:", error);
             } finally {
-                setLoading(false);
+                setLeadsLoading(false);
             }
         };
         fetchLeads();
@@ -188,6 +188,7 @@ export default function LeadsList() {
                 pageSize={8}
                 emptyMessage="No leads found."
                 headerActions={headerActions}
+                loading = {leadsLoading}
                 onRowClick={handleRowClick}
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}

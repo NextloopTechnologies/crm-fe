@@ -159,29 +159,17 @@ export default function UserForm({
         sections={sections}
         onSubmit={handleSubmit}   
         onCancel={onCancel ?? (() => history.back())}
-        isLoading={isLoading}
         submitLabel={
-          <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          fullWidth
-          className="mt-1"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              {mode === "add" ? "Creating..." : "Updating..."}
-            </div>
-          ) : mode === "add" ? (
-            "Save"
-          ) : (
-            "Update"
-          )}
-        </Button>
-      }
-    />
+          <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1" disabled={isLoading}>
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                {mode === "add" ? "Saving..." : "Updating..."}
+              </div>
+            ) : mode === "add" ? "Save" : "Update"}
+          </Button>
+        }
+      />
     </div>
   );
 }

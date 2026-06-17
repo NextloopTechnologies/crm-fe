@@ -197,13 +197,12 @@ export default function ReportForm({
             size="lg"
             fullWidth
             className="mt-1"
-            disabled={isLoading}
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 {mode === "add"
-                  ? "Creating..."
+                  ? "Saving..."
                   : "Updating..."}
               </div>
             ) : mode === "add" ? (
