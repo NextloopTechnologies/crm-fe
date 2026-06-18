@@ -376,7 +376,6 @@ export default function TenantForm({
           onCancel ??
           (() => history.back())
         }
-        isLoading={isLoading}
         submitLabel={
           <Button
             type="submit"

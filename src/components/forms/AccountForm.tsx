@@ -15,6 +15,7 @@ import {
 } from "@/assets/icons/components/index";
 import { Globe, Printer, Star } from "lucide-react";
 import { AccountAddressRequestDto, ContactRequestDto, CreateAccountRequest } from "@/types/api.types";
+import { ROUTES } from "@/lib/route";
 
 const ratingOptions = [
   { label: "None", value: "None" },
@@ -445,6 +446,25 @@ export default function AccountForm({
 
   return (
     <div className="bg-white min-h-screen rounded-lx">
+        <button
+              onClick={() => {navigation.navigate(ROUTES.ACCOUNTS)}}
+              className="flex mt-[-10px] mb-4 items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+            >
+                <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+              Back to list
+            </button>
       <FormPage
         heading={mode === "add" ? "Create Account" : "Edit Account"}
         subheading={
@@ -455,7 +475,6 @@ export default function AccountForm({
         sections={sections}
         onSubmit={handleSubmit}
         onCancel={onCancel ?? (() => history.back())}
-        isLoading={isLoading}
         submitLabel={
           <Button
             type="submit"

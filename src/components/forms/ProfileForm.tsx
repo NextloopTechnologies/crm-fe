@@ -279,13 +279,13 @@ export function ProfileForm({
                 id="email"
                 label="Email"
                 placeholder="Enter email"
-                required
+                readOnly
                 value={form.email}
                 onChange={(e) => set("email")(e.target.value)}
               />
               <Input
                 id="rollName"
-                label="Roll Name"
+                label="Role Name"
                 placeholder="Enter roll name"
                 value={form.roleName}
                 readOnly

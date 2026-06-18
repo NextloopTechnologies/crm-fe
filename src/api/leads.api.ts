@@ -37,7 +37,7 @@ export const getAllLeads = async () => {
 
   export const updateLead = async (
     accountNumber: string,
-    payload: CreateLeadRequest
+    payload: any
   ) => {
     const response = await api.patch(
       `/lead/updateLeadDetails?accountNumber=${accountNumber}`,

@@ -6,6 +6,7 @@ import { UserIcon, PhoneIcon, MailIcon, LockIcon } from '@/assets/icons/componen
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { useZodForm } from '@/hooks/useZodForm';
 import { createUserFormSchema, UserFormData } from '@/schemas/user/UserFormSchema';
+import { ROUTES } from '@/lib/route';
 
 const ShieldIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -153,6 +154,25 @@ export default function UserForm({
 
   return (
     <div className="bg-white min-h-screen rounded-lx">
+       <button
+        onClick={() => {navigation.navigate(ROUTES.USERS)}}
+        className="flex mt-[-10px] mb-4 items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+      >
+          <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M19 12H5M12 5l-7 7 7 7" />
+    </svg>
+        Back to list
+      </button>
       <FormPage
         heading={mode === "add" ? "Create User" : "Edit User"}
         subheading={mode === "add" ? "Add a new user to the system." : "Update user details."}

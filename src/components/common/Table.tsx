@@ -21,7 +21,8 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   Search, ChevronLeft, ChevronRight,
-  Pencil, Trash2, X, ArrowUpDownIcon
+  Pencil, Trash2, X, ArrowUpDownIcon,
+  Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
@@ -66,6 +67,7 @@ interface DataTableProps<T> {
   headerActions?: React.ReactNode;
   onEdit?: (row: T) => void;
   onDelete?: (row: T | T[]) => void;
+  onView?: (row: T) => void;
   filters?: FilterConfig[];
   isEditDisabled?: (row: T) => boolean;
 
@@ -315,6 +317,7 @@ export function DataTable<T extends { id?: string | number }>({
   headerActions,
   onEdit,
   onDelete,
+  onView,
   filters,
   isEditDisabled
 }: DataTableProps<T>) {
@@ -397,7 +400,7 @@ export function DataTable<T extends { id?: string | number }>({
       : <ChevronDown size={13} className="ml-1 text-[#5752FE]" />;
   };
 
-  const hasActions = onEdit || onDelete;
+  const hasActions = onEdit || onDelete || onView;
 
   return (
     <>
@@ -558,7 +561,7 @@ export function DataTable<T extends { id?: string | number }>({
                     </span>
                   </TableHead>
                 ))}
-                {(onEdit || onDelete) && (
+                {(onEdit || onDelete || onView) && (
                   <TableHead className="w-16 px-4 text-xs font-semibold text-[#000000] uppercase tracking-wide">
                     Actions
                   </TableHead>
@@ -617,9 +620,19 @@ export function DataTable<T extends { id?: string | number }>({
                             : safeString(getNestedValue(row, col.key as string))}
                         </TableCell>
                       ))}
-                      {(onEdit || onDelete) && (
+                      {(onEdit || onDelete || onView) && (
                         <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-1">
+                            {onView && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
+                                onClick={() => onView(row)}
+                              >
+                                <Eye size={15} />
+                              </Button>
+                            )}
                             {onEdit && (
                               <Button
                                 variant="ghost"
