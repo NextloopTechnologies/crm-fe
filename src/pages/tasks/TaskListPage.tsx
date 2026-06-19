@@ -188,7 +188,7 @@ export default function TaskListPage() {
         emptyMessage="No users found."
         headerActions={headerActions}
         loading={tasksLoading}
-        onRowClick={handleRowClick}
+        onRowClick={handleView}
         onSelectionChange={handleSelection}
         onEdit={handleEdit}
         onDelete={handleDelete}

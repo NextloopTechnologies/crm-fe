@@ -10,8 +10,6 @@ export interface LeadFilters {
   size?: number
 }
 
-import axios from "axios";
-
 export const getAllLeads = async () => {
 
   const response = await api.get('lead/getAllActiveLeads');
@@ -42,6 +40,20 @@ export const getAllLeads = async () => {
     const response = await api.patch(
       `/lead/updateLeadDetails?accountNumber=${accountNumber}`,
       payload
+    );
+  
+    return response.data;
+  };
+
+  export const updateLeadStatusbyLeadNumber = async (
+    leadNumber: string,
+    status: string
+  ) => {
+    const response = await api.patch(
+      `lead/updateLeadStatus`,
+      {leadNumber,
+        status
+      }
     );
   
     return response.data;

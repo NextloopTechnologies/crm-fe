@@ -9,7 +9,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import StatsCard from "@/components/common/StatsCards";
 import { ROUTES } from "@/lib/route";
-import { getAllLeads } from "@/api/leads.api";
 import { UpArrowIcon, DownArrowIcon } from "@/assets/icons/components/index";
 import { formatDate, LeadAvatar, getInitials } from "./leads/leadHelper";
 
@@ -202,6 +201,7 @@ interface KanbanColumnProps {
   leads: any[];
   onAddLead: (col: PipelineCol) => void;
   onEdit: (lead: any) => void;
+  onColumnClick?: (col: PipelineCol) => void;
 }
 
 const KanbanColumn = ({
@@ -209,8 +209,10 @@ const KanbanColumn = ({
   leads,
   onAddLead,
   onEdit,
+  onColumnClick,
 }: KanbanColumnProps) => {
   const cfg = COLUMN_CONFIG[col];
+  const visibleLeads = leads.slice(0,5);
   const totalRevenue = leads.reduce((s, l) => s + parseFloat(l.annualRevenue ?? "0"), 0);
   const valueLabel = totalRevenue > 0 ? `$${(totalRevenue / 1_000_000).toFixed(1)}M` : "";
 
@@ -224,7 +226,8 @@ const KanbanColumn = ({
         style={{ background: cfg.light }}
       >
         {/* Header */}
-        <div className="px-4 pt-3 pb-2">
+        <div className="px-4 pt-3 pb-2 cursor-pointer hover:opacity-80 transition-opacity"
+        onClick={() => onColumnClick?.(col)}>
           <div className="flex items-center gap-2">
             <span className="text-[13px] font-semibold text-[#1e1e2d]">{col}</span>
             <span
@@ -241,13 +244,13 @@ const KanbanColumn = ({
 
         {/* Cards */}
         <div className="flex-1 overflow-y-auto px-3 pb-2 flex flex-col gap-2 max-h-[520px]">
-          {leads.length === 0 ? (
+          {visibleLeads.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-[#cbd5e1]">
               <Users size={28} className="opacity-30 mb-1" />
               <p className="text-[11px]">No leads here</p>
             </div>
           ) : (
-            leads.map((lead, i) => (
+            visibleLeads.map((lead, i) => (
               <LeadCard
                 key={lead.leadNumber ?? i}
                 lead={lead}
@@ -257,29 +260,36 @@ const KanbanColumn = ({
             ))
           )}
         </div>
-
-        {/* Add Lead */}
-        {/* <div className="px-3 pb-3 pt-1">
+        {leads.length > 5 && (
           <button
             onClick={() => onAddLead(col)}
             className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed text-[12px] font-semibold transition-colors hover:bg-white/60"
             style={{ borderColor: cfg.color, color: cfg.color }}
           >
-            <Plus size={13} /> Add Lead
+            View all {leads.length} leads
           </button>
-        </div> */}
+        )}
       </div>
     </div>
   );
 };
 
+type PipelinePageProps = {
+  leads: any[];
+  onCardClick?: (lead: any) => void;
+  onColumnClick?: (col: string) => void;
+};
+
 // ─────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────
-export default function PipelinePage() {
-  const [leads, setLeads] = useState<any[]>([]);
+export default function PipelinePage({
+  leads,
+  onColumnClick,
+  onCardClick,
+
+}: PipelinePageProps){
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<Filters>(EMPTY_FILTERS);
@@ -301,32 +311,11 @@ export default function PipelinePage() {
   const setFilter = (key: keyof Filters, val: string) =>
     setFilters(p => ({ ...p, [key]: val }));
 
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await getAllLeads();
-        setLeads(res.data || res);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  const stats = useMemo(() => buildStats(leads), [leads]);
-
   // Group into 4 columns with search + filters applied
   const grouped = useMemo<Record<PipelineCol, any[]>>(() => {
-    const q = search.toLowerCase();
     const af = appliedFilters;
 
-    const filtered = leads.filter(l => {
-      const matchSearch = !q ||
-        `${l.firstName} ${l.lastName}`.toLowerCase().includes(q) ||
-        (l.company ?? "").toLowerCase().includes(q) ||
-        (l.email ?? "").toLowerCase().includes(q);
+    const filtered = leads.filter((l) => {
       const matchSource = !af.leadSource || l.leadSource === af.leadSource;
       const matchOwner = !af.leadOwner || l.leadOwner === af.leadOwner;
       const matchIndustry = !af.industry || l.industry === af.industry;
@@ -340,13 +329,13 @@ export default function PipelinePage() {
         } catch { matchDate = false; }
       }
 
-      return matchSearch && matchSource && matchOwner && matchIndustry && matchDate;
+      return matchSource && matchOwner && matchIndustry && matchDate;
     });
 
     const map = { New: [], Qualified: [], Contacted: [], "Lost Lead": [] } as Record<PipelineCol, any[]>;
     filtered.forEach(l => map[resolveColumn(l)].push(l));
     return map;
-  }, [leads, search, appliedFilters]);
+  }, [leads, appliedFilters]);
 
   const handleAddLead = useCallback((col: PipelineCol) => {
     navigate(ROUTES.LEADS_CREATE, {
@@ -358,133 +347,12 @@ export default function PipelinePage() {
 
   return (
     <div className="bg-white min-h-screen rounded-xl flex flex-col">
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 p-1">
-        {stats.map(s => <StatsCard key={s.label} {...s} />)}
-      </div>
 
       <div className="border border-[#E0E0E0] p-4 rounded-lg">
         {/* Toolbar */}
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap px-1">
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Search */}
-            {/* <div className="flex items-center gap-2 bg-[#f8fafc] border border-[#e2e8f0] rounded-[10px] px-3 py-2 min-w-[240px]">
-              <svg className="w-4 h-4 text-[#94a3b8] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-              </svg>
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search by name, company, email..."
-                className="bg-transparent text-sm text-[#334155] outline-none w-full placeholder:text-[#94a3b8]"
-              />
-            </div> */}
-
-            {/* Filter button */}
-            {/* <div className="relative">
-              <button
-                onClick={() => setFilterOpen(p => !p)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-[10px] border text-sm font-medium transition-colors
-                  ${filterOpen || activeFilterCount > 0
-                    ? "bg-[#5752FE] text-white border-[#5752FE]"
-                    : "bg-[#f8fafc] text-[#334155] border-[#e2e8f0] hover:border-[#5752FE]/40"
-                  }`}
-              >
-                <SlidersHorizontal size={14} />
-                Filters
-                {activeFilterCount > 0 && (
-                  <span className="w-4 h-4 rounded-full bg-white text-[#5752FE] text-[10px] font-bold flex items-center justify-center">
-                    {activeFilterCount}
-                  </span>
-                )}
-                <ChevronDown size={13} className={`transition-transform ${filterOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {filterOpen && (
-                <div className="absolute left-0 top-[calc(100%+6px)] z-30 w-[320px] bg-white border border-[#e2e8f0] rounded-2xl shadow-xl p-4 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-semibold text-[#1e1e2d]">Filter Leads</span>
-                    <button onClick={() => setFilterOpen(false)} className="text-[#94a3b8] hover:text-[#334155]">
-                      <X size={14} />
-                    </button>
-                  </div>
-
-                  <div className="border-t border-[#f1f5f9]" />
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wide">Lead Source</label>
-                    <select
-                      value={filters.leadSource}
-                      onChange={e => setFilter("leadSource", e.target.value)}
-                      className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] px-3 py-2 text-sm text-[#334155] outline-none cursor-pointer"
-                    >
-                      <option value="">All Sources</option>
-                      {LEAD_SOURCE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wide">Lead Owner</label>
-                    <select
-                      value={filters.leadOwner}
-                      onChange={e => setFilter("leadOwner", e.target.value)}
-                      className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] px-3 py-2 text-sm text-[#334155] outline-none cursor-pointer"
-                    >
-                      <option value="">All Owners</option>
-                      {LEAD_OWNER_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wide">Industry</label>
-                    <select
-                      value={filters.industry}
-                      onChange={e => setFilter("industry", e.target.value)}
-                      className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] px-3 py-2 text-sm text-[#334155] outline-none cursor-pointer"
-                    >
-                      <option value="">All Industries</option>
-                      {INDUSTRY_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wide">Created Date Range</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="date"
-                        value={filters.dateFrom}
-                        onChange={e => setFilter("dateFrom", e.target.value)}
-                        className="flex-1 bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] px-3 py-2 text-sm text-[#334155] outline-none"
-                      />
-                      <input
-                        type="date"
-                        value={filters.dateTo}
-                        onChange={e => setFilter("dateTo", e.target.value)}
-                        className="flex-1 bg-[#f8fafc] border border-[#e2e8f0] rounded-[8px] px-3 py-2 text-sm text-[#334155] outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="border-t border-[#f1f5f9]" />
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleReset}
-                      className="flex-1 py-2 rounded-[8px] border border-[#e2e8f0] text-sm text-[#334155] hover:bg-[#f8fafc] font-medium transition-colors"
-                    >
-                      Reset
-                    </button>
-                    <button
-                      onClick={handleApply}
-                      className="flex-1 py-2 rounded-[8px] bg-[#5752FE] hover:bg-[#4a45e0] text-white text-sm font-semibold transition-colors"
-                    >
-                      Apply Filters
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div> */}
-
+           
             {/* Active filter chips */}
             {activeFilterCount > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -534,6 +402,7 @@ export default function PipelinePage() {
                   leads={grouped[col]}
                   onAddLead={handleAddLead}
                   onEdit={handleEdit}
+                  onColumnClick={onColumnClick} 
                 />
               ))}
             </div>

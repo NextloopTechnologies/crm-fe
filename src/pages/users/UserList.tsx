@@ -279,7 +279,7 @@ export default function UsersList() {
                 loading={loading}
                 emptyMessage="No users found."
                 headerActions={headerActions}
-                onRowClick={handleRowClick}
+                onRowClick={handleView}
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

@@ -1,71 +1,50 @@
-// pages/Users/UsersList.tsx
-import { useCallback, useEffect, useState } from 'react';
-import { DataTable, ColumnDef, RowAction } from '@/components/common/Table';
-import { Badge } from '@/components/ui/badge';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DataTable, ColumnDef } from '@/components/common/Table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Eye, UserPlus, SlidersHorizontal, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { usersData, type User } from '../../data/user.data';
-import { ActiveUsersIcon, DownArrowIcon, InActiveUsersIcon, NoActivityIcon, TenantsIcon, UpArrowIcon, UsersIcon } from '@/assets/icons/components/index';
+import {  Trash2, } from 'lucide-react';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
-import StatsCard from '@/components/common/StatsCards';
-import { NewLeadsIcon } from '@/assets/icons/components/index';
-import CustomBadge from "@/components/common/CommonBadge";
 import { ROUTES } from '@/lib/route';
-import { getAllLeads } from '@/api/leads.api';
+import { LeadStatusDropdown } from '@/components/LeadStatusDropdown';
+import { Lead } from '@/types/api.types';
 
-const stats = [
-    {
-        icon: <UsersIcon />,
-        label: "Total Users",
-        value: usersData.length,
-        subtitle: "All Users in System",
-        trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
-    },
-    {
-        icon: <NewLeadsIcon />,
-        label: "New Leads",
-        value: usersData.filter((u) => u.status === "active").length,
-        subtitle: "vs last 7 days",
-        trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
-    },
-    {
-        icon: <NoActivityIcon />,
-        label: "No Activity",
-        value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "vs last 7 days",
-        trend: { icon: <DownArrowIcon />, text: "12%", color: "text-[#EB4335]" },
+type LeadsListProps = {
+    leads: Lead[];
+    loading?: boolean,
+    initialStatuses?: string[];
+    onStatusChange: (
+      leadNumber: string,
+      status: string
+    ) => void;
+  };
 
-    },
-];
-
-
-export default function LeadsList() {
+export default function LeadsList({
+    leads,        
+    loading = false,
+    initialStatuses = [],
+    onStatusChange,
+}: LeadsListProps){
     const [selectedRows, setSelectedRows] = useState<any[]>([]);
-    const [leads, setLeads] = useState<any[]>([]);
-    const [leadsLoading, setLeadsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchLeads = async () => {
-            try {
-                setLeadsLoading(true);
-                const response = await getAllLeads();
-                setLeads(response.data || response);
-            } catch (error) {
-                console.error("Error fetching leads:", error);
-            } finally {
-                setLeadsLoading(false);
-            }
-        };
-        fetchLeads();
-    }, []);
+        if (initialStatuses.length > 0) {
+            setActiveFilters({ leadStatus: initialStatuses[0] });
+        } else {
+            setActiveFilters({});
+        }
+    }, [initialStatuses]);
+
+    const filteredLeads = useMemo(() => {
+        if (initialStatuses.length === 0) return leads;
+        return leads.filter(l => initialStatuses.includes(l.leadStatus ?? ""));
+    }, [leads, initialStatuses]);
+    
     // ── Columns ───────────────────────────────────────────────────────────────────
-    const columns: ColumnDef<any>[] = [
-        {
+    const columns: ColumnDef<Lead>[] = useMemo(() => [        {
             key: "name",
             label: "Name",
             width: "220px",
@@ -97,6 +76,18 @@ export default function LeadsList() {
 
         },
         {
+            key: "leadStatus",
+            label: "Lead Status",
+            width: "200px",  
+            render: (_, row) => (
+                <LeadStatusDropdown
+                    leadNumber={row.leadNumber}
+                    currentStatus={row.leadStatus}
+                    onSuccess={(newStatus) => onStatusChange(row.leadNumber, newStatus)}
+                />
+            ),
+        },
+        {
             key: "leadOwner",
             label: "Lead Owner",
             width: "180px",
@@ -112,25 +103,29 @@ export default function LeadsList() {
                 </div>
             ),
         },
-    ];
+    ],[onStatusChange]);
+
+    const handleView = useCallback(
+        (row: any) => navigate(ROUTES.LEADS_DETAIL(String(row.leadNumber))),
+        [navigate]
+      );
 
     const handleEdit = useCallback(
         (row: any ) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
         [navigate]
     )
 
-    const handleDelete = useCallback((row: User | User[]) => { }, [])
+    const handleDelete = useCallback((row: Lead | Lead[]) => { }, [])
 
-    const handleRowClick = useCallback((row: User) => { }, [])
 
     const handleSelection = useCallback(
-        (rows: User[]) => setSelectedRows(rows),
+        (rows: Lead[]) => setSelectedRows(rows),
         []
     )
 
     const handleDeleteSelected = useCallback(() => { }, [selectedRows])
 
-    // ── Header Actions (Filter + Add User) ────────────────────────────────────
+    // ── Header Actions (Filter + Add Lead) ────────────────────────────────────
     const headerActions = (
         <div className="flex items-center gap-2">
             {/* Delete Selected */}
@@ -163,33 +158,19 @@ export default function LeadsList() {
                     {error}
                 </div>
             )}
-            {/* Stats Cards */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6">
-                {stats.map((stat) => (
-                    <StatsCard
-                        key={stat.label}
-                        icon={stat.icon}
-                        label={stat.label}
-                        value={stat.value}
-                        subtitle={stat.subtitle}
-                        trend={stat.trend}
-
-                    />
-                ))}
-            </div>
 
             {/* Table */}
             <DataTable
-                data={leads}
+                data={filteredLeads}
                 columns={columns}
-                searchable
-                searchPlaceholder="Search by name, email, location..."
+                searchable={false}
+                searchPlaceholder="Search by name, email, company, phone"
                 selectable
                 pageSize={8}
                 emptyMessage="No leads found."
                 headerActions={headerActions}
-                loading = {leadsLoading}
-                onRowClick={handleRowClick}
+                loading={loading}
+                onRowClick={handleView}
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

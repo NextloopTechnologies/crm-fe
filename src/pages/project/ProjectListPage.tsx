@@ -241,7 +241,7 @@ export default function ProjectListPage() {
         loading={projectsloading}
         emptyMessage="No projects found."
         headerActions={headerActions}
-        onRowClick={handleRowClick}
+        onRowClick={handleView}
         onSelectionChange={handleSelection}
         onEdit={handleEdit}
         onDelete={handleDelete}

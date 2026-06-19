@@ -192,7 +192,7 @@ export const LeadStatusBadge = ({
       <span
         className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`}
       />
-      {status ?? "—"}
+      {status ?? "None"}
     </span>
   );
 };
