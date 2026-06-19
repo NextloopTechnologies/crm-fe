@@ -181,10 +181,10 @@ export function buildStats(
   fmtRevenue : string
 ): StatItem[] {
   if (role === "ADMIN") return [
-    { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive('20') },
-    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive('20') },
-    { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,                    subtitle: "vs last month", trend: upTrendLive('20') },
-    { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks),     subtitle: "last month", trend: upTrendLive('20') },
+    { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
+    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,                    subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks),     subtitle: "last month", trend: upTrendLive() },
   ];
 
   if (role === "MANAGER") return [
@@ -213,7 +213,6 @@ export async function fetchDashboardData(role: "ADMIN" | "MANAGER" | "SALES") {
   const rawTasks    = taskRes?.data ?? taskRes ?? [];
   const rawLeads    = leadRes?.data ?? leadRes ?? [];
 
-  console.log(rawAccounts);
   const accounts = rawAccounts.map(mapApiAccount);
   const tasks    = rawTasks.map(mapApiTask);
 
