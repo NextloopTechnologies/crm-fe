@@ -3,10 +3,11 @@ import FormPage, { FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
-import { Bell, BellRing, CalendarDays, ClipboardList, Link, Repeat, Search, ChevronDown, X } from "lucide-react";
+import { Bell, BellRing, CalendarDays, ClipboardList, Link, Repeat, Search, ChevronDown, X, ArrowLeft } from "lucide-react";
 import { CreateTaskRequest } from "@/types/api.types";
 import { getAllAccounts } from "@/api/account.api"; // adjust path if needed
 import { ROUTES } from "@/lib/route";
+import BackButton from "../common/BackButton";
 
 // ─────────────────────────────────────────────────────────────
 // Icons
@@ -574,25 +575,11 @@ export default function TaskForm({
 
   return (
     <div className="bg-white min-h-screen rounded-xl">
-        <button
-              onClick={() => {navigation.navigate(ROUTES.TASKS)}}
-              className="flex mt-[-10px] mb-4 items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
-            >
-                <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-          </svg>
-              Back to list
-            </button>
+       <BackButton
+        path={ROUTES.TASKS}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
       <FormPage
         heading={mode === "add" ? "Create Task" : "Edit Task"}
         subheading={mode === "add" ? "Add a new task to the system." : "Update task details."}

@@ -222,7 +222,7 @@ export default function UsersList() {
     }, [currentRole]);
 
     const handleView = useCallback(
-        (row: any) => navigate(ROUTES.USERS_EDIT(String(row.email))),
+        (row: User) => navigate(ROUTES.USERS_EDIT(String(row.email))),
         [navigate]
       );
 

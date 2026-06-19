@@ -13,7 +13,8 @@ import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/lib/route';
-import { ArrowBigLeft } from 'lucide-react';
+import { ArrowBigLeft, ArrowLeft } from 'lucide-react';
+import BackButton from '@/components/common/BackButton';
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 
@@ -446,27 +447,13 @@ export default function LeadsPage() {
 
   return (
     <div className="bg-white min-h-screen p-4 rounded-lx">
-      <button
-        onClick={() => {navigate(ROUTES.LEADS)}}
-        className="flex mt-[-25px] items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
-      >
-          <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 12H5M12 5l-7 7 7 7" />
-    </svg>
-        Back to list
-      </button>
+     <BackButton
+        path={ROUTES.LEADS}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
 
-      <div className="mt-6">  {/* 👈 yahi gap dega */}
+      <div className="mt-6">
       <FormPage
         heading="Create Lead"
         subheading="Add a new lead to the system."

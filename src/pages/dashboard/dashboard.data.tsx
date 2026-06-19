@@ -4,6 +4,7 @@ import { ChartLine, ClipboardList, List, Phone } from "lucide-react";
 import { getAllAccounts } from "@/api/account.api";
 import { getAllTasks } from "@/api/tasks.api";
 import { getAllLeads } from "@/api/leads.api";
+import { ACCOUNT_COLORS, SOURCE_COLORS } from "@/constants/colors";
 
 // ─────────────────────────────────────────────
 // Types
@@ -48,7 +49,6 @@ export interface Source {
   color: string;
 }
 
-const ACCOUNT_COLORS = ["#4f6ef7", "#22c55e", "#f59e0b", "#a855f7", "#ef4444"];
 
 
 // ─────────────────────────────────────────────
@@ -67,16 +67,6 @@ export const PERIOD_DATA = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
     values: [30000, 42000, 55000, 61000, 74000, 80000, 95000],
   },
-};
-
-// dashboard.data.ts — SOURCES_DATA ke neeche yeh add karo
-
-const SOURCE_COLORS: Record<string, string> = {
-  Web:     "#4f6ef7",
-  Email:   "#22c55e",
-  Phone:   "#f59e0b",
-  Partner: "#a855f7",
-  NA:      "#94a3b8",
 };
 
 export function buildSourceData(leads: any[], period: string): Source[] {
@@ -109,31 +99,9 @@ export function buildSourceData(leads: any[], period: string): Source[] {
 }
 
 // ─────────────────────────────────────────────
-// Accounts
-// ─────────────────────────────────────────────
-export const ACCOUNTS: Account[] = [
-  { id: 1, initials: "N", color: "#4f6ef7", name: "Nextloop Solutions Pvt. Ltd.", industry: "Software & Tech", owner: "Arjun Singh", ownerAvatar: "AS", created: "May 20, 2024", status: "Active" },
-  { id: 2, initials: "BF", color: "#22c55e", name: "Bright Future Pvt. Ltd.", industry: "Education", owner: "Priya Mehta", ownerAvatar: "PM", created: "May 18, 2024", status: "Active" },
-  { id: 3, initials: "TN", color: "#f59e0b", name: "TechNova Solutions", industry: "IT Services", owner: "Rahul Verma", ownerAvatar: "RV", created: "May 17, 2024", status: "Active" },
-  { id: 4, initials: "CT", color: "#a855f7", name: "Cloudify Technologies", industry: "Cloud Services", owner: "Neha Kapoor", ownerAvatar: "NK", created: "May 15, 2024", status: "Active" },
-  { id: 5, initials: "D", color: "#ef4444", name: "Delta Systems", industry: "Manufacturing", owner: "Vikram Shah", ownerAvatar: "VS", created: "May 10, 2024", status: "Inactive" },
-];
-
-// ─────────────────────────────────────────────
-// Tasks
-// ─────────────────────────────────────────────
-export const TASKS: Task[] = [
-  { id: 1, title: "Follow up with Nextloop Solutions", assignee: "Arjun Singh", date: "May 21, 2024", priority: "High", icon: <Phone className="w-3 h-3" /> },
-  { id: 2, title: "Send proposal to Bright Future Pvt. Ltd.", assignee: "Priya Mehta", date: "May 22, 2024", priority: "Medium", icon: <ActiveUsersIcon /> },
-  { id: 3, title: "Demo with Cloudify Technologies", assignee: "Neha Kapoor", date: "May 23, 2024", priority: "High", icon: <ActiveUsersIcon /> },
-  { id: 4, title: "Onboard Delta Systems", assignee: "Vikram Shah", date: "May 24, 2024", priority: "Low", icon: <ActiveUsersIcon /> },
-  { id: 5, title: "Prepare Q2 Account Report", assignee: "Rahul Verma", date: "May 25, 2024", priority: "Medium", icon: <TenantsIcon /> },
-];
-
-// ─────────────────────────────────────────────
 // Role-wise STATS
 // ─────────────────────────────────────────────
-const upTrend = (text: string) => ({
+const upTrendLive = (text: string) => ({
   icon: <UpArrowIcon />,
   text,
   color: "text-[#22c55e]",
@@ -213,10 +181,10 @@ export function buildStats(
   fmtRevenue : string
 ): StatItem[] {
   if (role === "ADMIN") return [
-    { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
-    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,                    subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks),     subtitle: "last month", trend: upTrendLive() },
+    { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive('20') },
+    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive('20') },
+    { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,                    subtitle: "vs last month", trend: upTrendLive('20') },
+    { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks),     subtitle: "last month", trend: upTrendLive('20') },
   ];
 
   if (role === "MANAGER") return [

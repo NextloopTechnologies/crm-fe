@@ -1,5 +1,5 @@
 import api from '@/lib/axios'
-import type { Lead, CreateLeadRequest } from '@/types/api.types'
+import type { Lead, CreateLeadRequest, UpdateLeadRequest } from '@/types/api.types'
 
 export interface LeadFilters {
   stage?: string
@@ -37,7 +37,7 @@ export const getAllLeads = async () => {
 
   export const updateLead = async (
     accountNumber: string,
-    payload: any
+    payload: UpdateLeadRequest
   ) => {
     const response = await api.patch(
       `/lead/updateLeadDetails?accountNumber=${accountNumber}`,

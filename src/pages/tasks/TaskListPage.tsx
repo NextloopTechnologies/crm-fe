@@ -2,19 +2,18 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
 import { Calendar, ClipboardList, Clock3, Trash2 } from 'lucide-react'
-import { usersData, type User } from '../../data/user.data'
 import { PlusIcon } from '@/assets/icons/components/PlusIcon'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
 import CustomBadge from '@/components/common/CommonBadge'
 import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
 import { ROUTES } from '@/lib/route'
-import { getAllAccounts } from '@/api/account.api'
 import { getAllTasks } from '@/api/tasks.api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Task } from '@/types/api.types'
 
-// ── Static constants — component ke bahar ────────────────────
-const getStats = (data: any[]) => {
+// ── Static constants  ────────────────────
+const getStats = (data: Task[]) => {
   const now = new Date();
   return [
   {
@@ -123,12 +122,12 @@ const PriorityBadge = ({ val }: { val: string }) => (
 );
 // ── Component ─────────────────────────────────────────────────
 export default function TaskListPage() {
-  const [selectedRows, setSelectedRows] = useState<any[]>([])
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Task[]>([])
+  const [tasks, setTasks] = useState<Task[]>([]);
   const navigate = useNavigate()
   const [tasksLoading, setTasksLoading] = useState(true);
 
-  const stats = useMemo(() => getStats(tasks), [])
+  const stats = useMemo(() => getStats(tasks), [tasks])
 
   useEffect(() => {
       const fetchAccounts = async () => {
@@ -145,26 +144,26 @@ export default function TaskListPage() {
       fetchAccounts();
     }, []);
     
-  const columns = useMemo<ColumnDef<any>[]>(() => [
+  const columns = useMemo<ColumnDef<Task>[]>(() => [
     {
       key: "subject",
       label: "Subject",
       width: "180px",
-      render: (_, row) => <span>{(row as any).subject ?? "—"}</span>, },
+      render: (_, row) => <span>{(row as Task).subject ?? "—"}</span>, },
     
     {
       key: "joinedAt",
       label: "Due Date",
       render: (_, row) => (
         <span className="text-[#6b6b8d] text-sm">
-          {new Date(String((row as any).dueDate ?? "-")).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+          {new Date(String((row as Task).dueDate ?? "-")).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
         </span>
       ),
     },
     { key: "status", label: "Status", width: "140px", render: (_, row) => <StatusBadge   val={row.status}   /> },
     { key: "priority", label: "Priority", width: "140px", render: (_, row) => <PriorityBadge val={row.priority} /> },
-    { key: "location", label: "Related To", width: "220px", render: (_,row) => <TextCell val={(row as any).relatedToType} /> },
-    // { key: "contactName", label: "Contact Name", width: "220px", render: (_,row) => <TextCell val={(row as any).contactName} /> },
+    { key: "location", label: "Related To", width: "220px", render: (_,row) => <TextCell val={(row as Task).relatedToType} /> },
+    // { key: "contactName", label: "Contact Name", width: "220px", render: (_,row) => <TextCell val={(row as Task).contactName} /> },
     { key: "taskOwner", label: "Task Owner", width: "220px", render: (_, row) => (
         <div className="flex items-center gap-2.5">
           <Avatar className="h-8 w-8">
@@ -180,21 +179,21 @@ export default function TaskListPage() {
   ], [])
 
   const handleEdit = useCallback(
-    (row: any) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
+    (row: Task) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
     [navigate]
   )
 
   const handleView = useCallback(
-    (row: any) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
+    (row: Task) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
     [navigate]
   );
 
-  const handleDelete = useCallback((row: User | User[]) => { }, [])
+  const handleDelete = useCallback((row: Task | Task[]) => { }, [])
 
-  const handleRowClick = useCallback((row: User) => { }, [])
+  const handleRowClick = useCallback((row: Task) => { }, [])
 
   const handleSelection = useCallback(
-    (rows: User[]) => setSelectedRows(rows),
+    (rows: Task[]) => setSelectedRows(rows),
     []
   )
 

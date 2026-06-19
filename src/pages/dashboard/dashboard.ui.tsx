@@ -16,6 +16,7 @@ import StatsCard from "@/components/common/StatsCards";
 import { ROUTES } from "@/lib/route";
 import { buildGrowthData, buildSourceData, PERIOD_DATA, SOURCES_DATA } from "./dashboard.data";
 import type { Account, StatItem, Task } from "./dashboard.data";
+import { Lead } from "@/types/api.types";
 
 ChartJS.register(
   CategoryScale,
@@ -56,7 +57,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
 // ─────────────────────────────────────────────
 interface GrowthChartProps {
   title: string;
-  leads: any[]; // ← add karo
+  leads: Lead[];
 }
 
 export function GrowthChart({ title, leads }: GrowthChartProps) {
@@ -135,7 +136,7 @@ export function GrowthChart({ title, leads }: GrowthChartProps) {
 // ─────────────────────────────────────────────
 interface SourceDonutProps {
   title: string;
-  leads: any[];
+  leads: Lead[];
 }
 
 export function SourceDonut({ title , leads}: SourceDonutProps) {
@@ -411,6 +412,7 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
           ))}
         </tbody>
       </table>
+    )}
     </div>
   );
 }
@@ -483,6 +485,7 @@ export function TasksList({ title, tasks, onViewAll }: TasksListProps) {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

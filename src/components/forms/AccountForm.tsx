@@ -13,9 +13,10 @@ import {
   LocationIcon,
   EyeOffIcon,
 } from "@/assets/icons/components/index";
-import { Globe, Printer, Star } from "lucide-react";
+import { ArrowLeft, Globe, Printer, Star } from "lucide-react";
 import { AccountAddressRequestDto, ContactRequestDto, CreateAccountRequest } from "@/types/api.types";
 import { ROUTES } from "@/lib/route";
+import BackButton from "../common/BackButton";
 
 const ratingOptions = [
   { label: "None", value: "None" },
@@ -377,19 +378,19 @@ export default function AccountForm({
           {/* FIX 8: was formData.addresses.country (object access on array) → addresses[0] */}
           {/* FIX 9: was missing onChange handler */}
 
-         <InlineSelectDropdown
-         id="addressType"
-         label="Address Type"
-         placeholder="Select address type"
-         value={formData.addresses?.[0].addressType || ""}
-         onChange={(val) => setAddress("addressType")(val)}
-         options={[
-           { label: "Billing", value: "Billing" },
-           { label: "Shipping", value: "Shipping" },
-           { label: "Other", value: "Other" },
-         ]}
-       />
-       
+          <InlineSelectDropdown
+            id="addressType"
+            label="Address Type"
+            placeholder="Select address type"
+            value={formData.addresses?.[0].addressType || ""}
+            onChange={(val) => setAddress("addressType")(val)}
+            options={[
+              { label: "Billing", value: "Billing" },
+              { label: "Shipping", value: "Shipping" },
+              { label: "Other", value: "Other" },
+            ]}
+          />
+
           <InlineInput
             id="country"
             label="Country"
@@ -446,25 +447,11 @@ export default function AccountForm({
 
   return (
     <div className="bg-white min-h-screen rounded-lx">
-        <button
-              onClick={() => {navigation.navigate(ROUTES.ACCOUNTS)}}
-              className="flex mt-[-10px] mb-4 items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
-            >
-                <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-          </svg>
-              Back to list
-            </button>
+      <BackButton
+        path={ROUTES.ACCOUNTS}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
       <FormPage
         heading={mode === "add" ? "Create Account" : "Edit Account"}
         subheading={

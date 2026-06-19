@@ -112,7 +112,8 @@ export interface CreateLeadRequest {
 
   leadAddressRequestDto: AddressRequestDto
 }
-
+export interface UpdateLeadRequest
+  extends Partial<CreateLeadRequest> {}
 export interface CreateAccountRequest {
   accountName: string
   accountSite?: string
