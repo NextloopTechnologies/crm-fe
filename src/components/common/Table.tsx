@@ -302,7 +302,7 @@ function SortDropdown<T>({
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export function DataTable<T extends { id?: string | number }>({
+export function DataTable<T extends object>({
   data,
   columns,
   searchable = true,

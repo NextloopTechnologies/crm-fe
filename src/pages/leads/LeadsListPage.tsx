@@ -6,17 +6,18 @@ import {  Trash2, } from 'lucide-react';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from '@/lib/route';
-import { LeadStatusDropdown } from '@/components/LeadStatusDropdown';
-import { Lead } from '@/types/api.types';
+import { CreateLeadRequest } from '@/types/api.types';
+import { LEAD_STATUS_OPTIONS, STATUS_COLOR } from '@/constants/LeadStatus';
 
 type LeadsListProps = {
-    leads: Lead[];
+    leads: CreateLeadRequest[];
     loading?: boolean,
     initialStatuses?: string[];
     onStatusChange: (
       leadNumber: string,
       status: string
     ) => void;
+    statusLoadingLeads?: Set<string>;
   };
 
 export default function LeadsList({
@@ -24,8 +25,9 @@ export default function LeadsList({
     loading = false,
     initialStatuses = [],
     onStatusChange,
+    statusLoadingLeads = new Set(),
 }: LeadsListProps){
-    const [selectedRows, setSelectedRows] = useState<any[]>([]);
+    const [selectedRows, setSelectedRows] = useState<CreateLeadRequest[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
     const navigate = useNavigate();
@@ -44,7 +46,9 @@ export default function LeadsList({
     }, [leads, initialStatuses]);
     
     // ── Columns ───────────────────────────────────────────────────────────────────
-    const columns: ColumnDef<Lead>[] = useMemo(() => [        {
+    const columns: ColumnDef<CreateLeadRequest>[] = useMemo(() => {
+        return [
+        {
             key: "name",
             label: "Name",
             width: "220px",
@@ -79,14 +83,42 @@ export default function LeadsList({
             key: "leadStatus",
             label: "Lead Status",
             width: "200px",  
-            render: (_, row) => (
-                <LeadStatusDropdown
-                    leadNumber={row.leadNumber}
-                    currentStatus={row.leadStatus}
-                    onSuccess={(newStatus) => onStatusChange(row.leadNumber, newStatus)}
-                />
-            ),
-        },
+            render: (_, row) => {
+                    const currentStatus = (row.leadStatus ?? "None") as keyof typeof LEAD_STATUS_OPTIONS;
+                    const allowedOptions = LEAD_STATUS_OPTIONS[currentStatus] ?? [];
+                    const isUpdating = statusLoadingLeads.has(row.leadNumber);
+                    const cfg = STATUS_COLOR[currentStatus] ?? { bg: "bg-slate-100", text: "text-slate-600" };
+
+                    return (
+                        <div className="relative" onClick={(e) => e.stopPropagation()}>
+                            <select
+                                value={currentStatus}
+                                disabled={isUpdating || allowedOptions.length === 0}
+                                onChange={(e) => {
+                                    e.stopPropagation();
+                                    onStatusChange(row.leadNumber, e.target.value);
+                                }}
+                                className={`w-[160px] max-w-[160px] rounded-lg pl-2 pr-6 py-1 text-sm font-semibold 
+            border-0 cursor-pointer text-center truncate
+            focus:outline-none focus:ring-2 focus:ring-[#5752FE]
+            disabled:cursor-not-allowed
+            ${cfg.bg} ${cfg.text}`}
+                            >
+                                <option value={currentStatus}>{currentStatus}</option>
+                                {allowedOptions.map((opt) => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+
+                            {isUpdating && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-lg">
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#5752FE] border-t-transparent" />
+                                </div>
+                            )}
+                        </div>
+                    );
+                },
+            }, 
         {
             key: "leadOwner",
             label: "Lead Owner",
@@ -103,23 +135,23 @@ export default function LeadsList({
                 </div>
             ),
         },
-    ],[onStatusChange]);
+    ]},[onStatusChange, leads]);
 
     const handleView = useCallback(
-        (row: any) => navigate(ROUTES.LEADS_DETAIL(String(row.leadNumber))),
+        (row: CreateLeadRequest) => navigate(ROUTES.LEADS_DETAIL(String(row.leadNumber))),
         [navigate]
       );
 
     const handleEdit = useCallback(
-        (row: any ) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
+        (row: CreateLeadRequest ) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
         [navigate]
     )
 
-    const handleDelete = useCallback((row: Lead | Lead[]) => { }, [])
+    const handleDelete = useCallback((row: CreateLeadRequest | CreateLeadRequest[]) => { }, [])
 
 
     const handleSelection = useCallback(
-        (rows: Lead[]) => setSelectedRows(rows),
+        (rows: CreateLeadRequest[]) => setSelectedRows(rows),
         []
     )
 
@@ -187,7 +219,7 @@ export default function LeadsList({
                         ],
                     },
                     {
-                        key: "status",
+                        key: "leadSoure",
                         label: "Lead Source",
                         type: "select",
                         options: [
@@ -196,7 +228,7 @@ export default function LeadsList({
                         ],
                     },
                     {
-                        key: "status",
+                        key: "leadOwner",
                         label: "Lead Owner",
                         type: "select",
                         options: [

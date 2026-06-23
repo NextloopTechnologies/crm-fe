@@ -109,6 +109,7 @@ export interface CreateLeadRequest {
   skypeId?: string
   secondaryEmail?: string
   twitter?: string
+  creationDate?: string
 
   leadAddressRequestDto: AddressRequestDto
 }
@@ -197,6 +198,8 @@ export interface CreateProjectRequest {
   projectType: string;
   endDate: string;
   startDate: string;
+  teamMember?: string
+  clientId?: string
 
 }
 

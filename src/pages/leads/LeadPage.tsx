@@ -3,8 +3,10 @@ import { LayoutGrid, List } from "lucide-react";
 import LeadsList from "./LeadsListPage";
 import PipelinePage from "@/pages/PipelinePage";
 import StatsCard from "@/components/common/StatsCards";
-import { getAllLeads } from "@/api/leads.api";
+import { getAllLeads, updateLeadStatusbyLeadNumber } from "@/api/leads.api";
 import { UsersIcon, NewLeadsIcon, ActiveUsersIcon, InActiveUsersIcon, UpArrowIcon, DownArrowIcon } from "@/assets/icons/components/index";
+import { CreateLeadRequest } from "@/types/api.types";
+import { isWithin7Days } from "./leadHelper";
 
 const COLUMN_TO_STATUSES: Record<string, string[]> = {
     "New": ["Not Contacted", "Attempted to Contact", "None"],
@@ -17,8 +19,9 @@ export default function LeadsPage() {
     const [view, setView] = useState<"board" | "list">("board");
     const [initialStatuses, setInitialStatuses] = useState<string[]>([]);
     const [leadsLoading, setLeadsLoading] = useState(false);
-    const [leads, setLeads] = useState<any[]>([]);
+    const [leads, setLeads] = useState<CreateLeadRequest[]>([]);
     const [search, setSearch] = useState("");
+    const [statusLoadingLeads, setStatusLoadingLeads] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         setLeadsLoading(true);
@@ -36,7 +39,7 @@ export default function LeadsPage() {
 
         return leads.filter((lead) =>
             [
-                lead.name,
+                lead.firstName,
                 lead.company,
                 lead.email,
                 lead.phone,
@@ -48,22 +51,30 @@ export default function LeadsPage() {
         );
     }, [leads, search]);
 
-    const handleStatusChange = (
+    const handleStatusChange = async (
         leadNumber: string,
         status: string
     ) => {
-        setLeads((prev) =>
-            prev.map((lead) =>
+        setStatusLoadingLeads(prev => new Set(prev).add(leadNumber));
+        try {
+            await updateLeadStatusbyLeadNumber(leadNumber, status);
+            setLeads(prev => prev.map(lead =>
                 lead.leadNumber === leadNumber
                     ? { ...lead, leadStatus: status }
                     : lead
-            )
-        );
+            ));
+        } catch (err) {
+            console.error("Status update failed", err);
+        } finally {
+            setStatusLoadingLeads(prev => {
+                const next = new Set(prev);
+                next.delete(leadNumber);
+                return next;
+            });
+        }
     };
 
     const stats = useMemo(() => {
-        const now = new Date();
-        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         return [
             {
                 icon: <UsersIcon />,
@@ -75,7 +86,7 @@ export default function LeadsPage() {
             {
                 icon: <NewLeadsIcon />,
                 label: "New (7 days)",
-                value: leads.filter(l => new Date(l.creationDate?.replace(" ", "T")) >= sevenDaysAgo).length,
+                value: leads.filter(l => isWithin7Days(l.creationDate)).length,
                 subtitle: "Created this week",
                 trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
             },
@@ -96,7 +107,7 @@ export default function LeadsPage() {
         ];
     }, [leads]);
 
-    const handleCardClick = (lead: any) => {
+    const handleCardClick = (lead: CreateLeadRequest) => {
         setInitialStatuses([lead.leadStatus ?? ""]);
         setView("list");
     };
@@ -149,8 +160,26 @@ export default function LeadsPage() {
 
             <div className="rounded-lg">
                 {view === "board"
-                    ? <PipelinePage leads={filteredLeads} onCardClick={handleCardClick} onColumnClick={handleColumnClick} />
-                    : <LeadsList leads={filteredLeads} loading={leadsLoading} initialStatuses={initialStatuses} onStatusChange={handleStatusChange} />
+                    ? <PipelinePage leads={filteredLeads} onCardClick={handleCardClick} onColumnClick={handleColumnClick} onStatusChange={async (leadNumber, status) => {
+                        setStatusLoadingLeads(prev => new Set(prev).add(leadNumber));
+                        try {
+                          await updateLeadStatusbyLeadNumber(leadNumber, status);
+                          setLeads(prev => prev.map(lead =>
+                            lead.leadNumber === leadNumber
+                              ? { ...lead, leadStatus: status }
+                              : lead
+                          ));
+                        } catch (err) {
+                          console.error("Status update failed", err);
+                        } finally {
+                          setStatusLoadingLeads(prev => {
+                            const next = new Set(prev);
+                            next.delete(leadNumber);
+                            return next;
+                          });
+                        }
+                      }}/>
+                    : <LeadsList leads={filteredLeads} loading={leadsLoading} initialStatuses={initialStatuses} onStatusChange={handleStatusChange} statusLoadingLeads={statusLoadingLeads} />
                 }
             </div>
         </div>

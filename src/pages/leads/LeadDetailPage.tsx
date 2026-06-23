@@ -13,14 +13,13 @@ import {
     formatDate,
     formatCurrency,
     displayValue,
-    STATUS_COLOR,
-    RATING_COLOR,
     LeadAvatar,
     LeadStatusBadge,
     SectionTitle,
     Field,
 } from "./leadHelper";
 import BackButton from "@/components/common/BackButton";
+import { RATING_COLOR } from "@/constants/LeadStatus";
 // ─────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────
