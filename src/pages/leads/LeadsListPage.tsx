@@ -16,36 +16,13 @@ import CustomBadge from "@/components/common/CommonBadge";
 import { ROUTES } from '@/lib/route';
 import { getAllLeads } from '@/api/leads.api';
 
-const stats = [
-    {
-        icon: <UsersIcon />,
-        label: "Total Users",
-        value: usersData.length,
-        subtitle: "All Users in System",
-        trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
-    },
-    {
-        icon: <NewLeadsIcon />,
-        label: "New Leads",
-        value: usersData.filter((u) => u.status === "active").length,
-        subtitle: "vs last 7 days",
-        trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
-    },
-    {
-        icon: <NoActivityIcon />,
-        label: "No Activity",
-        value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "vs last 7 days",
-        trend: { icon: <DownArrowIcon />, text: "12%", color: "text-[#EB4335]" },
-
-    },
-];
 
 
 export default function LeadsList() {
     const [selectedRows, setSelectedRows] = useState<any[]>([]);
     const [leads, setLeads] = useState<any[]>([]);
     const [leadsLoading, setLeadsLoading] = useState(true);
+    const [stats, setStats] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -54,7 +31,45 @@ export default function LeadsList() {
             try {
                 setLeadsLoading(true);
                 const response = await getAllLeads();
-                setLeads(response.data || response);
+                const data = response.data || response;
+
+                const now = new Date();
+                const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+                const newLeadsCount = data.filter(
+                    (l: any) => new Date(l.creationDate) >= sevenDaysAgo
+                ).length;
+
+                const noActivityCount = data.filter(
+                    (l: any) => new Date(l.lastModifiedDate) < sevenDaysAgo
+                ).length;
+
+                var stats = [
+                    {
+                        icon: <UsersIcon />,
+                        label: "Total Leads",
+                        value: data.length,
+                        subtitle: "All Leads in System",
+                        trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
+                    },
+                    {
+                        icon: <NewLeadsIcon />,
+                        label: "New Leads",
+                        value: newLeadsCount,
+                        subtitle: "vs last 7 days",
+                        trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
+                    },
+                    {
+                        icon: <NoActivityIcon />,
+                        label: "No Activity",
+                        value: noActivityCount,
+                        subtitle: "vs last 7 days",
+                        trend: { icon: <DownArrowIcon />, text: "12%", color: "text-[#EB4335]" },
+                    },
+                ];
+
+                setStats(stats);
+                setLeads(data);
             } catch (error) {
                 console.error("Error fetching leads:", error);
             } finally {
@@ -97,6 +112,13 @@ export default function LeadsList() {
 
         },
         {
+            key: "leadStatus",
+            label: "Lead Status",
+            width: "140px",
+            render: (_, row) => <span>{row.leadStatus ?? "—"}</span>,
+
+        },
+        {
             key: "leadOwner",
             label: "Lead Owner",
             width: "180px",
@@ -114,8 +136,13 @@ export default function LeadsList() {
         },
     ];
 
+    const handleView = useCallback(
+        (row: any) => navigate(ROUTES.LEADS_DETAILS(String(row.leadNumber))),
+        [navigate]
+      );
+
     const handleEdit = useCallback(
-        (row: any ) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
+        (row: any) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
         [navigate]
     )
 
@@ -183,44 +210,47 @@ export default function LeadsList() {
                 data={leads}
                 columns={columns}
                 searchable
-                searchPlaceholder="Search by name, email, location..."
+                searchPlaceholder="Search by name, email, company, phone"
                 selectable
                 pageSize={8}
                 emptyMessage="No leads found."
                 headerActions={headerActions}
-                loading = {leadsLoading}
+                loading={leadsLoading}
                 onRowClick={handleRowClick}
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onView={handleView}
                 filters={[
                     {
-                        key: "role",
-                        label: "Company",
-                        type: "select",
-                        options: [
-                            { label: "Admin", value: "Admin" },
-                            { label: "Manager", value: "Manager" },
-                            { label: "Developer", value: "Developer" },
-                            { label: "Viewer", value: "Viewer" },
-                        ],
-                    },
-                    {
-                        key: "status",
+                        key: "leadSource",
                         label: "Lead Source",
                         type: "select",
                         options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
+                            { label: "Web", value: "Web" },
+                            { label: "Phone", value: "Phone" },
+                            { label: "Email", value: "Email" },
+                            { label: "Cold Call", value: "Cold Call" },
+                            { label: "Existing Customer", value: "Existing Customer" },
+                            { label: "Partner", value: "Partner" },
+                            { label: "Other", value: "Other" },
+
                         ],
                     },
                     {
-                        key: "status",
-                        label: "Lead Owner",
+                        key: "leadStatus",
+                        label: "Lead Status",
                         type: "select",
                         options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
+                            { label: "None", value: "None" },
+                            { label: "Attempted to Contact", value: "Attempted to Contact" },
+                            { label: "Contact in Future", value: "Contact in Future" },
+                            { label: "Contacted", value: "Contacted" },
+                            { label: "Junk Lead", value: "Junk Lead" },
+                            { label: "Lost Lead", value: "Lost Lead" },
+                            { label: "Not Contacted", value: "Not Contacted" },
+                            { label: "Pre-Qualified", value: "Pre-Qualified" },
+                            { label: "Not Qualified", value: "Not Qualified" },
                         ],
                     },
                 ]}

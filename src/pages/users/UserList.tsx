@@ -18,7 +18,7 @@ interface User {
     lastName: string;
     email: string;
     roleName: string;
-    isActive: boolean;
+    isActive: boolean | string;   
     phone: string;
     creationDate: string;
 }
@@ -48,13 +48,13 @@ const getStats = (data: User[]) => [
     {
         icon: <ActiveUsersIcon />,
         label: "Active",
-        value: data.filter((u) => u.isActive === true).length,
+        value: data.filter((u) => u.isActive === "Y" || u.isActive === true).length,
         subtitle: "Currently Active",
     },
     {
         icon: <InActiveUsersIcon />,
         label: "Inactive",
-        value: data.filter((u) => u.isActive === false).length,
+        value: data.filter((u) => u.isActive === "0" || u.isActive === false).length,
         subtitle: "Currently Inactive",
     },
     {
@@ -82,8 +82,8 @@ const FILTERS = [
         label: "Status",
         type: "select" as const,
         options: [
-            { label: "Active",   value: "true" },
-            { label: "Inactive", value: "false" },
+            { label: "Active",   value: "Y" },
+            { label: "Inactive", value: "0" },
         ],
     },
     { key: "createdFrom",    label: "Created From",    type: "date" as const },
@@ -179,16 +179,19 @@ export default function UsersList() {
             key: "isActive",
             label: "Status",
             width: "120px",
-            render: (_, row) => (
+            render: (_, row) => {
+                const active = row.isActive === "Y" || row.isActive === true;
+                return (
                 <CustomBadge
-                    label={row.isActive ? "Active" : "Inactive"}
+                    label={active ? "Active" : "Inactive"}
                     className={
-                        row.isActive
+                            active
                             ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
                             : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
                     }
                 />
-            ),
+            );
+            },
         },
         {
             key: "phone",
@@ -217,6 +220,11 @@ export default function UsersList() {
         }
         return true;
     }, [currentRole]);
+
+    const handleView = useCallback(
+        (row: User) => navigate(ROUTES.USERS_EDIT(String(row.email))),
+        [navigate]
+      );
 
     const handleEdit = useCallback(
         (row: User) => {
@@ -283,6 +291,7 @@ export default function UsersList() {
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onView={handleView}
                 // Pass canEdit so table can disable the icon visually
                 isEditDisabled={(row) => !canEdit(row as User)}
             />

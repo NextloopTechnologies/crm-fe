@@ -7,33 +7,33 @@ import {
 } from "./index";
 
 // ── Normalize backend roleName → UI role ──
-const getRole = (): "admin" | "manager" | "sales" => {
+const getRole = (): "ADMIN" | "MANAGER" | "SALES" => {
   const role = localStorage.getItem("roleName"); 
 
   switch (role) {
-    case "Super_admin":
+    case "SUPER_ADMIN":
     case "ADMIN":
-    case "admin":
-      return "admin";
+    case "ADMIN":
+      return "ADMIN";
 
-    case "Manager":
+    case "MANAGER":
     case "manager":
-      return "manager";
+      return "MANAGER";
 
-    case "Sales":
+    case "SALES":
     case "sales":
-      return "sales";
+      return "SALES";
 
     default:
-      return "admin";
+      return "ADMIN";
   }
 };
 
 // ── Role Map ──
 const ROLE_MAP = {
-  admin: AdminDashboardPage,
-  manager: ManagerDashboardPage,
-  sales: SalesDashboardPage,
+  ADMIN: AdminDashboardPage,
+  MANAGER: ManagerDashboardPage,
+  SALES: SalesDashboardPage,
 };
 
 type Role = keyof typeof ROLE_MAP;

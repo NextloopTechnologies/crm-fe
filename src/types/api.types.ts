@@ -90,6 +90,7 @@ export interface AddressRequestDto {
   organizationId: string
 }
 export interface CreateLeadRequest {
+  leadNumber?: string
   company?: string
   lastName: string
   firstName: string
@@ -109,10 +110,11 @@ export interface CreateLeadRequest {
   skypeId?: string
   secondaryEmail?: string
   twitter?: string
-
+  creationDate?: string
   leadAddressRequestDto: AddressRequestDto
 }
-
+export interface UpdateLeadRequest
+  extends Partial<CreateLeadRequest> {}
 export interface CreateAccountRequest {
   accountName: string
   accountSite?: string
@@ -165,8 +167,8 @@ export interface CreateTaskRequest {
   // Related To
   accountNumber: string;
   contactId: string;
-  isReminder: boolean;
-  isRepeat: boolean;
+  isReminder: string;
+  isRepeat: string;
   relatedToType: string;
   repeatDetails : {
   repeatType: string;
@@ -212,6 +214,29 @@ export interface Client {
   relationshipOwnerId: number
   relationshipOwnerName: string
   createdAt: string
+}
+
+export interface Profile {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  roleName: string;
+  avatar?: string;
+  isActive: boolean;
+  creationDate: string;
+}
+
+export interface UpdateProfileDto {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  roleName: string;
+  creationDate: string;
+  username: string;
 }
 
 // ── Project ───────────────────────────────────────────────────────────────────

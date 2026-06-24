@@ -1,6 +1,11 @@
 import { ReactNode } from "react";
 import { ActiveUsersIcon, TenantsIcon, UpArrowIcon, UsersIcon } from "@/assets/icons/components";
-import { ChartLine, ClipboardList, Phone } from "lucide-react";
+import { ChartLine, ClipboardList, List, Phone } from "lucide-react";
+import { getAllAccounts } from "@/api/account.api";
+import { getAllTasks } from "@/api/tasks.api";
+import { getAllLeads } from "@/api/leads.api";
+import { ACCOUNT_COLORS, SOURCE_COLORS } from "@/constants/colors";
+import { CreateLeadRequest, Lead } from "@/types/api.types";
 
 // ─────────────────────────────────────────────
 // Types
@@ -19,21 +24,24 @@ export interface StatItem {
 
 export interface Account {
   id: number;
-  initials: string;
+  accountNumber : string;
+  accountType? : string;
+  accountOwner? : string
+  accountName: string;
   color: string;
   name: string;
   industry: string;
   owner: string;
   ownerAvatar: string;
-  created: string;
+  accountSite: string;
   status: "Active" | "Inactive";
 }
 
 export interface Task {
   id: number;
-  title: string;
-  assignee: string;
-  date: string;
+  subject: string;
+  taskOwner: string;
+  createdAt: string;
   priority: "High" | "Medium" | "Low";
   icon: ReactNode;
 }
@@ -43,6 +51,8 @@ export interface Source {
   pct: number;
   color: string;
 }
+
+
 
 // ─────────────────────────────────────────────
 // Chart Data
@@ -62,77 +72,263 @@ export const PERIOD_DATA = {
   },
 };
 
-export const SOURCES_DATA: Record<string, Source[]> = {
-  this_month: [
-    { label: "Website", pct: 32.5, color: "#4f6ef7" },
-    { label: "Referral", pct: 24.1, color: "#22c55e" },
-    { label: "Social Media", pct: 18.3, color: "#f59e0b" },
-    { label: "Email Campaign", pct: 15.6, color: "#a855f7" },
-    { label: "Others", pct: 9.5, color: "#94a3b8" },
-  ],
-  last_month: [
-    { label: "Website", pct: 28.0, color: "#4f6ef7" },
-    { label: "Referral", pct: 30.2, color: "#22c55e" },
-    { label: "Social Media", pct: 14.8, color: "#f59e0b" },
-    { label: "Email Campaign", pct: 18.0, color: "#a855f7" },
-    { label: "Others", pct: 9.0, color: "#94a3b8" },
-  ],
-};
+export function buildSourceData(leads: CreateLeadRequest[], period: string): Source[] {
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonth = `${lm.getFullYear()}-${String(lm.getMonth() + 1).padStart(2, "0")}`;
 
-// ─────────────────────────────────────────────
-// Accounts
-// ─────────────────────────────────────────────
-export const ACCOUNTS: Account[] = [
-  { id: 1, initials: "N", color: "#4f6ef7", name: "Nextloop Solutions Pvt. Ltd.", industry: "Software & Tech", owner: "Arjun Singh", ownerAvatar: "AS", created: "May 20, 2024", status: "Active" },
-  { id: 2, initials: "BF", color: "#22c55e", name: "Bright Future Pvt. Ltd.", industry: "Education", owner: "Priya Mehta", ownerAvatar: "PM", created: "May 18, 2024", status: "Active" },
-  { id: 3, initials: "TN", color: "#f59e0b", name: "TechNova Solutions", industry: "IT Services", owner: "Rahul Verma", ownerAvatar: "RV", created: "May 17, 2024", status: "Active" },
-  { id: 4, initials: "CT", color: "#a855f7", name: "Cloudify Technologies", industry: "Cloud Services", owner: "Neha Kapoor", ownerAvatar: "NK", created: "May 15, 2024", status: "Active" },
-  { id: 5, initials: "D", color: "#ef4444", name: "Delta Systems", industry: "Manufacturing", owner: "Vikram Shah", ownerAvatar: "VS", created: "May 10, 2024", status: "Inactive" },
-];
+  const filtered = leads.filter((l) => {
+    const ym = l.creationDate?.slice(0, 7);
+    if (period === "this_month") return ym === thisMonth;
+    if (period === "last_month") return ym === lastMonth;
+    return true;
+  });
 
-// ─────────────────────────────────────────────
-// Tasks
-// ─────────────────────────────────────────────
-export const TASKS: Task[] = [
-  { id: 1, title: "Follow up with Nextloop Solutions", assignee: "Arjun Singh", date: "May 21, 2024", priority: "High", icon: <Phone className="w-3 h-3" /> },
-  { id: 2, title: "Send proposal to Bright Future Pvt. Ltd.", assignee: "Priya Mehta", date: "May 22, 2024", priority: "Medium", icon: <ActiveUsersIcon /> },
-  { id: 3, title: "Demo with Cloudify Technologies", assignee: "Neha Kapoor", date: "May 23, 2024", priority: "High", icon: <ActiveUsersIcon /> },
-  { id: 4, title: "Onboard Delta Systems", assignee: "Vikram Shah", date: "May 24, 2024", priority: "Low", icon: <ActiveUsersIcon /> },
-  { id: 5, title: "Prepare Q2 Account Report", assignee: "Rahul Verma", date: "May 25, 2024", priority: "Medium", icon: <TenantsIcon /> },
-];
+  const counts: Record<string, number> = {};
+  filtered.forEach((l) => {
+    const src = !l.leadSource || l.leadSource === "NA" ? "NA" : l.leadSource;
+    counts[src] = (counts[src] || 0) + 1;
+  });
+
+  const total = filtered.length || 1;
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, count]) => ({
+      label,
+      pct:   Math.round((count / total) * 100),
+      color: SOURCE_COLORS[label] ?? "#94a3b8",
+    }));
+}
 
 // ─────────────────────────────────────────────
 // Role-wise STATS
 // ─────────────────────────────────────────────
-const upTrend = (text: string) => ({
+const upTrendLive = (text: string) => ({
   icon: <UpArrowIcon />,
   text,
   color: "text-[#22c55e]",
 });
 
-const revenueIcon = (
+const RevenueIcon = () => (
   <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10 flex items-center justify-center">
     <ChartLine className="w-6 h-6 text-[#FBBC05]" />
   </div>
 );
+const TaskIcon = () => (
+  <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10 flex items-center justify-center">
+    <ClipboardList className="w-6 h-6 text-[#FBBC05]" />
+  </div>
+);
 
-export const ADMIN_STATS: StatItem[] = [
-  { icon: <UsersIcon />, label: "Total Users", value: "2400", subtitle: "All Users in System", trend: upTrend("24%") },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: "2344", subtitle: "vs last month", trend: upTrend("8.3%") },
-  { icon: revenueIcon, label: "Total Revenue", value: "$24,334", subtitle: "vs last month", trend: upTrend("8.3%") },
-  { icon: <TenantsIcon />, label: "Total Contacts", value: "248", subtitle: "vs last month", trend: upTrend("8.3%") },
-];
+export function mapApiAccount(a: Account, idx: number): Account {
+  const accountName = a.accountName ?? "—";
 
-export const MANAGER_STATS: StatItem[] = [
-  { icon: <UsersIcon />, label: "Team Account", value: "2400", subtitle: "All Account in Team", trend: upTrend("24%") },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: "2344", subtitle: "vs last month", trend: upTrend("8.3%") },
-  { icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10 flex items-center justify-center"><ClipboardList className="w-6 h-6 text-[#FBBC05]" /></div>, label: "Team Tasks", value: "$24,334", subtitle: "vs last month", trend: upTrend("8.3%") },
-  { icon: <TenantsIcon />, label: "Team Contacts", value: "248", subtitle: "vs last month", trend: upTrend("8.3%") },
-];
+  const words = accountName.trim().split(" ");
 
-export const SALES_STATS: StatItem[] = [
-  { icon: <UsersIcon />, label: "My Accounts", value: "2400", subtitle: "All Account in System", trend: upTrend("24%") },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: "2344", subtitle: "vs last month", trend: upTrend("8.3%") },
-  { icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10 flex items-center justify-center"><ClipboardList className="w-6 h-6 text-[#FBBC05]" /></div>, label: "My Task", value: "$24,334", subtitle: "vs last month", trend: upTrend("8.3%") },
-  { icon: <TenantsIcon />, label: "My Contacts", value: "248", subtitle: "vs last month", trend: upTrend("8.3%") },
-];
+  const initials =
+    words.length >= 2
+      ? (words[0][0] + words[1][0]).toUpperCase()
+      : accountName.slice(0, 2).toUpperCase();
+
+  return {
+    id: a.id ?? idx + 1,
+
+    accountNumber: a.accountNumber ?? "",
+
+    accountName,
+
+    name: accountName,
+
+    industry: a.accountType ?? "—",
+
+    owner: a.accountOwner ?? "—",
+
+    ownerAvatar: (a.accountOwner ?? "?")
+      .split(" ")
+      .map((w: string) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase(),
+
+      accountSite: a.accountSite
+      ?? "—",
+
+    status: "Active",
+
+    color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length],
+  };
+}
+
+// ─────────────────────────────────────────────
+// Map raw API task → UI Task shape
+// ─────────────────────────────────────────────
+export function mapApiTask(t: any): Omit<Task, "icon"> & { icon: ReactNode } {
+  return {
+    id:       t.id,
+    subject:    t.subject      ?? "Untitled Task",
+    taskOwner: t.taskOwner   ?? "—",
+    createdAt:     t.createdAt
+      ? new Date(t.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+      : "—",
+    priority: t.priority   ?? "Low",
+    icon:     <Phone className="w-3 h-3" />, 
+  };
+}
+
+export function buildStats(
+  role: "ADMIN" | "MANAGER" | "SALES",
+  totalAccounts: number,
+  activeAccounts: number,
+  totalTasks: number,
+  fmtRevenue : string
+): StatItem[] {
+  if (role === "ADMIN") return [
+    { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
+    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,                    subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks),     subtitle: "last month", trend: upTrendLive() },
+  ];
+
+  if (role === "MANAGER") return [
+    { icon: <UsersIcon />, label: "Team Accounts", value: String(totalAccounts),  subtitle: "All accounts in team", trend: upTrendLive() },
+    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <TaskIcon />,        label: "Team Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive() },
+  ];
+
+  // SALES
+  return [
+  { icon: <UsersIcon />, label: "My Accounts", value: String(totalAccounts),  subtitle: "All my accounts", trend: upTrendLive() },
+  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
+  { icon: <TaskIcon />, label: "My Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive() },
+  { icon: <TenantsIcon />, label: "My Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive() },
+  ];
+}
+
+// ─────────────────────────────────────────────
+// Single fetch function — used by all 3 pages
+// ─────────────────────────────────────────────
+export async function fetchDashboardData(role: "ADMIN" | "MANAGER" | "SALES") {
+  const [accRes, taskRes , leadRes] = await Promise.all([getAllAccounts(), getAllTasks() , getAllLeads()]);
+
+  const rawAccounts = accRes?.data  ?? accRes  ?? [];
+  const rawTasks    = taskRes?.data ?? taskRes ?? [];
+  const rawLeads    = leadRes?.data ?? leadRes ?? [];
+
+  const accounts = rawAccounts.map(mapApiAccount);
+  const tasks    = rawTasks.map(mapApiTask);
+
+  const totalAccounts  = accounts.length;
+  const activeAccounts = accounts.filter((a: Account) => a.status === "Active").length;
+  const totalTasks     = tasks.length;
+
+  const totalRevenue = rawLeads.reduce(
+    (sum: number, lead: any) => sum + (parseFloat(lead.annualRevenue) || 0),
+    0
+  );
+
+  const fmtRevenue = totalRevenue >= 1_000_000
+    ? `${(totalRevenue / 1_000_000).toFixed(1)}M`
+    : totalRevenue >= 1_000
+    ? `${(totalRevenue / 1_000).toFixed(1)}K`
+    : `${totalRevenue}`;
+
+  const stats = buildStats(role, totalAccounts, activeAccounts, totalTasks , fmtRevenue);
+
+  return { accounts, tasks, stats , rawLeads};
+}
+
+export function buildGrowthData(leads: any[], period: string) {
+  const now = new Date();
+  const thisYear = now.getFullYear();
+  const thisMonth = now.getMonth(); // 0-indexed
+  const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+  const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+  if (period === "this_month") {
+    const daysInMonth = new Date(thisYear, thisMonth + 1, 0).getDate();
+    // 7 evenly spaced labels
+    const labelDays = [1, 5, 10, 15, 20, 25, daysInMonth];
+    const buckets: Record<number, number> = {};
+    labelDays.forEach((d) => (buckets[d] = 0));
+
+    leads.forEach((l) => {
+      const d = new Date(l.creationDate);
+      if (d.getFullYear() === thisYear && d.getMonth() === thisMonth) {
+        const day = d.getDate();
+        // assign to nearest label bucket
+        const nearest = labelDays.reduce((a, b) =>
+          Math.abs(b - day) < Math.abs(a - day) ? b : a
+        );
+        buckets[nearest] += parseFloat(l.annualRevenue) || 0;
+      }
+    });
+
+    return {
+      labels: labelDays.map(String),
+      values: labelDays.map((_, i) =>
+        labelDays.slice(0, i + 1).reduce((sum, day) => sum + buckets[day], 0)
+      ),
+    };
+  }
+
+  if (period === "last_month") {
+    const daysInMonth = new Date(lastMonthYear, lastMonth + 1, 0).getDate();
+    const labelDays = [1, 5, 10, 15, 20, 25, daysInMonth];
+    const buckets: Record<number, number> = {};
+    labelDays.forEach((d) => (buckets[d] = 0));
+
+    leads.forEach((l) => {
+      const d = new Date(l.creationDate);
+      if (d.getFullYear() === lastMonthYear && d.getMonth() === lastMonth) {
+        const day = d.getDate();
+        const nearest = labelDays.reduce((a, b) =>
+          Math.abs(b - day) < Math.abs(a - day) ? b : a
+        );
+        buckets[nearest] += parseFloat(l.annualRevenue) || 0;
+      }
+    });
+
+    return {
+      labels: labelDays.map(String),
+      values: labelDays.map((_, i) =>
+        labelDays.slice(0, i + 1).reduce((sum, day) => sum + buckets[day], 0)
+      ),
+    };
+  }
+
+  if (period === "this_quarter") {
+    // last 7 months
+    const monthLabels = [];
+    const monthBuckets: Record<string, number> = {};
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(thisYear, thisMonth - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const label = d.toLocaleString("en-US", { month: "short" });
+      monthLabels.push({ label, key });
+      monthBuckets[key] = 0;
+    }
+
+    leads.forEach((l) => {
+      const key = l.creationDate?.slice(0, 7);
+      if (key && monthBuckets[key] !== undefined) {
+        monthBuckets[key] += parseFloat(l.annualRevenue) || 0;
+      }
+    });
+
+    return {
+      labels: monthLabels.map((m) => m.label),
+      values: (() => {
+        let running = 0;
+        return monthLabels.map((m) => {
+          running += monthBuckets[m.key];
+          return running;
+        });
+      })(),
+    };
+  }
+
+  return { labels: [], values: [] };
+}

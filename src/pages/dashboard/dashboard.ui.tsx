@@ -14,8 +14,9 @@ import {
 import CustomBadge from "@/components/common/CommonBadge";
 import StatsCard from "@/components/common/StatsCards";
 import { ROUTES } from "@/lib/route";
-import { PERIOD_DATA, SOURCES_DATA, ACCOUNTS, TASKS } from "./dashboard.data";
-import type { StatItem } from "./dashboard.data";
+import { buildGrowthData, buildSourceData, PERIOD_DATA, SOURCES_DATA } from "./dashboard.data";
+import type { Account, StatItem, Task } from "./dashboard.data";
+import { Lead } from "@/types/api.types";
 
 ChartJS.register(
   CategoryScale,
@@ -56,10 +57,12 @@ export function StatsGrid({ stats }: StatsGridProps) {
 // ─────────────────────────────────────────────
 interface GrowthChartProps {
   title: string;
+  leads: Lead[];
 }
 
-export function GrowthChart({ title }: GrowthChartProps) {
-  const [period, setPeriod] = useState<keyof typeof PERIOD_DATA>("this_month");
+export function GrowthChart({ title, leads }: GrowthChartProps) {
+  const [period, setPeriod] = useState<"this_month" | "last_month" | "this_quarter">("this_month");
+  const chartData = buildGrowthData(leads, period);
 
   return (
     <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-5 pb-3">
@@ -67,7 +70,7 @@ export function GrowthChart({ title }: GrowthChartProps) {
         <h2 className="text-[15px] font-bold text-[#0f172a]">{title}</h2>
         <select
           value={period}
-          onChange={(e) => setPeriod(e.target.value as keyof typeof PERIOD_DATA)}
+          onChange={(e) => setPeriod(e.target.value as "this_month" | "last_month" | "this_quarter")}
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] px-[5px] py-[5px] text-[12px] text-[#7E7E7E] outline-none"
         >
           <option value="this_month">This Month</option>
@@ -79,10 +82,10 @@ export function GrowthChart({ title }: GrowthChartProps) {
       <div style={{ height: 200 }}>
         <Line
           data={{
-            labels: PERIOD_DATA[period].labels,
+            labels: chartData.labels,
             datasets: [
               {
-                data: PERIOD_DATA[period].values,
+                data: chartData.values,
                 borderColor: "#4f6ef7",
                 borderWidth: 2.2,
                 backgroundColor: "rgba(79,110,247,0.12)",
@@ -106,12 +109,18 @@ export function GrowthChart({ title }: GrowthChartProps) {
                 ticks: { color: "#94a3b8", font: { size: 10 } },
               },
               y: {
+                min: 0,
                 grid: { color: "#e2e8f0" },
                 ticks: {
                   color: "#94a3b8",
                   font: { size: 10 },
-                  callback: (v) =>
-                    v === 0 ? "$0" : `$${Number(v) / 1000}0K`,
+                  callback: (v) => {
+                    const n = Number(v);
+                    if (n === 0) return "$0";
+                    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+                    if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
+                    return `$${n}`;
+                  },
                 },
               },
             },
@@ -127,14 +136,21 @@ export function GrowthChart({ title }: GrowthChartProps) {
 // ─────────────────────────────────────────────
 interface SourceDonutProps {
   title: string;
+  leads: Lead[];
 }
 
-export function SourceDonut({ title }: SourceDonutProps) {
-  const [sourcePeriod, setSourcePeriod] = useState<
-    keyof typeof SOURCES_DATA
-  >("this_month");
+export function SourceDonut({ title , leads}: SourceDonutProps) {
+  const [sourcePeriod, setSourcePeriod] = useState<"this_month" | "last_month">("this_month");
 
-  const currentSources = SOURCES_DATA[sourcePeriod];
+  const currentSources = buildSourceData(leads, sourcePeriod);
+
+  if (!currentSources.length) {
+    return (
+      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5 flex items-center justify-center h-[220px]">
+        <span className="text-[12px] text-[#94a3b8]">No data available</span>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
@@ -143,7 +159,7 @@ export function SourceDonut({ title }: SourceDonutProps) {
         <select
           value={sourcePeriod}
           onChange={(e) =>
-            setSourcePeriod(e.target.value as keyof typeof SOURCES_DATA)
+            setSourcePeriod(e.target.value as "this_month" | "last_month")
           }
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] px-[5px] py-[5px] text-[12px] text-[#7E7E7E] outline-none"
         >
@@ -219,32 +235,36 @@ export function SourceDonut({ title }: SourceDonutProps) {
 // ─────────────────────────────────────────────
 interface AccountsTableProps {
   title: string;
+  accounts: Account[];
   onViewAll?: () => void;
 }
 
-export function AccountsTable({ title, onViewAll }: AccountsTableProps) {
+export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps) {
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [search, setSearch] = useState<string>("");
   const navigate = useNavigate();
 
-  const filteredAccounts = ACCOUNTS.filter(
+  const filteredAccounts = accounts.filter(
     (a) =>
       a.name.toLowerCase().includes(search.toLowerCase()) ||
       a.industry.toLowerCase().includes(search.toLowerCase())
-  );
+  )  .slice(0, 5);
 
   return (
     <div className="min-w-0 rounded-[14px] border border-[#e2e8f0] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-[14px] font-bold text-[#0f172a]">{title}</h2>
         <button
-          onClick={onViewAll}
+          onClick={() => navigation.navigate(ROUTES.ACCOUNTS)}
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] bg-transparent px-2 py-[2px] text-[11px] text-[#64748b]"
         >
           View All
         </button>
       </div>
 
+      {filteredAccounts.length === 0 ? (
+        <p className="text-center text-[12px] text-[#94a3b8] py-6">No accounts found</p>
+      ) : (
       <table className="w-full border-collapse text-[12px]">
         <thead>
           <tr>
@@ -253,7 +273,7 @@ export function AccountsTable({ title, onViewAll }: AccountsTableProps) {
                 "Account Name",
                 "Industry",
                 "Owner",
-                "Created At",
+                "Account Site",
                 "Status",
               ] as const
             ).map((h) => (
@@ -301,7 +321,7 @@ export function AccountsTable({ title, onViewAll }: AccountsTableProps) {
 
               {/* Created At */}
               <td className="px-[6px] py-[7px] text-[11px] text-[#374151]">
-                {a.created}
+                {a.owner}
               </td>
 
               {/* Status */}
@@ -392,6 +412,7 @@ export function AccountsTable({ title, onViewAll }: AccountsTableProps) {
           ))}
         </tbody>
       </table>
+    )}
     </div>
   );
 }
@@ -401,24 +422,28 @@ export function AccountsTable({ title, onViewAll }: AccountsTableProps) {
 // ─────────────────────────────────────────────
 interface TasksListProps {
   title: string;
+  tasks: Task[];
   onViewAll?: () => void;
 }
 
-export function TasksList({ title, onViewAll }: TasksListProps) {
+export function TasksList({ title, tasks, onViewAll }: TasksListProps) {
   return (
     <div className="min-w-0 rounded-[14px] border border-[#e2e8f0] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-[14px] font-bold text-[#0f172a]">{title}</h2>
         <button
-          onClick={onViewAll}
+          onClick={() => navigation.navigate(ROUTES.TASKS)}
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] bg-transparent px-2 py-[2px] text-[11px] text-[#64748b]"
         >
           View all
         </button>
       </div>
 
+      {tasks.length === 0 ? (
+        <p className="text-center text-[12px] text-[#94a3b8] py-6">No tasks found</p>
+      ) : (
       <div className="flex flex-col">
-        {TASKS.map((t) => (
+        {tasks.map((t) => (
           <div
             key={t.id}
             className="mb-[6px] flex items-center gap-3 px-3 py-[10px]"
@@ -431,16 +456,16 @@ export function TasksList({ title, onViewAll }: TasksListProps) {
             {/* Task Info */}
             <div className="min-w-0 flex-1">
               <p className="overflow-hidden text-ellipsis whitespace-nowrap text-[12px] font-semibold text-[#0f172a]">
-                {t.title}
+                {t.subject}
               </p>
               <p className="mt-[2px] text-[10px] text-[#94a3b8]">
-                {t.assignee}
+                {t.taskOwner}
               </p>
             </div>
 
             {/* Date */}
             <div className="w-[95px] flex-shrink-0 text-left text-[11px] text-[#94a3b8]">
-              {t.date}
+              {t.createdAt}
             </div>
 
             {/* Priority Badge */}
@@ -460,6 +485,7 @@ export function TasksList({ title, onViewAll }: TasksListProps) {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

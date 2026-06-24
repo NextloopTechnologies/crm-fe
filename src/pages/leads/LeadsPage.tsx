@@ -13,6 +13,8 @@ import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/lib/route';
+import { ArrowBigLeft, ArrowLeft } from 'lucide-react';
+import BackButton from '@/components/common/BackButton';
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 
@@ -97,7 +99,7 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [role, setRole] = useState("");
 
   const navigate = useNavigate();
@@ -135,9 +137,25 @@ export default function LeadsPage() {
     },
   });
 
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.company?.trim())
+      newErrors.company = "Company name is required.";
+    else if ((formData.company?.length ?? 0) > 100)
+      newErrors.company = "Company name must be under 100 characters.";
+
+    if (!formData.lastName?.trim())
+      newErrors.lastName = "Last name is required.";
+    else if (!/^[a-zA-Z\s]{2,50}$/.test(formData.lastName ?? ""))
+      newErrors.lastName = "Last name must be 2–50 letters only.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!validate()) return;
     try {
       setLoading(true);
       const response = await createLead(formData);
@@ -149,6 +167,14 @@ export default function LeadsPage() {
           icon: <CreatedIcon />
         })
         navigate(ROUTES.LEADS);
+      }
+      if (response.code === "0x0202" && response.description) {
+        const apiErrors: Record<string, string> = {};
+        response.description.forEach((msg: string) => {
+          const [field, message] = msg.split(" -> ");
+          if (field && message) apiErrors[field] = message;
+        });
+        setErrors(apiErrors);
       }
     } catch (error) {
       console.error(error);
@@ -191,13 +217,13 @@ export default function LeadsPage() {
             required
             value={formData.company}
             onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+            error={errors.company}
             leftIcon={<BuildingIcon />}
           />
           <Input
             id="firstName"
             label="First Name"
             placeholder="Enter first name"
-            required
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
@@ -209,6 +235,7 @@ export default function LeadsPage() {
             required
             value={formData.lastName}
             onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            error={errors.lastName}
             leftIcon={<UserIcon className='w-5 h-5' />}
           />
 
@@ -217,7 +244,6 @@ export default function LeadsPage() {
             label="Email"
             placeholder="Enter email"
             type="email"
-            required
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             leftIcon={<MailIcon className='w-5 h-5' />}
@@ -271,9 +297,7 @@ export default function LeadsPage() {
               setFormData({ ...formData, leadStatus: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.leadStatus ? "Lead status is required" : undefined}
           />
 
 
@@ -286,9 +310,7 @@ export default function LeadsPage() {
               setFormData({ ...formData, leadSource: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.leadSource ? "Lead source is required" : undefined}
           />
           <SelectDropdown
             label="Industry"
@@ -299,9 +321,7 @@ export default function LeadsPage() {
               setFormData({ ...formData, industry: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.industry ? "Industry is required" : undefined}
           />
           <Input
             id="Number of Employees"
@@ -328,10 +348,27 @@ export default function LeadsPage() {
               setFormData({ ...formData, rating: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
             error={(touched || isSubmitted) && !formData.rating ? "Rating is required" : undefined}
           />
+                         <Input
+            id="description"
+            label="Requirement"
+            placeholder="Enter requirement description"
+            value={formData.annualRevenue}
+            onChange={(e) => setFormData({ ...formData, annualRevenue: e.target.value })}
+            leftIcon={<UserIcon className='w-5 h-5' />}
+          />
+           <div className="col-span-3 flex flex-col gap-2">
+                        <label className="text-sm font-medium text-[#2B2B2B]">
+                            Description
+                        </label>
+                        <textarea
+                            placeholder="Enter description"
+                            rows={3}
+                            className="w-full border border-[#E0E0E0] rounded-lg px-4 py-3 text-sm outline-none resize-none focus:border-[#5752FE]"
+                        />
+                    </div>
           <div className="col-span-full mt-2 pb-6">
 
             <div className="px-6 flex flex-col gap-2">
@@ -396,8 +433,7 @@ export default function LeadsPage() {
             label="Country"
             placeholder="Select country"
             value={formData.leadAddressRequestDto?.country || ''}
-            onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })}
-            required
+            onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, country: e.target.value } })}
           />
           <InlineInput id="street" label="Street" placeholder="Enter street address" value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} />
           <InlineInput id="state" label="State" placeholder="Enter state / province" value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} />
@@ -411,6 +447,13 @@ export default function LeadsPage() {
 
   return (
     <div className="bg-white min-h-screen p-4 rounded-lx">
+     <BackButton
+        path={ROUTES.LEADS}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
+
+      <div className="mt-6">
       <FormPage
         heading="Create Lead"
         subheading="Add a new lead to the system."
@@ -435,6 +478,7 @@ export default function LeadsPage() {
           </Button>
         }
       />
+  </div>
     </div>
   );
 }
