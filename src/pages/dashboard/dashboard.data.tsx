@@ -5,6 +5,7 @@ import { getAllAccounts } from "@/api/account.api";
 import { getAllTasks } from "@/api/tasks.api";
 import { getAllLeads } from "@/api/leads.api";
 import { ACCOUNT_COLORS, SOURCE_COLORS } from "@/constants/colors";
+import { CreateLeadRequest, Lead } from "@/types/api.types";
 
 // ─────────────────────────────────────────────
 // Types
@@ -24,6 +25,8 @@ export interface StatItem {
 export interface Account {
   id: number;
   accountNumber : string;
+  accountType? : string;
+  accountOwner? : string
   accountName: string;
   color: string;
   name: string;
@@ -69,7 +72,7 @@ export const PERIOD_DATA = {
   },
 };
 
-export function buildSourceData(leads: any[], period: string): Source[] {
+export function buildSourceData(leads: CreateLeadRequest[], period: string): Source[] {
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -118,7 +121,7 @@ const TaskIcon = () => (
   </div>
 );
 
-export function mapApiAccount(a: any, idx: number): Account {
+export function mapApiAccount(a: Account, idx: number): Account {
   const accountName = a.accountName ?? "—";
 
   const words = accountName.trim().split(" ");

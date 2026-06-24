@@ -73,7 +73,7 @@ function AccountDropdown({ value, onChange }: AccountDropdownProps) {
       try {
         const res = await getAllAccounts();
         // Adjust based on your actual response shape: res.data or res
-        const list: AccountOption[] = (res.data ?? res ?? []).map((acc: any) => ({
+        const list: AccountOption[] = (res.data ?? res ?? []).map((acc: AccountOption) => ({
           accountNumber: acc.accountNumber,
           accountName: acc.accountName,
         }));
@@ -253,8 +253,8 @@ export default function TaskForm({
     priority: defaultValues.priority ?? "",
     accountNumber: defaultValues.accountNumber ?? "",
     contactId: defaultValues.contactId ?? "",
-    isReminder: defaultValues.isReminder === true || defaultValues.isReminder === ("true" as any),
-    isRepeat: defaultValues.isRepeat === true || defaultValues.isRepeat === ("true" as any),
+    isReminder: defaultValues.isReminder === "true" || defaultValues.isReminder === "true",
+    isRepeat: defaultValues.isRepeat === "true" || defaultValues.isRepeat === "true",
     relatedToType: defaultValues.relatedToType ?? "",
     repeatDetails: {
       repeatType: defaultValues.repeatDetails?.repeatType ?? "",
@@ -271,8 +271,8 @@ export default function TaskForm({
       setForm((prev) => ({
         ...prev,
         ...defaultValues,
-        isReminder: defaultValues.isReminder === true || defaultValues.isReminder === ("true" as any),
-        isRepeat: defaultValues.isRepeat === true || defaultValues.isRepeat === ("true" as any),
+        isReminder: defaultValues.isReminder === "true" || defaultValues.isReminder === "true",
+        isRepeat: defaultValues.isRepeat === "true" || defaultValues.isRepeat === "true",
         repeatDetails: {
           ...prev.repeatDetails,
           ...(defaultValues.repeatDetails ?? {}),
@@ -317,8 +317,8 @@ export default function TaskForm({
     const payload: CreateTaskRequest = {
       ...form,
       dueDate: formattedDueDate,
-      isReminder: form.isReminder as any,
-      isRepeat: form.isRepeat as any,
+      isReminder: String(form.isReminder),
+      isRepeat: String(form.isRepeat),
       repeatDetails: form.isRepeat
         ? {
             ...form.repeatDetails,
