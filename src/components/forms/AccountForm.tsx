@@ -379,18 +379,18 @@ export default function AccountForm({
           {/* FIX 9: was missing onChange handler */}
 
          <InlineSelectDropdown
-          id="addressType"
-          label="Address Type"
-          placeholder="Select address type"
-          value={formData.addresses?.[0].addressType || ""}
-          onChange={(val) => setAddress("addressType")(val)}
-          options={[
-            { label: "Billing", value: "Billing" },
-            { label: "Shipping", value: "Shipping" },
-            { label: "Other", value: "Other" },
-          ]}
-        />
-
+         id="addressType"
+         label="Address Type"
+         placeholder="Select address type"
+         value={formData.addresses?.[0].addressType || ""}
+         onChange={(val) => setAddress("addressType")(val)}
+         options={[
+           { label: "Billing", value: "Billing" },
+           { label: "Shipping", value: "Shipping" },
+           { label: "Other", value: "Other" },
+         ]}
+       />
+       
           <InlineInput
             id="country"
             label="Country"

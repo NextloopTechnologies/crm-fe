@@ -157,9 +157,9 @@ export default function ProjectListPage() {
       width: "140px",
       render: (_, row) => <TextCell val={(row as any).projectType ?? "—"} />,
     },
-    { 
-      key: "assignee", 
-      label: "Owner", 
+    {
+      key: "assignee",
+      label: "Owner",
       width: "220px", 
       render: (_, row) => (
         <div className="flex items-center gap-2.5">
@@ -258,7 +258,7 @@ export default function ProjectListPage() {
         loading={projectsloading}
         emptyMessage="No projects found."
         headerActions={headerActions}
-        onRowClick={handleRowClick}
+        onRowClick={handleView}
         onSelectionChange={handleSelection}
         onEdit={handleEdit}
         onDelete={handleDelete}

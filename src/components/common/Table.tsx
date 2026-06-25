@@ -302,7 +302,7 @@ function SortDropdown<T>({
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export function DataTable<T extends { id?: string | number }>({
+export function DataTable<T extends object>({
   data,
   columns,
   searchable = true,
@@ -628,7 +628,7 @@ export function DataTable<T extends { id?: string | number }>({
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
-                                onClick={() => onView(row)}
+                                onClick={(e) => { e.stopPropagation(); onView(row)}}
                               >
                                 <Eye size={15} />
                               </Button>
@@ -644,7 +644,7 @@ export function DataTable<T extends { id?: string | number }>({
                                     : "hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
                                 )}
                                 disabled={isEditDisabled?.(row)}
-                                onClick={() => !isEditDisabled?.(row) && onEdit(row)}
+                                onClick={(e) => { e.stopPropagation();  !isEditDisabled?.(row) && onEdit(row)}}
                               >
                                 <Pencil size={15} />
                               </Button>

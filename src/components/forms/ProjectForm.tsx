@@ -3,17 +3,12 @@ import FormPage, { FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
-import { InlineInput } from "@/components/common/InlineInput";
-import { InlineSelectDropdown } from "@/components/common/InlineSelectDropDown";
+
 
 import {
     UserIcon,
-    PhoneIcon,
-    MailIcon,
-    LocationIcon,
-    EyeOffIcon,
 } from "@/assets/icons/components/index";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { ArrowLeft, CalendarDays, UsersIcon } from "lucide-react";
 import { CreateProjectRequest } from "@/types/api.types";
 import { formatDate } from "@/lib/utils";
 import { ROUTES } from "@/lib/route";
@@ -39,9 +34,6 @@ const ShieldIcon = () => (
     </svg>
 );
 
-// ─────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────
 
 export interface ProjectFormData {
     projectName: string;
@@ -50,6 +42,8 @@ export interface ProjectFormData {
     startDate: string;
     endDate: string;
     description: string;
+    teamMember: string;
+    clientId: string;
 }
 
 const projectTypeOptions = [
@@ -93,7 +87,9 @@ export default function ProjectForm({
         projectStatus: defaultValues.projectStatus ?? "",
         startDate: defaultValues.startDate ?? "",
         endDate: defaultValues.endDate ?? "",
-        description: defaultValues.description ?? ""
+        description: defaultValues.description ?? "",
+        teamMember: defaultValues.teamMember ?? "",
+        clientId: defaultValues.clientId ?? ""
     });
 
     const [touched, setTouched] = useState(false);
@@ -206,6 +202,24 @@ export default function ProjectForm({
                         value={form.endDate}
                         onChange={(e) => set("endDate")(e.target.value)}
                         leftIcon={<CalendarDays className="w-5 h-5" />}
+                    />
+
+                    <Input
+                        id="teamMember"
+                        label="No Of Members"
+                        placeholder="Enter Project Member"
+                        value={form.teamMember}
+                        onChange={(e) => set("teamMember")(e.target.value)}
+                        leftIcon={<UsersIcon className="w-5 h-5" />}
+                        
+                    />
+
+                    <Input
+                        id="clientId"
+                        label="Client Id"
+                        placeholder="Enter clientId"
+                        value={form.clientId}
+                        onChange={(e) => set("clientId")(e.target.value)}
                     />
 
                     <div className="col-span-3 flex flex-col gap-2">

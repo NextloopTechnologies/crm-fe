@@ -52,8 +52,6 @@ export interface Source {
   color: string;
 }
 
-
-
 // ─────────────────────────────────────────────
 // Chart Data
 // ─────────────────────────────────────────────
@@ -184,11 +182,11 @@ export function buildStats(
   fmtRevenue : string
 ): StatItem[] {
   if (role === "ADMIN") return [
-    { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
-    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,                    subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks),     subtitle: "last month", trend: upTrendLive() },
-  ];
+  { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
+  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
+  { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,  subtitle: "vs last month", trend: upTrendLive() },
+  { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks), subtitle: "last month", trend: upTrendLive() },
+];
 
   if (role === "MANAGER") return [
     { icon: <UsersIcon />, label: "Team Accounts", value: String(totalAccounts),  subtitle: "All accounts in team", trend: upTrendLive() },
@@ -197,7 +195,6 @@ export function buildStats(
     { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive() },
   ];
 
-  // SALES
   return [
   { icon: <UsersIcon />, label: "My Accounts", value: String(totalAccounts),  subtitle: "All my accounts", trend: upTrendLive() },
   { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },

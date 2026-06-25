@@ -159,7 +159,7 @@ export default function AccountListPage() {
         emptyMessage="No users found."
         headerActions={headerActions}
         loading={accountsLoading}
-        onRowClick={handleRowClick}
+        onRowClick={handleView}
         onSelectionChange={handleSelection}
         onEdit={handleEdit}
         onDelete={handleDelete}

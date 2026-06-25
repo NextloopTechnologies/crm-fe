@@ -63,20 +63,18 @@ export interface RegisterRequest {
 
 // ── Lead ──────────────────────────────────────────────────────────────────────
 export interface Lead {
-  id: number
-  name: string
+  id?: string | number
+  leadNumber: string
+  firstName: string
+  lastName: string
+  leadOwner: string
   company?: string
   email: string
-  phone?: string
-  source: string
-  stage: string
-  dealValue?: number
-  probability?: number
-  ownerId: number
-  ownerName: string
-  lastActivity: string
-  createdAt: string
-  notes?: string
+  phone: string
+    leadSource: string
+  leadStatus: string
+  creationDate: string
+  lastModifiedDate: string
 }
 export interface AddressRequestDto {
   country: string
@@ -90,7 +88,8 @@ export interface AddressRequestDto {
   organizationId: string
 }
 export interface CreateLeadRequest {
-  leadNumber?: string
+  leadOwner : string
+  leadNumber: string
   company?: string
   lastName: string
   firstName: string
@@ -199,6 +198,8 @@ export interface CreateProjectRequest {
   projectType: string;
   endDate: string;
   startDate: string;
+  teamMember?: string
+  clientId?: string
 
 }
 

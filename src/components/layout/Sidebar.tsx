@@ -13,7 +13,6 @@ const NAV = [
   { to: '/leads', label: 'Leads', icon: Users },
   { to: '/users', label: 'Users', icon: FileUser },
   { to: '/tenants', label: 'Tenants', icon: Users },
-  { to: '/pipeline', label: 'Pipeline', icon: PipeLinesIcon },
   { to: '/tasks/', label: 'Tasks', icon: ClipboardList },
   { to: '/accounts', label: 'Accounts', icon: Building2 },
   { to: '/projects', label: 'Projects', icon: BriefcaseBusiness },
