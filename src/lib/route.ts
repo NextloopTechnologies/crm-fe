@@ -51,6 +51,7 @@ export const ROUTES = {
   // Pieline
   PIPELINE: "/pipeline",
 
+  INVOICE: "/invoice",
   // Settings
   SETTINGS: "/settings",
 } as const

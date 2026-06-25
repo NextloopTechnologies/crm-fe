@@ -38,6 +38,7 @@ const EditProfilePage   = lazy(() => import('@/pages/profile/EditProfilePage'))
 const SettingsPage      = lazy(() => import('@/pages/SettingsPage'))
 const DeleteAccountPage      = lazy(() => import('@/pages/profile/DeleteAccountPage'))
 const AccountInformationPage = lazy(() => import('@/pages/profile/AccountInformationPage'))
+const InvoicePage      = lazy(() => import('@/pages/invoices/InvoicePage'))
 
 // ─── Types ───────────────────────────────────────────────────
 export type SidebarGroup = "main" | "management" | "settings"
@@ -133,6 +134,8 @@ export const protectedRoutes: RouteConfig[] = [
     element: SettingsPage,
     sidebar: { label: "Settings", icon: Settings, group: "settings" },
   },
+
+  { path : ROUTES.INVOICE , element: InvoicePage}
 ]
 
 // ─── Helper — sidebar ke liye filter ─────────────────────────

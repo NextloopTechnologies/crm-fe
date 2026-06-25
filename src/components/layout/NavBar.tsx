@@ -16,7 +16,6 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import { cn } from "@/lib/utils"
 import { showToast } from "../common/Toast"
-import NotificationSidebar from "../common/NotificationSidebar"
 import { logout } from "@/api/auth.api"
 
 // ── Route → label map ────────────────────────────────────────────────────────
@@ -42,7 +41,8 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]},
   "/project/edit/:id" : {title : "Project" , breadcrumb : ["Projects" , "Edit Project"]},
-  "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]}
+  "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]},
+  "/invoice" : {title : "Invoice" , breadcrumb : ["Manage Invoices"]}
 
 }
 
@@ -131,10 +131,7 @@ export function Navbar() {
             <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
           </Button>
 
-          <NotificationSidebar
-            open={showNotification}
-            onClose={() => setShowNotification(false)}
-          />
+           
 
           {/* ── User Dropdown ── */}
           <DropdownMenu>
