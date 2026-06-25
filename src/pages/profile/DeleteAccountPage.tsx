@@ -67,8 +67,7 @@ export default function DeleteAccountPage() {
             <Button
               type="button"
               size="sm"
-              className="min-w-[170px] h-10 rounded-lg text-sm font-medium"
-            >
+              className="min-w-[170px] h-10 rounded-lg text-sm font-medium bg-[rgb(235,67,53)]"            >
               Delete Account
             </Button>
 

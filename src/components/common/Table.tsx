@@ -400,7 +400,7 @@ export function DataTable<T extends object>({
       : <ChevronDown size={13} className="ml-1 text-[#5752FE]" />;
   };
 
-  const hasActions = onEdit || onDelete;
+  const hasActions = onEdit || onDelete || onView;
 
   return (
     <>
@@ -561,7 +561,7 @@ export function DataTable<T extends object>({
                     </span>
                   </TableHead>
                 ))}
-                {(onEdit || onDelete) && (
+                {(onEdit || onDelete || onView) && (
                   <TableHead className="w-16 px-4 text-xs font-semibold text-[#000000] uppercase tracking-wide">
                     Actions
                   </TableHead>

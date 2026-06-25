@@ -8,9 +8,11 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import {
     UserIcon,
 } from "@/assets/icons/components/index";
-import { CalendarDays, UsersIcon } from "lucide-react";
+import { ArrowLeft, CalendarDays, UsersIcon } from "lucide-react";
 import { CreateProjectRequest } from "@/types/api.types";
 import { formatDate } from "@/lib/utils";
+import { ROUTES } from "@/lib/route";
+import BackButton from "../common/BackButton";
 
 // ─────────────────────────────────────────────────────────────
 // Icons
@@ -244,6 +246,11 @@ export default function ProjectForm({
 
     return (
         <div className="bg-white min-h-screen rounded-lx">
+            <BackButton
+        path={ROUTES.PROJECT}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
             <FormPage
                 heading={
                     mode === "add"
@@ -268,7 +275,6 @@ export default function ProjectForm({
                         size="lg"
                         fullWidth
                         className="mt-1"
-                        disabled={isLoading}
                     >
                         {isLoading ? (
                             <div className="flex items-center gap-2">

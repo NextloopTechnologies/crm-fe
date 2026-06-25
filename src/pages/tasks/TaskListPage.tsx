@@ -2,18 +2,20 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
 import { Calendar, ClipboardList, Clock3, Trash2 } from 'lucide-react'
-import { usersData, type User } from '../../data/user.data'
 import { PlusIcon } from '@/assets/icons/components/PlusIcon'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
 import CustomBadge from '@/components/common/CommonBadge'
 import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
 import { ROUTES } from '@/lib/route'
-import { getAllAccounts } from '@/api/account.api'
 import { getAllTasks } from '@/api/tasks.api'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Task } from '@/types/api.types'
 
-// ── Static constants — component ke bahar ────────────────────
-const getStats = (data: User[]) => [
+// ── Static constants  ────────────────────
+const getStats = (data: Task[]) => {
+  const now = new Date();
+  return [
   {
     icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A] flex items-center justify-center"><ClipboardList className="w-6 h-6 text-[#5752FE]" /></div>,
     label: "Total Tasks",
@@ -23,42 +25,49 @@ const getStats = (data: User[]) => [
   {
     icon: <div className="w-[55px] h-[55px] flex items-center justify-center"><img src={activeUserIcon} alt="active user" className="max-w-full max-h-full object-contain" /></div>,
     label: "Completed Tasks",
-    value: data.filter(u => u.status === "active").length,
+    value: data.filter(t => t.status === "Completed").length,
     subtitle: "% of total tasks",
   },
   {
     icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#FBBC05]/10 flex items-center justify-center"><Clock3 className="w-6 h-6 text-[#FBBC05]" /></div>,
     label: "In Progress",
-    value: data.filter(u => u.status === "inactive").length,
+    value: data.filter(t => t.status === "In Progress").length,
     subtitle: "% of total tasks",
   },
   {
     icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-red-100 flex items-center justify-center"><Calendar className="w-6 h-6 text-red-600" /></div>,
     label: "Overdue",
-    value: data.filter(u => u.status === "inactive").length,
-    subtitle: "% of total tasks",
+    value: data.filter(t => {
+        if (t.status === "Completed") return false;
+        // dueDate format: "24-06-2026 21:25"
+        const [datePart] = (t.dueDate ?? "").split(" ");
+        const [dd, mm, yyyy] = datePart.split("-");
+        return new Date(`${yyyy}-${mm}-${dd}`) < now;
+      }).length,
+    subtitle: "Past due date",
   },
-]
-
+];
+};
 const FILTERS = [
   {
     key: "status",
     label: "Status",
     type: "select" as const,
     options: [
-      { label: "Active", value: "active" },
-      { label: "Inactive", value: "inactive" },
+      { label: "Not Started", value: "Not Started" },
+      { label: "In Progress", value: "In Progress" },
+      { label: "Completed",   value: "Completed"   },
+      { label: "Deferred",    value: "Deferred"    },
     ],
   },
   {
-    key: "role",
+    key: "priority",
     label: "Priority",
     type: "select" as const,
     options: [
-      { label: "Admin", value: "Admin" },
-      { label: "Manager", value: "Manager" },
-      { label: "Developer", value: "Developer" },
-      { label: "Viewer", value: "Viewer" },
+      { label: "High", value: "High"   },
+      { label: "Medium", value: "Medium" },
+      { label: "Low",  value: "Low"    },
     ],
   },
   { key: "dueDateFrom", label: "Due Date From", type: "date" as const },
@@ -85,15 +94,40 @@ const BadgeCell = ({ val }: { val: unknown }) => {
     />
   )
 }
+const statusColors: Record<string, string> = {
+  "Completed":   "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50",
+  "In Progress": "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
+  "Not Started": "bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-100",
+  "Deferred":    "bg-yellow-50 text-yellow-600 border border-yellow-200 hover:bg-yellow-50",
+};
 
+const priorityColors: Record<string, string> = {
+  "High":   "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50",
+  "Medium": "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
+  "Low":    "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50",
+};
+
+const StatusBadge = ({ val }: { val: string }) => (
+  <CustomBadge
+    label={val}
+    className={statusColors[val] ?? "bg-gray-100 text-gray-600 border border-gray-200"}
+  />
+);
+
+const PriorityBadge = ({ val }: { val: string }) => (
+  <CustomBadge
+    label={val}
+    className={priorityColors[val] ?? "bg-gray-100 text-gray-600 border border-gray-200"}
+  />
+);
 // ── Component ─────────────────────────────────────────────────
 export default function TaskListPage() {
-  const [selectedRows, setSelectedRows] = useState<any[]>([])
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Task[]>([])
+  const [tasks, setTasks] = useState<Task[]>([]);
   const navigate = useNavigate()
   const [tasksLoading, setTasksLoading] = useState(true);
 
-  const stats = useMemo(() => getStats(tasks), [])
+  const stats = useMemo(() => getStats(tasks), [tasks])
 
   useEffect(() => {
       const fetchAccounts = async () => {
@@ -110,40 +144,56 @@ export default function TaskListPage() {
       fetchAccounts();
     }, []);
     
-  const columns = useMemo<ColumnDef<any>[]>(() => [
+  const columns = useMemo<ColumnDef<Task>[]>(() => [
     {
       key: "subject",
       label: "Subject",
       width: "180px",
-      render: (_, row) => <span>{(row as any).subject ?? "—"}</span>, },
+      render: (_, row) => <span>{(row as Task).subject ?? "—"}</span>, },
     
     {
       key: "joinedAt",
       label: "Due Date",
       render: (_, row) => (
         <span className="text-[#6b6b8d] text-sm">
-          {new Date(String((row as any).dueDate ?? "-")).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+          {new Date(String((row as Task).dueDate ?? "-")).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
         </span>
       ),
     },
-    { key: "status", label: "Status", width: "140px", render: (_,row) => <BadgeCell val={(row as any).status} /> },
-    { key: "priority", label: "Priority", width: "140px", render: (_,row) => <BadgeCell val={(row as any).priority} /> },
-    { key: "location", label: "Related To", width: "220px", render: (_,row) => <TextCell val={(row as any).relatedToType} /> },
-    // { key: "contactName", label: "Contact Name", width: "220px", render: (_,row) => <TextCell val={(row as any).contactName} /> },
-    { key: "taskOwner", label: "Task Owner", width: "220px", render: (_,row) => <TextCell val={(row as any).taskOwner} /> },
+    { key: "status", label: "Status", width: "140px", render: (_, row) => <StatusBadge   val={row.status}   /> },
+    { key: "priority", label: "Priority", width: "140px", render: (_, row) => <PriorityBadge val={row.priority} /> },
+    { key: "location", label: "Related To", width: "220px", render: (_,row) => <TextCell val={(row as Task).relatedToType} /> },
+    // { key: "contactName", label: "Contact Name", width: "220px", render: (_,row) => <TextCell val={(row as Task).contactName} /> },
+    { key: "taskOwner", label: "Task Owner", width: "220px", render: (_, row) => (
+        <div className="flex items-center gap-2.5">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.taskOwner}`} />
+            <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+              {row.taskOwner?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-sm text-[#6b6b8d]">{row.taskOwner ?? "—"}</span>
+        </div>
+      )
+    },
   ], [])
 
   const handleEdit = useCallback(
-    (row: any) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
+    (row: Task) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
     [navigate]
   )
 
-  const handleDelete = useCallback((row: User | User[]) => { }, [])
+  const handleView = useCallback(
+    (row: Task) => navigate(ROUTES.TASKS_EDIT(String(row.taskNumber))),
+    [navigate]
+  );
 
-  const handleRowClick = useCallback((row: User) => { }, [])
+  const handleDelete = useCallback((row: Task | Task[]) => { }, [])
+
+  const handleRowClick = useCallback((row: Task) => { }, [])
 
   const handleSelection = useCallback(
-    (rows: User[]) => setSelectedRows(rows),
+    (rows: Task[]) => setSelectedRows(rows),
     []
   )
 
@@ -192,6 +242,7 @@ export default function TaskListPage() {
         onSelectionChange={handleSelection}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onView={handleView}
       />
     </div>
   )

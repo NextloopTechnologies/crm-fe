@@ -97,6 +97,11 @@ export default function AccountListPage() {
     },
   ], [])
 
+  const handleView = useCallback(
+    (row: any) => navigate(ROUTES.ACCOUNTS_EDIT(String(row.accountNumber))),
+    [navigate]
+  );
+
   const handleEdit = useCallback(
     (row: any) => navigate(ROUTES.ACCOUNTS_EDIT(String(row.accountNumber))),
     [navigate]
@@ -158,6 +163,7 @@ export default function AccountListPage() {
         onSelectionChange={handleSelection}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onView={handleView}
       />
     </div>
   )

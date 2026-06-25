@@ -11,6 +11,7 @@ import { ROUTES } from '@/lib/route'
 import { getAllProjects } from '@/api/projects.api'
 import { Label } from 'radix-ui'
 import { formatDate, parseDateOnly } from '@/lib/utils'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 
 // ── Static constants ──────────────────────────────────────────
@@ -159,8 +160,18 @@ export default function ProjectListPage() {
     {
       key: "assignee",
       label: "Owner",
-      width: "140px",
-      render: (_, row) => <TextCell val={(row as any).assignee ?? "—"} />,
+      width: "220px", 
+      render: (_, row) => (
+        <div className="flex items-center gap-2.5">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.assignee}`} />
+            <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
+              {row.taskOwner?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-sm text-[#6b6b8d]">{row.assignee ?? "—"}</span>
+        </div>
+      )
     },
     {
       key: "startDate",
@@ -184,6 +195,12 @@ export default function ProjectListPage() {
     },
   ], [])
 
+
+  const handleView = useCallback(
+    (row: any) => navigate(ROUTES.PROJECT_EDIT(String(row.projectNumber))),
+    [navigate]
+
+  );
   const handleEdit = useCallback(
     (row: any) => {
       navigate(ROUTES.PROJECT_EDIT(String(row.projectNumber)));
@@ -245,6 +262,7 @@ export default function ProjectListPage() {
         onSelectionChange={handleSelection}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onView={handleView}
       />
     </div>
   )

@@ -138,7 +138,7 @@ export default function LeadsList({
     ]},[onStatusChange, leads]);
 
     const handleView = useCallback(
-        (row: CreateLeadRequest) => navigate(ROUTES.LEADS_DETAIL(String(row.leadNumber))),
+        (row: any) => navigate(ROUTES.LEADS_DETAIL(String(row.leadNumber))),
         [navigate]
       );
 
@@ -206,6 +206,7 @@ export default function LeadsList({
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onView={handleView}
                 filters={[
                     {
                         key: "role",
@@ -223,8 +224,14 @@ export default function LeadsList({
                         label: "Lead Source",
                         type: "select",
                         options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
+                            { label: "Web", value: "Web" },
+                            { label: "Phone", value: "Phone" },
+                            { label: "Email", value: "Email" },
+                            { label: "Cold Call", value: "Cold Call" },
+                            { label: "Existing Customer", value: "Existing Customer" },
+                            { label: "Partner", value: "Partner" },
+                            { label: "Other", value: "Other" },
+
                         ],
                     },
                     {
@@ -232,8 +239,15 @@ export default function LeadsList({
                         label: "Lead Owner",
                         type: "select",
                         options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
+                            { label: "None", value: "None" },
+                            { label: "Attempted to Contact", value: "Attempted to Contact" },
+                            { label: "Contact in Future", value: "Contact in Future" },
+                            { label: "Contacted", value: "Contacted" },
+                            { label: "Junk Lead", value: "Junk Lead" },
+                            { label: "Lost Lead", value: "Lost Lead" },
+                            { label: "Not Contacted", value: "Not Contacted" },
+                            { label: "Pre-Qualified", value: "Pre-Qualified" },
+                            { label: "Not Qualified", value: "Not Qualified" },
                         ],
                     },
                 ]}
