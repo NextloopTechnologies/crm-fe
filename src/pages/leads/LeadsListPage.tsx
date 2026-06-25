@@ -7,7 +7,7 @@ import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from '@/lib/route';
 import { CreateLeadRequest } from '@/types/api.types';
-import { LEAD_STATUS_OPTIONS, STATUS_COLOR } from '@/constants/LeadStatus';
+import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR } from '@/constants/LeadStatus';
 
 type LeadsListProps = {
     leads: CreateLeadRequest[];
@@ -84,8 +84,7 @@ export default function LeadsList({
             label: "Lead Status",
             width: "200px",  
             render: (_, row) => {
-                    const currentStatus = (row.leadStatus ?? "None") as keyof typeof LEAD_STATUS_OPTIONS;
-                    const allowedOptions = LEAD_STATUS_OPTIONS[currentStatus] ?? [];
+                    const currentStatus = row.leadStatus ?? "None";
                     const isUpdating = statusLoadingLeads.has(row.leadNumber);
                     const cfg = STATUS_COLOR[currentStatus] ?? { bg: "bg-slate-100", text: "text-slate-600" };
 
@@ -93,7 +92,7 @@ export default function LeadsList({
                         <div className="relative" onClick={(e) => e.stopPropagation()}>
                             <select
                                 value={currentStatus}
-                                disabled={isUpdating || allowedOptions.length === 0}
+                                disabled={isUpdating}
                                 onChange={(e) => {
                                     e.stopPropagation();
                                     onStatusChange(row.leadNumber, e.target.value);
@@ -104,9 +103,8 @@ export default function LeadsList({
             disabled:cursor-not-allowed
             ${cfg.bg} ${cfg.text}`}
                             >
-                                <option value={currentStatus}>{currentStatus}</option>
-                                {allowedOptions.map((opt) => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                {LEAD_STATUS_OPTIONS_LIST.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
                                 ))}
                             </select>
 

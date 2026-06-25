@@ -1,4 +1,4 @@
-import { LEAD_STATUS_OPTIONS, STATUS_COLOR } from "@/constants/LeadStatus";
+import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR } from "@/constants/LeadStatus";
 interface LeadStatusDropdownProps {
     leadNumber: string;
     currentStatus: string;
@@ -14,8 +14,7 @@ export const LeadStatusDropdown = ({
     isUpdating = false,
     size = "md",
 }: LeadStatusDropdownProps) => {
-    const status = (currentStatus ?? "None") as keyof typeof LEAD_STATUS_OPTIONS;
-    const allowedOptions = LEAD_STATUS_OPTIONS[status] ?? [];
+    const status = currentStatus ?? "None";
     const cfg = STATUS_COLOR[status] ?? { bg: "bg-slate-100", text: "text-slate-600" };
 
     const sizeClass = size === "sm"
@@ -26,7 +25,7 @@ export const LeadStatusDropdown = ({
         <div className="relative" onClick={(e) => e.stopPropagation()}>
             <select
                 value={status}
-                disabled={isUpdating || allowedOptions.length === 0}
+                disabled={isUpdating}
                 onChange={(e) => {
                     e.stopPropagation();
                     onStatusChange(leadNumber, e.target.value);
@@ -38,9 +37,8 @@ export const LeadStatusDropdown = ({
           ${sizeClass} ${cfg.bg} ${cfg.text}
         `}
             >
-                <option value={status}>{status}</option>
-                {allowedOptions.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
+                {LEAD_STATUS_OPTIONS_LIST.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
             </select>
 
