@@ -1,57 +1,84 @@
 export const LEAD_STATUS_OPTIONS = {
-    None: [
-      "Attempted to Contact",
-      "Contact in Future",
+    None: ["New Lead"],
+    "New Lead" : [
       "Contacted",
-      "Junk Lead",
-      "Lost Lead",
-      "Not Contacted",
-      "Pre-Qualified",
-      "Not Qualified",
+      "No Response",
+      "Cold Lead",
+      "Lost",
     ],
   
-    "Attempted to Contact": [
-      "Contact in Future",
-      "Contacted",
-      "Junk Lead",
-      "Lost Lead",
-      "Pre-Qualified",
-      "Not Qualified",
+    "Contacted" : [
+      "Interested",
+      "No Response",
+      "Cold Lead",
+      "Lost",
     ],
   
-    "Not Contacted": [
-      "Attempted to Contact",
-      "Contact in Future",
-      "Contacted",
-      "Junk Lead",
-      "Lost Lead",
-      "Pre-Qualified",
-      "Not Qualified",
+    "Interested" : [
+      "Meeting Scheduled",
+      "On Hold",
+      "Lost",
     ],
   
-    "Contact in Future": [
-      "Attempted to Contact",
-      "Contacted",
-      "Junk Lead",
-      "Lost Lead",
-      "Pre-Qualified",
-      "Not Qualified",
+    "Meeting Scheduled": [
+      "Requirement Received",
+      "On Hold",
+      "Lost",
     ],
   
-    Contacted: [
-      "Pre-Qualified",
-      "Lost Lead",
-      "Not Qualified",
+    "Requirement Received": [
+      "Proposal Shared",
+      "On Hold",
+      "Lost",
     ],
   
-    "Pre-Qualified": [
-      "Contacted",
-      "Lost Lead",
+    "Proposal Shared": [
+      "Commercial Discussion",
+      "On Hold",
+      "Lost",
     ],
   
+    "Commercial Discussion": [
+    "Profiles Shared",
+    "On Hold",
+    "Lost",
+  ],
+
+  "Profiles Shared": [
+    "Deal Won",
+    "Lost",
+  ],
+
+  "Deal Won": [
+    "Active Client",
+  ],
+
+  "Active Client": [],
+
+  "On Hold": [
+    "Interested",
+    "Meeting Scheduled",
+    "Requirement Received",
+    "Proposal Shared",
+    "Commercial Discussion",
+    "Profiles Shared",
+    "Deal Won",
+    "Lost"
+  ],
+
+    "No Response": [
+    "Contacted",
+    "Cold Lead",
+    "Lost"
+  ],
+
+  "Cold Lead": [
+    "Contacted",
+    "Lost"
+  ],
+
     "Lost Lead": [],
-    "Junk Lead": [],
-    "Not Qualified": [],
+
   } as const;
 
   export const STATUS_COLOR: Record<
@@ -62,59 +89,96 @@ export const LEAD_STATUS_OPTIONS = {
         dot: string;
     }
 > = {
-    Contacted: {
-        bg: "bg-emerald-50",
-        text: "text-emerald-700",
-        dot: "bg-emerald-500",
-
-    },
-
-    "Attempted to Contact": {
-        bg: "bg-amber-50",
-        text: "text-amber-700",
-        dot: "bg-amber-500",
-
-    },
-
-    "Not Contacted": {
-        bg: "bg-slate-100",
-        text: "text-slate-600",
-        dot: "bg-slate-400",
-
-    },
-
-    "Pre-Qualified": {
-        bg: "bg-violet-50",
-        text: "text-violet-700",
-        dot: "bg-violet-500",
-
-    },
-
-    "Contact in Future": {
+  
+  "New Lead": {
         bg: "bg-blue-50",
         text: "text-blue-700",
         dot: "bg-blue-500",
 
     },
 
-    "Lost Lead": {
+    Contacted: {
+        bg: "bg-cyan-50",
+        text: "text-cyan-700",
+        dot: "bg-cyan-500",
+
+    },
+
+    Interested: {
+      bg: "bg-violet-50",
+      text: "text-violet-700",
+      dot: "bg-violet-500",
+
+    },
+    
+    "Meeting Scheduled": {
+        bg: "bg-purple-50",
+        text: "text-purple-700",
+        dot: "bg-purple-500",
+
+    },
+
+    "Requirement Received": {
+        bg: "bg-indigo-100",
+        text: "text-indigo-700",
+        dot: "bg-indigo-500",
+
+    },
+
+    "Proposal Shared": {
+        bg: "bg-amber-50",
+        text: "text-amber-700",
+        dot: "bg-amber-500",
+
+    },
+
+    "Commercial Discussion": {
+        bg: "bg-orange-50",
+        text: "text-orange-700",
+        dot: "bg-orange-500",
+
+    },
+
+    "Profiles Shared": {
+    bg: "bg-pink-50",
+    text: "text-pink-700",
+    dot: "bg-pink-500",
+  },
+
+    "Deal Won": {
+      bg: "bg-emerald-50",
+      text: "text-emerald-700",
+      dot: "bg-emerald-500",
+    },
+
+    "Active Client": {
+      bg: "bg-green-50",
+      text: "text-green-700",
+      dot: "bg-green-500",
+    },
+
+    "On Hold": {
+      bg: "bg-yellow-50",
+      text: "text-yellow-700",
+      dot: "bg-yellow-500",
+    },
+
+    "No Response": {
+      bg: "bg-slate-100",
+      text: "text-slate-700",
+      dot: "bg-slate-500",
+    },
+
+    "Cold Lead": {
+      bg: "bg-gray-100",
+      text: "text-gray-700",
+      dot: "bg-gray-500",
+    },
+
+     Lost: {
         bg: "bg-red-50",
         text: "text-red-700",
         dot: "bg-red-500",
-
-    },
-
-    "Junk Lead": {
-        bg: "bg-gray-100",
-        text: "text-gray-600",
-        dot: "bg-gray-400",
-
-    },
-
-    "Not Qualified": {
-        bg: "bg-red-50",
-        text: "text-red-600",
-        dot: "bg-red-400",
 
     },
 };
@@ -127,6 +191,7 @@ export const LeadStatusBadge = ({
     const cfg = STATUS_COLOR[status ?? ""] ?? {
         bg: "bg-slate-100",
         text: "text-slate-600",
+        dot: "bg-slate-400",
     };
 
     return (
@@ -151,35 +216,49 @@ export const LeadStatusBadge = ({
 };
 
 export const LEAD_STATUS_OPTIONS_LIST = [
-  { label: "None", value: "None" },
-  { label: "Attempted to Contact", value: "Attempted to Contact" },
-  { label: "Contact in Future", value: "Contact in Future" },
+  { label: "New Lead", value: "New Lead" },
   { label: "Contacted", value: "Contacted" },
-  { label: "Junk Lead", value: "Junk Lead" },
-  { label: "Lost Lead", value: "Lost Lead" },
-  { label: "Not Contacted", value: "Not Contacted" },
-  { label: "Pre-Qualified", value: "Pre-Qualified" },
-  { label: "Not Qualified", value: "Not Qualified" },
-] as const;
+  { label: "Interested", value: "Interested" },
+  { label: "Meeting Scheduled", value: "Meeting Scheduled" },
+  { label: "Requirement Received", value: "Requirement Received" },
+  { label: "Proposal Shared", value: "Proposal Shared" },
+  { label: "Commercial Discussion", value: "Commercial Discussion" },
+  { label: "Profiles Shared", value: "Profiles Shared" },
+  { label: "Deal Won", value: "Deal Won" },
+  { label: "Active Client", value: "Active Client" },
+  { label: "On Hold", value: "On Hold" },
+  { label: "No Response", value: "No Response" },
+  { label: "Cold Lead", value: "Cold Lead" },
+  { label: "Lost", value: "Lost" },
+];
 
 // ─────────────────────────────────────────────────────────────
 // 4 pipeline columns only
 // ─────────────────────────────────────────────────────────────
 
-export type PipelineCol = "New" | "Qualified" | "Contacted" | "Lost Lead";
+export type PipelineCol = "New Lead" | "Interested" | "Proposal" | "Won" | "Lost";
 
-export const PIPELINE_COLUMNS: PipelineCol[] = ["New", "Qualified", "Contacted", "Lost Lead"];
+export const PIPELINE_COLUMNS: PipelineCol[] = ["New Lead", "Interested", "Proposal", "Won" ,"Lost"];
 
 export const STATUS_TO_COLUMN: Record<string, PipelineCol> = {
-  "Not Contacted": "New",
-  "Attempted to Contact": "New",
-  "None": "New",
-  "Pre-Qualified": "Qualified",
-  "Contact in Future": "Qualified",
-  "Contacted": "Contacted",
-  "Lost Lead": "Lost Lead",
-  "Junk Lead": "Lost Lead",
-  "Not Qualified": "Lost Lead",
+  "New Lead": "New Lead",
+  Contacted: "New Lead",
+
+  Interested: "Interested",
+  "Meeting Scheduled": "Interested",
+
+  "Requirement Received": "Proposal",
+  "Proposal Shared": "Proposal",
+  "Commercial Discussion": "Proposal",
+  "Profiles Shared": "Proposal",
+
+  "Deal Won": "Won",
+  "Active Client": "Won",
+
+  "On Hold": "Lost",
+  "No Response": "Lost",
+  "Cold Lead": "Lost",
+  Lost: "Lost",
 };
 
 export const COLUMN_CONFIG: Record<PipelineCol, {
@@ -187,10 +266,11 @@ export const COLUMN_CONFIG: Record<PipelineCol, {
   badgeBg: string; badgeText: string;
   prefillStatus: string;
 }> = {
-  "New": { color: "#6366f1", light: "#eef2ff", badgeBg: "bg-indigo-50", badgeText: "text-indigo-600", prefillStatus: "Attempted to Contact" },
-  "Qualified": { color: "#8b5cf6", light: "#f5f3ff", badgeBg: "bg-violet-50", badgeText: "text-violet-600", prefillStatus: "Pre-Qualified" },
-  "Contacted": { color: "#10b981", light: "#ecfdf5", badgeBg: "bg-emerald-50", badgeText: "text-emerald-600", prefillStatus: "Contacted" },
-  "Lost Lead": { color: "#ef4444", light: "#fef2f2", badgeBg: "bg-red-50", badgeText: "text-red-500", prefillStatus: "Lost Lead" },
+  "New Lead": { color: "#6366f1", light: "#eef2ff", badgeBg: "bg-indigo-50", badgeText: "text-indigo-600", prefillStatus: "Attempted to Contact" },
+  Interested: { color: "#8b5cf6", light: "#f5f3ff", badgeBg: "bg-violet-50", badgeText: "text-violet-600", prefillStatus: "Pre-Qualified" },
+  Proposal: { color: "#f59e0b", light: "#fffbeb", badgeBg: "bg-amber-50", badgeText: "text-amber-600", prefillStatus: "Proposal Shared" },
+  Won: { color: "#10b981", light: "#ecfdf5", badgeBg: "bg-emerald-50", badgeText: "text-emerald-600", prefillStatus: "Contacted" },
+  Lost: { color: "#ef4444", light: "#fef2f2", badgeBg: "bg-red-50", badgeText: "text-red-500", prefillStatus: "Lost Lead" },
 };
 
 // ================================

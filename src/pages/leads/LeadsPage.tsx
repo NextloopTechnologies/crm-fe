@@ -13,6 +13,7 @@ import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/lib/route';
+import { LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
 
@@ -47,18 +48,6 @@ const roleOptions = [
   { label: "Viewer", value: "viewer" },
 ];
 
-const leadStatusOptions = [
-  { label: "None", value: "None" },
-  { label: "Attempted to Contact", value: "Attempted to Contact" },
-  { label: "Contact in Future", value: "Contact in Future" },
-  { label: "Contacted", value: "Contacted" },
-  { label: "Junk Lead", value: "Junk Lead" },
-  { label: "Lost Lead", value: "Lost Lead" },
-  { label: "Not Contacted", value: "Not Contacted" },
-  { label: "Pre-Qualified", value: "Pre-Qualified" },
-  { label: "Not Qualified", value: "Not Qualified" },
-
-];
 
 const leadSourceOptions = [
   { label: "Web", value: "Web" },
@@ -265,7 +254,7 @@ export default function LeadsPage() {
           <SelectDropdown
             label="Lead Status"
             placeholder="Select lead status"
-            options={leadStatusOptions}
+            options={LEAD_STATUS_OPTIONS_LIST}
             value={formData.leadStatus}
             onChange={(val) => {
               setFormData({ ...formData, leadStatus: val });

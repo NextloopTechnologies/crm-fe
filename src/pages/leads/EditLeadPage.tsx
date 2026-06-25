@@ -13,6 +13,7 @@ import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from '@/lib/route';
+import { LEAD_STATUS_OPTIONS, LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -30,19 +31,6 @@ const BuildingIcon = () => (
     <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 );
-
-const leadStatusOptions = [
-  { label: "None", value: "None" },
-  { label: "Attempted to Contact", value: "Attempted to Contact" },
-  { label: "Contact in Future", value: "Contact in Future" },
-  { label: "Contacted", value: "Contacted" },
-  { label: "Junk Lead", value: "Junk Lead" },
-  { label: "Lost Lead", value: "Lost Lead" },
-  { label: "Not Contacted", value: "Not Contacted" },
-  { label: "Pre-Qualified", value: "Pre-Qualified" },
-  { label: "Not Qualified", value: "Not Qualified" },
-
-];
 
 const leadSourceOptions = [
   { label: "Web", value: "Web" },
@@ -276,7 +264,7 @@ export default function EditLeadPage() {
           <SelectDropdown
             label="Lead Status"
             placeholder="Select lead status"
-            options={leadStatusOptions}
+            options={LEAD_STATUS_OPTIONS_LIST}
             value={formData.leadStatus}
             onChange={(val) => {
               setFormData({ ...formData, leadStatus: val });
