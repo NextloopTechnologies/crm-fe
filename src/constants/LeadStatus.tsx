@@ -1,86 +1,3 @@
-export const LEAD_STATUS_OPTIONS = {
-    None: ["New Lead"],
-    "New Lead" : [
-      "Contacted",
-      "No Response",
-      "Cold Lead",
-      "Lost",
-    ],
-  
-    "Contacted" : [
-      "Interested",
-      "No Response",
-      "Cold Lead",
-      "Lost",
-    ],
-  
-    "Interested" : [
-      "Meeting Scheduled",
-      "On Hold",
-      "Lost",
-    ],
-  
-    "Meeting Scheduled": [
-      "Requirement Received",
-      "On Hold",
-      "Lost",
-    ],
-  
-    "Requirement Received": [
-      "Proposal Shared",
-      "On Hold",
-      "Lost",
-    ],
-  
-    "Proposal Shared": [
-      "Commercial Discussion",
-      "On Hold",
-      "Lost",
-    ],
-  
-    "Commercial Discussion": [
-    "Profiles Shared",
-    "On Hold",
-    "Lost",
-  ],
-
-  "Profiles Shared": [
-    "Deal Won",
-    "Lost",
-  ],
-
-  "Deal Won": [
-    "Active Client",
-  ],
-
-  "Active Client": [],
-
-  "On Hold": [
-    "Interested",
-    "Meeting Scheduled",
-    "Requirement Received",
-    "Proposal Shared",
-    "Commercial Discussion",
-    "Profiles Shared",
-    "Deal Won",
-    "Lost"
-  ],
-
-    "No Response": [
-    "Contacted",
-    "Cold Lead",
-    "Lost"
-  ],
-
-  "Cold Lead": [
-    "Contacted",
-    "Lost"
-  ],
-
-    "Lost Lead": [],
-
-  } as const;
-
   export const STATUS_COLOR: Record<
     string,
     {
@@ -108,6 +25,13 @@ export const LEAD_STATUS_OPTIONS = {
       bg: "bg-violet-50",
       text: "text-violet-700",
       dot: "bg-violet-500",
+
+    },
+    
+    "Not-Interested": {
+      bg: "bg-rose-50",
+      text: "text-rose-700",
+      dot: "bg-rose-500",
 
     },
     
@@ -175,6 +99,19 @@ export const LEAD_STATUS_OPTIONS = {
       dot: "bg-gray-500",
     },
 
+      "Hot Lead": {
+      bg: "bg-red-100",
+      text: "text-red-700",
+      dot: "bg-red-500",
+    },
+
+      "Warm Lead": {
+      bg: "bg-orange-100",
+      text: "text-orange-700",
+      dot: "bg-orange-500",
+    },
+
+    
      Lost: {
         bg: "bg-red-50",
         text: "text-red-700",
@@ -219,6 +156,7 @@ export const LEAD_STATUS_OPTIONS_LIST = [
   { label: "New Lead", value: "New Lead" },
   { label: "Contacted", value: "Contacted" },
   { label: "Interested", value: "Interested" },
+  { label: "Not-Interested", value: "Not-Interested" },
   { label: "Meeting Scheduled", value: "Meeting Scheduled" },
   { label: "Requirement Received", value: "Requirement Received" },
   { label: "Proposal Shared", value: "Proposal Shared" },
@@ -229,6 +167,8 @@ export const LEAD_STATUS_OPTIONS_LIST = [
   { label: "On Hold", value: "On Hold" },
   { label: "No Response", value: "No Response" },
   { label: "Cold Lead", value: "Cold Lead" },
+  { label: "Hot Lead", value: "Hot Lead" },
+  { label: "Warm Lead", value: "Warm Lead" },
   { label: "Lost", value: "Lost" },
 ];
 
@@ -246,6 +186,8 @@ export const STATUS_TO_COLUMN: Record<string, PipelineCol> = {
 
   Interested: "Interested",
   "Meeting Scheduled": "Interested",
+  "Hot Lead" : "Interested",
+  "Warm Lead" : "Interested",
 
   "Requirement Received": "Proposal",
   "Proposal Shared": "Proposal",
@@ -256,6 +198,7 @@ export const STATUS_TO_COLUMN: Record<string, PipelineCol> = {
   "Active Client": "Won",
 
   "On Hold": "Lost",
+  "Not-Interested" : "Lost",
   "No Response": "Lost",
   "Cold Lead": "Lost",
   Lost: "Lost",
