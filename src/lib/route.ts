@@ -10,7 +10,7 @@ export const ROUTES = {
 
   // Leads
   LEADS: "/leads",
-  LEADS_CREATE: "/leads/create",
+  LEADS_CREATE: "/leads/add",
   LEADS_EDIT: (id: string) => `/leads/edit/${id}`,
   LEADS_DETAIL: (id: string) => `/leads/detail/${id}`,
 
@@ -28,6 +28,7 @@ export const ROUTES = {
   ACCOUNTS: "/accounts",
   ACCOUNTS_CREATE: "/accounts/create",
   ACCOUNTS_EDIT: (id: string) => `/accounts/edit/${id}`,
+  ACCOUNTS_DETAIL: (id: string) => `/accounts/detail/${id}`,
 
   // Tasks
   TASKS: "/tasks",
@@ -52,6 +53,8 @@ export const ROUTES = {
   PIPELINE: "/pipeline",
 
   INVOICE: "/invoice",
+  INVOICE_CREATE: "/invoice/create",
+
   // Settings
   SETTINGS: "/settings",
 } as const

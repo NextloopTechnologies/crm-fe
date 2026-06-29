@@ -13,6 +13,10 @@ import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from '@/lib/route';
+import { LEAD_STATUS_OPTIONS, LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
+import BackButton from '@/components/common/BackButton';
+import { ArrowLeft } from 'lucide-react';
+import { getChangedFields } from '@/lib/objectDiff';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -30,19 +34,6 @@ const BuildingIcon = () => (
     <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 );
-
-const leadStatusOptions = [
-  { label: "None", value: "None" },
-  { label: "Attempted to Contact", value: "Attempted to Contact" },
-  { label: "Contact in Future", value: "Contact in Future" },
-  { label: "Contacted", value: "Contacted" },
-  { label: "Junk Lead", value: "Junk Lead" },
-  { label: "Lost Lead", value: "Lost Lead" },
-  { label: "Not Contacted", value: "Not Contacted" },
-  { label: "Pre-Qualified", value: "Pre-Qualified" },
-  { label: "Not Qualified", value: "Not Qualified" },
-
-];
 
 const leadSourceOptions = [
   { label: "Web", value: "Web" },
@@ -79,8 +70,10 @@ const ratingOptions = [
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function EditLeadPage() {
   const [loading, setLoading] = useState(false);
+  const [initialData, setInitialData] = useState<CreateLeadRequest | null>(null);
   const [touched, setTouched] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -99,7 +92,7 @@ export default function EditLeadPage() {
 
       const lead = response.data;
 
-      setFormData({
+      const mappedLead = {
         company: lead.company ?? "",
         firstName: lead.firstName ?? "",
         lastName: lead.lastName ?? "",
@@ -136,7 +129,11 @@ export default function EditLeadPage() {
           organizationId:
             lead.leadAddressResponseDto?.organizationId ?? "",
         },
-      });
+      };
+      
+      setFormData(mappedLead);
+      setInitialData(mappedLead);
+
     } catch (error) {
       console.error(error);
     } finally {
@@ -147,9 +144,22 @@ export default function EditLeadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+      if (!initialData) return;
+
+      const payload = getChangedFields(initialData, formData);
+
+      if (Object.keys(payload).length === 0) {
+        showToast({
+          title: "No changes",
+          description: "Please update at least one field.",
+          type: "info",
+        });
+    
+        return;
+      }
     try {
       setLoading(true);
-      const response = await updateLead(id!, formData);
+      const response = await updateLead(id!, payload);
       if (response.code === ResponseCode.SUCCESS) {
         showToast({
           title: "Lead updated!",
@@ -161,6 +171,14 @@ export default function EditLeadPage() {
         setTimeout(() => {
           navigate(ROUTES.LEADS);
         }, 500);
+      }
+      if (response?.description === "Email already exists.") {
+        setErrors((prev) => ({
+          ...prev,
+          email: response.description,
+        }));
+    
+        return;
       }
     } catch (error) {
       console.error(error);
@@ -230,7 +248,13 @@ export default function EditLeadPage() {
             type="email"
             required
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) => {setFormData({ ...formData, email: e.target.value })
+            setErrors((prev) => ({
+              ...prev,
+              email: "",
+            }));
+          }}
+          error={errors.email}
             leftIcon={<MailIcon className='w-5 h-5' />}
           />
 
@@ -276,7 +300,7 @@ export default function EditLeadPage() {
           <SelectDropdown
             label="Lead Status"
             placeholder="Select lead status"
-            options={leadStatusOptions}
+            options={LEAD_STATUS_OPTIONS_LIST}
             value={formData.leadStatus}
             onChange={(val) => {
               setFormData({ ...formData, leadStatus: val });
@@ -339,9 +363,7 @@ export default function EditLeadPage() {
               setFormData({ ...formData, rating: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.rating ? "Rating is required" : undefined}
           />
           <div className="col-span-full mt-2 pb-6">
 
@@ -407,7 +429,7 @@ export default function EditLeadPage() {
             label="Country"
             placeholder="Select country"
             value={formData.leadAddressRequestDto?.country || ''}
-            onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })}
+            onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, country: e.target.value } })}
             required
           />
           <InlineInput id="street" label="Street" placeholder="Enter street address" value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} />
@@ -422,13 +444,19 @@ export default function EditLeadPage() {
 
   return (
     <div className="bg-white min-h-screen p-2 rounded-lx">
+       <BackButton
+        path={ROUTES.LEADS}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
+      <div className='mt-6'>
+        
       <FormPage
         heading="Update Lead"
         subheading="Edit the lead's information."
         sections={sections}
         onSubmit={handleSubmit}
         onCancel={() => history.back()}
-        isLoading={loading}
         submitLabel={
           <Button type="submit"
             variant="primary"
@@ -446,6 +474,7 @@ export default function EditLeadPage() {
           </Button>
         }
       />
+    </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { useRef, useState } from "react";
+import { Profile, UpdateProfileDto } from "@/types/api.types";
 
 // ─────────────────────────────────────────────────────────────
 // Icons
@@ -96,22 +97,13 @@ function InfoField({ icon, label, value }: InfoFieldProps) {
 // ─────────────────────────────────────────────────────────────
 
 interface ProfileFormProps {
-  profile?: any;           // API response from myProfile()
+  profile?: Profile;           // API response from myProfile()
   mode?: "view" | "edit";
-  onSubmit?: (data: ProfileFormData) => void;
+  onSubmit?: (data: UpdateProfileDto) => void;
   onCancel?: () => void;
   onEditClick?: () => void;
   onUploadPhoto?: () => void;
   isLoading?: boolean;
-}
-export interface ProfileFormData {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  email: string;
-  roleName: string;
-  creationDate : string;
-  username : string;
 }
 // ─────────────────────────────────────────────────────────────
 // Component
@@ -140,15 +132,15 @@ export function ProfileForm({
       .toUpperCase() || "?";
 
   // ── Form state — prefilled from API profile ──
-  const [form, setForm] = useState<ProfileFormData>({
-      firstName: profile?.firstName ?? "",
-      lastName: profile?.lastName ?? "",
-      phone: profile?.phone ?? "",
-      email: profile?.email ?? "",
-      roleName: profile?.roleName ?? "",
-      creationDate : profile?.creationDate ?? "",
-      username : profile?.username ?? "",
-    });
+const [form, setForm] = useState<UpdateProfileDto>({
+  firstName: profile?.firstName ?? "",
+  lastName: profile?.lastName ?? "",
+  phone: profile?.phone ?? "",
+  email: profile?.email ?? "",
+  roleName: profile?.roleName ?? "",
+  creationDate: profile?.creationDate ?? "",
+  username: profile?.username ?? "",
+});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -161,7 +153,7 @@ export function ProfileForm({
     }
   };
 
-  const set = (field: keyof ProfileFormData) => (value: string) =>
+  const set = (field: keyof UpdateProfileDto) => (value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleSubmit = () => onSubmit?.(form);
@@ -279,13 +271,13 @@ export function ProfileForm({
                 id="email"
                 label="Email"
                 placeholder="Enter email"
-                required
+                readOnly
                 value={form.email}
                 onChange={(e) => set("email")(e.target.value)}
               />
               <Input
                 id="rollName"
-                label="Roll Name"
+                label="Role Name"
                 placeholder="Enter roll name"
                 value={form.roleName}
                 readOnly

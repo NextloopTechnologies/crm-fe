@@ -28,21 +28,27 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/roles": { title: "Roles", breadcrumb: ["Roles"] },
   "/leads": { title: "Leads", breadcrumb: ["Manage and track all your incoming leads"] },
   "/leads/create": { title: "Leads", breadcrumb: ["Leads", "Add Lead"] },
+  "/leads/add": { title: "Leads", breadcrumb: ["Leads", "Add Lead"] },
   "/leads/edit/:id": { title: "Leads", breadcrumb: ["Leads", "Edit Lead"] },
+  "/leads/detail/:id": { title: "Leads", breadcrumb: ["Leads", "Edit Lead"] },
   "/tenants": { title: "Tenants", breadcrumb: ["Manage system tenants and their system"] },
   "/tenants/create": { title: "Tenants", breadcrumb: ["Tenant", "Add Tenant"] },
   "/tenants/:id/edit": { title: "Tenants", breadcrumb: ["Tenant", "Edit Tenant"] },
   "/profile": { title: "Profile", breadcrumb: ["Manage your account settings and preferences"] },
+  "/profile/edit": { title: "Profile", breadcrumb: ["Manage your account settings and preferences"] },
   "/accounts": { title: "Accounts", breadcrumb: ["Manage your customer accounts and related information"] },
   "/accounts/create": { title: "Accounts", breadcrumb: ["Accounts", "Create Account"] },
   "/accounts/edit/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
+  "/accounts/detail/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
-  "/tasks/": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
+  "/tasks": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
   "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]},
   "/project/edit/:id" : {title : "Project" , breadcrumb : ["Projects" , "Edit Project"]},
   "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]},
-  "/invoice" : {title : "Invoice" , breadcrumb : ["Manage Invoices"]}
+  "/invoice" : {title : "Invoice" , breadcrumb : ["Manage Invoices"]},
+  "/pipeline" : {title : "Pipeline" , breadcrumb : ["Manage your projects and related information"]},
+  "/profile/account-info" : {title : "Account Info" , breadcrumb : []}
 
 }
 

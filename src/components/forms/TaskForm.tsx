@@ -3,9 +3,11 @@ import FormPage, { FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
-import { Bell, BellRing, CalendarDays, ClipboardList, Link, Repeat, Search, ChevronDown, X } from "lucide-react";
+import { Bell, BellRing, CalendarDays, ClipboardList, Link, Repeat, Search, ChevronDown, X, ArrowLeft } from "lucide-react";
 import { CreateTaskRequest } from "@/types/api.types";
 import { getAllAccounts } from "@/api/account.api"; // adjust path if needed
+import { ROUTES } from "@/lib/route";
+import BackButton from "../common/BackButton";
 
 // ─────────────────────────────────────────────────────────────
 // Icons
@@ -71,7 +73,7 @@ function AccountDropdown({ value, onChange }: AccountDropdownProps) {
       try {
         const res = await getAllAccounts();
         // Adjust based on your actual response shape: res.data or res
-        const list: AccountOption[] = (res.data ?? res ?? []).map((acc: any) => ({
+        const list: AccountOption[] = (res.data ?? res ?? []).map((acc: AccountOption) => ({
           accountNumber: acc.accountNumber,
           accountName: acc.accountName,
         }));
@@ -251,8 +253,8 @@ export default function TaskForm({
     priority: defaultValues.priority ?? "",
     accountNumber: defaultValues.accountNumber ?? "",
     contactId: defaultValues.contactId ?? "",
-    isReminder: defaultValues.isReminder === true || defaultValues.isReminder === ("true" as any),
-    isRepeat: defaultValues.isRepeat === true || defaultValues.isRepeat === ("true" as any),
+    isReminder: defaultValues.isReminder === "true" || defaultValues.isReminder === "true",
+    isRepeat: defaultValues.isRepeat === "true" || defaultValues.isRepeat === "true",
     relatedToType: defaultValues.relatedToType ?? "",
     repeatDetails: {
       repeatType: defaultValues.repeatDetails?.repeatType ?? "",
@@ -269,8 +271,8 @@ export default function TaskForm({
       setForm((prev) => ({
         ...prev,
         ...defaultValues,
-        isReminder: defaultValues.isReminder === true || defaultValues.isReminder === ("true" as any),
-        isRepeat: defaultValues.isRepeat === true || defaultValues.isRepeat === ("true" as any),
+        isReminder: defaultValues.isReminder === "true" || defaultValues.isReminder === "true",
+        isRepeat: defaultValues.isRepeat === "true" || defaultValues.isRepeat === "true",
         repeatDetails: {
           ...prev.repeatDetails,
           ...(defaultValues.repeatDetails ?? {}),
@@ -315,8 +317,8 @@ export default function TaskForm({
     const payload: CreateTaskRequest = {
       ...form,
       dueDate: formattedDueDate,
-      isReminder: form.isReminder as any,
-      isRepeat: form.isRepeat as any,
+      isReminder: String(form.isReminder),
+      isRepeat: String(form.isRepeat),
       repeatDetails: form.isRepeat
         ? {
             ...form.repeatDetails,
@@ -573,6 +575,11 @@ export default function TaskForm({
 
   return (
     <div className="bg-white min-h-screen rounded-xl">
+       <BackButton
+        path={ROUTES.TASKS}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
       <FormPage
         heading={mode === "add" ? "Create Task" : "Edit Task"}
         subheading={mode === "add" ? "Add a new task to the system." : "Update task details."}
@@ -586,7 +593,6 @@ export default function TaskForm({
             size="lg"
             fullWidth
             className="mt-1"
-            disabled={isLoading}
           >
             {isLoading ? (
               <div className="flex items-center gap-2">

@@ -13,8 +13,10 @@ import {
   LocationIcon,
   EyeOffIcon,
 } from "@/assets/icons/components/index";
-import { Globe, Printer, Star } from "lucide-react";
+import { ArrowLeft, Globe, Printer, Star } from "lucide-react";
 import { AccountAddressRequestDto, ContactRequestDto, CreateAccountRequest } from "@/types/api.types";
+import { ROUTES } from "@/lib/route";
+import BackButton from "../common/BackButton";
 
 const ratingOptions = [
   { label: "None", value: "None" },
@@ -445,6 +447,11 @@ export default function AccountForm({
 
   return (
     <div className="bg-white min-h-screen rounded-lx">
+      <BackButton
+        path={ROUTES.ACCOUNTS}
+        label="Back To List"
+        icon={<ArrowLeft size={16} />}
+      />
       <FormPage
         heading={mode === "add" ? "Create Account" : "Edit Account"}
         subheading={
@@ -455,7 +462,6 @@ export default function AccountForm({
         sections={sections}
         onSubmit={handleSubmit}
         onCancel={onCancel ?? (() => history.back())}
-        isLoading={isLoading}
         submitLabel={
           <Button
             type="submit"

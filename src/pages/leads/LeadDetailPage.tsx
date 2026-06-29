@@ -13,13 +13,13 @@ import {
     formatDate,
     formatCurrency,
     displayValue,
-    STATUS_COLOR,
-    RATING_COLOR,
     LeadAvatar,
     LeadStatusBadge,
     SectionTitle,
     Field,
 } from "./leadHelper";
+import BackButton from "@/components/common/BackButton";
+import { RATING_COLOR } from "@/constants/LeadStatus";
 // ─────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────
@@ -72,13 +72,11 @@ export default function LeadDetailPage() {
 
             {/* ── Top Bar ── */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#f1f5f9]">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-sm text-[#64748b] hover:text-[#1e1e2d] transition-colors"
-                >
-                    <ArrowLeft size={16} />
-                    Back
-                </button>
+                <BackButton
+                    path={ROUTES.LEADS}
+                    label="Back To List"
+                    icon={<ArrowLeft size={16} />}
+                />
                 <Button
                     className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-2"
                     onClick={() => navigate(ROUTES.LEADS_EDIT(String(lead.leadNumber)))}

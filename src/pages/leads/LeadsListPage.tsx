@@ -1,70 +1,53 @@
-// pages/Users/UsersList.tsx
-import { useCallback, useEffect, useState } from 'react';
-import { DataTable, ColumnDef, RowAction } from '@/components/common/Table';
-import { Badge } from '@/components/ui/badge';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DataTable, ColumnDef } from '@/components/common/Table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Eye, UserPlus, SlidersHorizontal, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { usersData, type User } from '../../data/user.data';
-import { ActiveUsersIcon, DownArrowIcon, InActiveUsersIcon, NoActivityIcon, TenantsIcon, UpArrowIcon, UsersIcon } from '@/assets/icons/components/index';
+import {  Trash2, } from 'lucide-react';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
-import StatsCard from '@/components/common/StatsCards';
-import { NewLeadsIcon } from '@/assets/icons/components/index';
-import CustomBadge from "@/components/common/CommonBadge";
 import { ROUTES } from '@/lib/route';
-import { getAllLeads } from '@/api/leads.api';
+import { CreateLeadRequest } from '@/types/api.types';
+import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR } from '@/constants/LeadStatus';
 
-const stats = [
-    {
-        icon: <UsersIcon />,
-        label: "Total Users",
-        value: usersData.length,
-        subtitle: "All Users in System",
-        trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
-    },
-    {
-        icon: <NewLeadsIcon />,
-        label: "New Leads",
-        value: usersData.filter((u) => u.status === "active").length,
-        subtitle: "vs last 7 days",
-        trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
-    },
-    {
-        icon: <NoActivityIcon />,
-        label: "No Activity",
-        value: usersData.filter((u) => u.status === "inactive").length,
-        subtitle: "vs last 7 days",
-        trend: { icon: <DownArrowIcon />, text: "12%", color: "text-[#EB4335]" },
+type LeadsListProps = {
+    leads: CreateLeadRequest[];
+    loading?: boolean,
+    initialStatuses?: string[];
+    onStatusChange: (
+      leadNumber: string,
+      status: string
+    ) => void;
+    statusLoadingLeads?: Set<string>;
+  };
 
-    },
-];
-
-
-export default function LeadsList() {
-    const [selectedRows, setSelectedRows] = useState<any[]>([]);
-    const [leads, setLeads] = useState<any[]>([]);
-    const [leadsLoading, setLeadsLoading] = useState(true);
+export default function LeadsList({
+    leads,        
+    loading = false,
+    initialStatuses = [],
+    onStatusChange,
+    statusLoadingLeads = new Set(),
+}: LeadsListProps){
+    const [selectedRows, setSelectedRows] = useState<CreateLeadRequest[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchLeads = async () => {
-            try {
-                setLeadsLoading(true);
-                const response = await getAllLeads();
-                setLeads(response.data || response);
-            } catch (error) {
-                console.error("Error fetching leads:", error);
-            } finally {
-                setLeadsLoading(false);
-            }
-        };
-        fetchLeads();
-    }, []);
+        if (initialStatuses.length > 0) {
+            setActiveFilters({ leadStatus: initialStatuses[0] });
+        } else {
+            setActiveFilters({});
+        }
+    }, [initialStatuses]);
+
+    const filteredLeads = useMemo(() => {
+        if (initialStatuses.length === 0) return leads;
+        return leads.filter(l => initialStatuses.includes(l.leadStatus ?? ""));
+    }, [leads, initialStatuses]);
+    
     // ── Columns ───────────────────────────────────────────────────────────────────
-    const columns: ColumnDef<any>[] = [
+    const columns: ColumnDef<CreateLeadRequest>[] = useMemo(() => {
+        return [
         {
             key: "name",
             label: "Name",
@@ -97,6 +80,44 @@ export default function LeadsList() {
 
         },
         {
+            key: "leadStatus",
+            label: "Lead Status",
+            width: "200px",  
+            render: (_, row) => {
+                    const currentStatus = row.leadStatus ?? "None";
+                    const isUpdating = statusLoadingLeads.has(row.leadNumber);
+                    const cfg = STATUS_COLOR[currentStatus] ?? { bg: "bg-slate-100", text: "text-slate-600" };
+
+                    return (
+                        <div className="relative" onClick={(e) => e.stopPropagation()}>
+                            <select
+                                value={currentStatus}
+                                disabled={isUpdating}
+                                onChange={(e) => {
+                                    e.stopPropagation();
+                                    onStatusChange(row.leadNumber, e.target.value);
+                                }}
+                                className={`w-[160px] max-w-[160px] rounded-lg pl-2 pr-6 py-1 text-sm font-semibold 
+            border-0 cursor-pointer text-center truncate
+            focus:outline-none focus:ring-2 focus:ring-[#5752FE]
+            disabled:cursor-not-allowed
+            ${cfg.bg} ${cfg.text}`}
+                            >
+                                {LEAD_STATUS_OPTIONS_LIST.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+
+                            {isUpdating && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-lg">
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#5752FE] border-t-transparent" />
+                                </div>
+                            )}
+                        </div>
+                    );
+                },
+            }, 
+        {
             key: "leadOwner",
             label: "Lead Owner",
             width: "180px",
@@ -112,25 +133,29 @@ export default function LeadsList() {
                 </div>
             ),
         },
-    ];
+    ]},[onStatusChange, leads]);
+
+    const handleView = useCallback(
+        (row: any) => navigate(ROUTES.LEADS_DETAIL(String(row.leadNumber))),
+        [navigate]
+      );
 
     const handleEdit = useCallback(
-        (row: any ) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
+        (row: CreateLeadRequest ) => navigate(ROUTES.LEADS_EDIT(String(row.leadNumber))),
         [navigate]
     )
 
-    const handleDelete = useCallback((row: User | User[]) => { }, [])
+    const handleDelete = useCallback((row: CreateLeadRequest | CreateLeadRequest[]) => { }, [])
 
-    const handleRowClick = useCallback((row: User) => { }, [])
 
     const handleSelection = useCallback(
-        (rows: User[]) => setSelectedRows(rows),
+        (rows: CreateLeadRequest[]) => setSelectedRows(rows),
         []
     )
 
     const handleDeleteSelected = useCallback(() => { }, [selectedRows])
 
-    // ── Header Actions (Filter + Add User) ────────────────────────────────────
+    // ── Header Actions (Filter + Add Lead) ────────────────────────────────────
     const headerActions = (
         <div className="flex items-center gap-2">
             {/* Delete Selected */}
@@ -163,36 +188,23 @@ export default function LeadsList() {
                     {error}
                 </div>
             )}
-            {/* Stats Cards */}
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6">
-                {stats.map((stat) => (
-                    <StatsCard
-                        key={stat.label}
-                        icon={stat.icon}
-                        label={stat.label}
-                        value={stat.value}
-                        subtitle={stat.subtitle}
-                        trend={stat.trend}
-
-                    />
-                ))}
-            </div>
 
             {/* Table */}
             <DataTable
-                data={leads}
+                data={filteredLeads}
                 columns={columns}
-                searchable
-                searchPlaceholder="Search by name, email, location..."
+                searchable={false}
+                searchPlaceholder="Search by name, email, company, phone"
                 selectable
                 pageSize={8}
                 emptyMessage="No leads found."
                 headerActions={headerActions}
-                loading = {leadsLoading}
-                onRowClick={handleRowClick}
+                loading={loading}
+                onRowClick={handleView}
                 onSelectionChange={handleSelection}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onView={handleView}
                 filters={[
                     {
                         key: "role",
@@ -206,21 +218,34 @@ export default function LeadsList() {
                         ],
                     },
                     {
-                        key: "status",
+                        key: "leadSoure",
                         label: "Lead Source",
                         type: "select",
                         options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
+                            { label: "Web", value: "Web" },
+                            { label: "Phone", value: "Phone" },
+                            { label: "Email", value: "Email" },
+                            { label: "Cold Call", value: "Cold Call" },
+                            { label: "Existing Customer", value: "Existing Customer" },
+                            { label: "Partner", value: "Partner" },
+                            { label: "Other", value: "Other" },
+
                         ],
                     },
                     {
-                        key: "status",
+                        key: "leadOwner",
                         label: "Lead Owner",
                         type: "select",
                         options: [
-                            { label: "Active", value: "active" },
-                            { label: "Inactive", value: "inactive" },
+                            { label: "None", value: "None" },
+                            { label: "Attempted to Contact", value: "Attempted to Contact" },
+                            { label: "Contact in Future", value: "Contact in Future" },
+                            { label: "Contacted", value: "Contacted" },
+                            { label: "Junk Lead", value: "Junk Lead" },
+                            { label: "Lost Lead", value: "Lost Lead" },
+                            { label: "Not Contacted", value: "Not Contacted" },
+                            { label: "Pre-Qualified", value: "Pre-Qualified" },
+                            { label: "Not Qualified", value: "Not Qualified" },
                         ],
                     },
                 ]}
