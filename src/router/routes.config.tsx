@@ -41,6 +41,7 @@ const DeleteAccountPage      = lazy(() => import('@/pages/profile/DeleteAccountP
 const AccountInformationPage = lazy(() => import('@/pages/profile/AccountInformationPage'))
 const InvoicePage      = lazy(() => import('@/pages/accounts/invoices/AccountInvoiceTab'))
 const CreateInvoicePage      = lazy(() => import('@/pages/accounts/invoices/CreateInvoicePage'))
+const EditInvoicePage      = lazy(() => import('@/pages/accounts/invoices/EditInvoicePage'))
 
 
 // ─── Types ───────────────────────────────────────────────────
@@ -141,6 +142,8 @@ export const protectedRoutes: RouteConfig[] = [
 
   { path : ROUTES.INVOICE , element: InvoicePage},
   { path: ROUTES.INVOICE_CREATE, element: CreateInvoicePage },
+  { path: "invoice/edit/:id", element: EditInvoicePage },
+
 
 ]
 

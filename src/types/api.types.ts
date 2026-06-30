@@ -286,8 +286,9 @@ export interface CreateInvoiceRequest {
   accountHolderName: string;
   accountNumber: string;
   ifscCode: string;
-  branch?: string;
-
+  bankAddress?: string;
+  bankRoutingNo?: string;
+  accountHolderAddress?: string;
   // Link to account (passed from AccountDetailPage)
   accountNumber_ref?: string;  // the accountNumber from Account
   orderNumber?: string;

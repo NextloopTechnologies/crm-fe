@@ -102,7 +102,10 @@ export default function AccountDetailPage() {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`py-4 px-2 mr-6 text-[13px] font-medium border-b-2 transition-colors capitalize ${
+                            style={{
+                                borderBottom: activeTab === tab ? "2px solid #5752FE" : "2px solid transparent",
+                            }}
+                            className={`py-4 px-2 mr-6 -mb-px text-[13px] font-medium border-b-2 transition-colors capitalize ${
                                 activeTab === tab
                                     ? "border-[#5752FE] text-[#5752FE]"
                                     : "border-transparent text-[#000000] hover:text-gray-500"

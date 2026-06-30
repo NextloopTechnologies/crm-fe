@@ -14,7 +14,9 @@ import {
 import { CreateInvoiceRequest, InvoiceItemDto, InvoiceStatus } from "@/types/api.types";
 import { ROUTES } from "@/lib/route";
 import BackButton from "../common/BackButton";
-
+import { BANK_DETAILS, BANK_OPTIONS } from "@/constants/BankDetailOption";
+import { InlineSelectDropdown } from "../common/InlineSelectDropDown";
+import { InlineInput } from "../common/InlineInput";
 // ─────────────────────────────────────────────────────────────
 // Options
 // ─────────────────────────────────────────────────────────────
@@ -25,17 +27,6 @@ const STATUS_OPTIONS = [
   { label: "Overdue", value: "Overdue" },
   { label: "Cancelled", value: "Cancelled" },
 ];
-
-const BANK_OPTIONS = [
-  "HDFC Bank",
-  "ICICI Bank",
-  "State Bank of India",
-  "Axis Bank",
-  "Bank of India",
-  "Bank of Baroda",
-  "Kotak Mahindra Bank",
-  "Punjab National Bank",
-].map((b) => ({ label: b, value: b }));
 
 const emptyItem = (): InvoiceItemDto => ({
   itemDetails: "",
@@ -89,7 +80,9 @@ export default function InvoiceForm({
     accountHolderName: "",
     accountNumber: "",
     ifscCode: "",
-    branch: "",
+    bankAddress: "",
+    bankRoutingNo: "",
+    accountHolderAddress: "",
     accountNumber_ref: accountNumber ?? "",
     orderNumber: "",
   });
@@ -125,8 +118,10 @@ export default function InvoiceForm({
     });
   };
 
-  const addRow = () =>
+  const addRow = () =>{
+    if (formData.items.length >= MAX_INVOICE_ITEM) return;
     setFormData((prev) => ({ ...prev, items: [...prev.items, emptyItem()] }));
+  }
 
   const removeRow = (idx: number) =>
     setFormData((prev) => {
@@ -156,12 +151,28 @@ export default function InvoiceForm({
     onSubmit(formData);
   };
 
+   // ── Bank selection — prefill & lock related fields ────────
+  const handleBankSelect = (bankName: string) => {
+    const match = BANK_DETAILS.find((b) => b.bankName === bankName);
+    setFormData((prev) => ({
+      ...prev,
+      bankName,
+      accountHolderName: match?.accountHolderName ?? "",
+      accountNumber: match?.accountNumber ?? "",
+      ifscCode: match?.ifscCode ?? "",
+      bankAddress: match?.bankAddress ?? "",
+      bankRoutingNo: match?.bankRoutingNo ?? "",
+      accountHolderAddress: match?.accountHolderAddress ?? "",
+    }));
+  };
+
+  const MAX_INVOICE_ITEM = 10;
   // ─────────────────────────────────────────────────────────────
   // Sections
   // ─────────────────────────────────────────────────────────────
   const sections: FormSection[] = [
     {
-      icon: <ReceiptText className="w-5 h-5" />,
+      icon: <ReceiptText className="w-5 h-5 " />,
       title: "Invoice Information",
       subtitle: "Capture basic details about the invoice.",
       iconBg: "bg-[#5752FE1A]",
@@ -192,13 +203,16 @@ export default function InvoiceForm({
             onChange={(v) => set("status")(v as InvoiceStatus)}
             required
           />
-          <div className="col-span-full">
-            <Input
-              id="description"
-              label="Description"
-              placeholder="Text Here......"
-              value={formData.description ?? ""}
+          <div className="col-span-3 flex flex-col gap-2">
+            <label className="text-sm font-medium text-[#2B2B2B]">
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              placeholder="Enter description"
+              rows={3}
               onChange={(e) => set("description")(e.target.value)}
+              className="w-[66%] border border-[#E0E0E0] rounded-lg px-4 py-3 text-sm outline-none resize-none focus:border-[#5752FE]"
             />
           </div>
         </>
@@ -284,16 +298,7 @@ export default function InvoiceForm({
               </div>
             ))}
           </div>
-
-          <button
-            type="button"
-            onClick={addRow}
-            className="flex items-center gap-1.5 text-[12px] font-medium text-[#5752FE] hover:text-[#4540e0] border border-[#5752FE]/30 hover:border-[#5752FE] rounded-lg px-3 py-1.5 transition-all mb-5"
-          >
-            <PlusCircle size={14} />
-            Add Row
-          </button>
-
+          
           {/* Totals bar */}
           <div className="grid grid-cols-4 gap-0 border border-[#e2e8f0] rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-r border-[#e2e8f0]">
@@ -346,42 +351,80 @@ export default function InvoiceForm({
       iconColor: "text-[#5752FE]",
       children: (
         <>
-          <SelectDropdown
-            label="Bank Name"
-            placeholder="Select bank"
-            options={BANK_OPTIONS}
-            value={formData.bankName}
-            onChange={set("bankName")}
-          />
-          <Input
-            id="accountHolderName"
-            label="A/C Holder Name"
-            placeholder="Enter account holder name"
-            value={formData.accountHolderName}
-            onChange={(e) => set("accountHolderName")(e.target.value)}
-          />
-          <Input
-            id="accountNumber"
-            label="Account No."
-            placeholder="Enter account number"
-            value={formData.accountNumber}
-            onChange={(e) => set("accountNumber")(e.target.value)}
-          />
-          <Input
-            id="ifscCode"
-            label="IFSC Code"
-            placeholder="e.g. HDFC0007995"
-            value={formData.ifscCode}
-            onChange={(e) => set("ifscCode")(e.target.value.toUpperCase())}
-          />
-          <div className="col-span-full">
-            <Input
-              id="branch"
-              label="Branch"
-              placeholder="Enter branch name / address"
-              value={formData.branch ?? ""}
-              onChange={(e) => set("branch")(e.target.value)}
-            />
+          <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4 -mx-6 px-6">
+              <InlineSelectDropdown
+                label="Select Bank"
+                placeholder="Select bank"
+                options={BANK_OPTIONS}
+                value={formData.bankName}
+                onChange={handleBankSelect}
+              />
+
+            {formData.bankName && (
+              <>
+               <div className="col-span-full mt-2 grid grid-cols-2 gap-x-12 gap-y-6">
+                <div className="flex items-start gap-6">
+                  <label className="min-w-[160px] text-sm font-medium text-gray-500">
+                    A/C Holder Name
+                  </label>
+
+                  <p className="text-sm font-semibold text-gray-900 break-words">
+                    {formData.accountHolderName || "-"}
+                    </p>
+                </div>
+
+                <div className="flex items-start gap-6">
+                  <label className="min-w-[160px] text-sm font-medium text-gray-500">
+                    A/C Number
+                  </label>
+
+                  <p className="text-sm font-semibold text-gray-900 break-words">
+                    {formData.accountNumber || "-"}
+                    </p>
+                </div>
+
+                <div className="flex items-start gap-6">
+                  <label className="min-w-[160px] text-sm font-medium text-gray-500">
+                    IFSC Code
+                  </label>
+
+                  <p className="text-sm font-semibold text-gray-900 break-words">
+                    {formData.ifscCode || "-"}
+                    </p>
+                </div>
+
+                <div className="flex items-start gap-6">
+                  <label className="min-w-[160px] text-sm font-medium text-gray-500">
+                     Bank Address
+                  </label>
+
+                  <p className="text-sm font-semibold text-gray-900 break-words">
+                    {formData.bankAddress || "-"}
+                    </p>
+                </div>
+
+                <div className="flex items-start gap-6">
+                  <label className="min-w-[160px] text-sm font-medium text-gray-500">
+                    Bank Routing No
+                  </label>
+
+                  <p className="text-sm font-semibold text-gray-900 break-words">
+                    {formData.bankRoutingNo || "-"}
+                    </p>
+                </div>
+
+                <div className="flex items-start gap-6">
+                  <label className="min-w-[160px] text-sm font-medium text-gray-500">
+                    A/C Holder Address
+                  </label>
+
+                  <p className="text-sm font-semibold text-gray-900 break-words">
+                    {formData.accountHolderAddress || "-"}
+                    </p>
+                </div>
+                </div>
+              </>
+            )}
           </div>
         </>
       ),
@@ -392,20 +435,18 @@ export default function InvoiceForm({
   // Render
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="bg-white min-h-screen rounded-xl">
-      <BackButton
-        path={ROUTES.INVOICE}
-        label="Back To List"
-        icon={<ArrowLeft size={16} />}
-      />
+    <div className="bg-white min-h-screen ">
       <FormPage
         heading={mode === "add" ? "Create Invoice" : "Edit Invoice"}
         subheading={mode === "add" ? "Add a new invoice to the system." : "Update invoice details."}
         sections={sections}
         onSubmit={handleSubmit}
         onCancel={onCancel ?? (() => history.back())}
+        bordered={false}
         submitLabel={
-          <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1">
+          <div className="flex gap-2">
+                    <Button type="submit" variant="primary" size="lg" className="mt-1">Preview</Button>
+          <Button type="submit" variant="primary" size="lg" className="mt-1">
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -417,6 +458,7 @@ export default function InvoiceForm({
               "Update"
             )}
           </Button>
+          </div>
         }
       />
     </div>
