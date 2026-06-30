@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, PlusIcon, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/common/Checkbox";
 import { Button } from "@/components/common/Button";
 import { STATIC_INVOICES } from "./InvoicesList";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import CreateInvoicePage from "@/pages/accounts/invoices/CreateInvoicePage"; // adjust path
+import { ROUTES } from "@/lib/route";
+import EditInvoicePage from "@/pages/accounts/invoices/EditInvoicePage";
 
 interface Props {
     accountNumber: string;  // passed from AccountDetailPage
@@ -24,31 +28,26 @@ export default function AccountInvoiceTab({ accountNumber }: Props) {
     const [invoices, setInvoices] = useState<typeof STATIC_INVOICES>([]);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
 
-    useEffect(() => {
+    const fetchInvoices = useCallback(async () => {
         if (!accountNumber) return;
-        (async () => {
-            try {
-                setLoading(true);
-                const res = await getInvoicesByAccountNumber(accountNumber);
-                const data = res.data || res;
-                setInvoices(data);
-                setTotal(data.length);
-                // ─────────────────────────────────────────────────────────
-
-                // Placeholder — remove once wired to real API
-                const mock = STATIC_INVOICES
-                setInvoices(mock);
-                setTotal(mock.length);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setLoading(false);
-            }
-        })();
+        try {
+            setLoading(true);
+            const mock = STATIC_INVOICES;
+            setInvoices(mock);
+            setTotal(mock.length);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
     }, [accountNumber]);
 
+    useEffect(() => {
+        fetchInvoices();
+    }, [fetchInvoices]);
     // ── Loading ──────────────────────────────────────────────
     if (loading) {
         return (
@@ -61,6 +60,36 @@ export default function AccountInvoiceTab({ accountNumber }: Props) {
         );
     }
 
+    if (isCreating) {
+        return (
+            <div className="px-6 py-5">
+                <CreateInvoicePage
+                    accountNumber={accountNumber}
+                    onSuccess={() => {
+                        setIsCreating(false);
+                        fetchInvoices();
+                    }}
+                    onCancel={() => setIsCreating(false)}
+                />
+            </div>
+        );
+    }
+
+     if (editingInvoiceId) {
+        return (
+            <div className="px-6 py-5">
+                <EditInvoicePage
+                    invoiceId={editingInvoiceId}
+                    accountNumber={accountNumber}
+                    onSuccess={() => {
+                        setEditingInvoiceId(null);
+                        fetchInvoices();
+                    }}
+                    onCancel={() => setEditingInvoiceId(null)}
+                />
+            </div>
+        );
+    }
     // ── Header row ───────────────────────────────────────────
     return (
         <div className="px-6 py-5">
@@ -72,7 +101,7 @@ export default function AccountInvoiceTab({ accountNumber }: Props) {
                 </h3>
 
                 <Button
-                    onClick={() => setIsDrawerOpen(true)}>
+                    onClick={() => setIsCreating(true)}>
                     <PlusIcon />
                     Create
                 </Button>
@@ -165,7 +194,7 @@ export default function AccountInvoiceTab({ accountNumber }: Props) {
                                     <td className="py-3.5">
                                         <div className="flex items-center gap-3">
                                             <button
-                                                onClick={() => navigate(`/invoices/${inv.id}/edit`)} // ← adjust route
+                                                onClick={() => setEditingInvoiceId(inv.id)}
                                                 className="text-[#94a3b8] hover:text-[#5752FE] transition-colors"
                                                 title="Edit"
                                             >
@@ -194,6 +223,7 @@ export default function AccountInvoiceTab({ accountNumber }: Props) {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }

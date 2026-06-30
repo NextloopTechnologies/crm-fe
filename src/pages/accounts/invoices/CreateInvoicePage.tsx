@@ -9,7 +9,15 @@ import { ResponseCode } from "@/constants/statusCodes";
 import { getSuccessToast , getErrorToast } from "@/components/common/toastMessages";
 import { showToast } from "@/components/common/Toast";
 import InvoiceForm from "@/components/forms/InvoiceForm";
-export default function CreateAccountPage() {
+
+interface Props {
+  accountNumber?: string;
+  onSuccess?: () => void; 
+  onCancel?: () => void;
+}
+
+
+export default function CreateInvoicePage({ accountNumber, onSuccess, onCancel }: Props) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -21,11 +29,10 @@ export default function CreateAccountPage() {
   const handleSubmit = useCallback(
     async (data: CreateInvoiceRequest) => {
       try {
+        //  await createInvoice({ ...data, accountNumber_ref: accountNumber });
+        showToast(getSuccessToast("Invoices" , "created"));
+        onSuccess?.();
         setLoading(true);
-        // const response = await createAccount(data);
-        // if (response?.code === ResponseCode.SUCCESS) {
-        //   showToast(getSuccessToast("Account", "created"));
-        
             navigate(ROUTES.ACCOUNTS);
         
       } catch (error) {
@@ -37,7 +44,7 @@ export default function CreateAccountPage() {
         setLoading(false);
       }
     },
-    [navigate]
+    [accountNumber, onSuccess]
   );
 
   return (
@@ -45,6 +52,7 @@ export default function CreateAccountPage() {
       mode="add"
       onSubmit={handleSubmit}
       isLoading={loading}
+      onCancel={onCancel}
     />
   );
 }
