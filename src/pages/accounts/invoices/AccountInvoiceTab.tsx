@@ -8,9 +8,11 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import CreateInvoicePage from "@/pages/accounts/invoices/CreateInvoicePage"; // adjust path
 import { ROUTES } from "@/lib/route";
 import EditInvoicePage from "@/pages/accounts/invoices/EditInvoicePage";
+import { CreateAccountRequest } from "@/types/api.types";
 
 interface Props {
     accountNumber: string;  // passed from AccountDetailPage
+    account : CreateAccountRequest;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -23,7 +25,7 @@ const formatAmount = (amt: number) =>
 // ─────────────────────────────────────────────────────────────
 // Component
 // ─────────────────────────────────────────────────────────────
-export default function AccountInvoiceTab({ accountNumber }: Props) {
+export default function AccountInvoiceTab({ accountNumber , account }: Props) {
     const navigate = useNavigate();
     const [invoices, setInvoices] = useState<typeof STATIC_INVOICES>([]);
     const [loading, setLoading] = useState(true);
@@ -65,6 +67,7 @@ export default function AccountInvoiceTab({ accountNumber }: Props) {
             <div className="px-6 py-5">
                 <CreateInvoicePage
                     accountNumber={accountNumber}
+                    account={account}
                     onSuccess={() => {
                         setIsCreating(false);
                         fetchInvoices();
@@ -223,7 +226,6 @@ export default function AccountInvoiceTab({ accountNumber }: Props) {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }

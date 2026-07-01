@@ -256,3 +256,15 @@ ul, ol {
   @keyframes l14 {
   100% {transform: translate(-10px,-10px)}
   }
+
+  .data-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #E6E6E6;
+  padding: 8px 12px;
+  font-size: 12px;
+}
