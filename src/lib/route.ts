@@ -28,6 +28,7 @@ export const ROUTES = {
   ACCOUNTS: "/accounts",
   ACCOUNTS_CREATE: "/accounts/create",
   ACCOUNTS_EDIT: (id: string) => `/accounts/edit/${id}`,
+  ACCOUNTS_DETAIL: (id: string) => `/accounts/detail/${id}`,
 
   // Tasks
   TASKS: "/tasks",
@@ -50,6 +51,11 @@ export const ROUTES = {
   PROJECT_EDIT: (id: string) => `/project/edit/${id}`,
   // Pieline
   PIPELINE: "/pipeline",
+
+  INVOICE: "/invoice",
+  INVOICE_CREATE: "/invoice/create",
+  INVOICE_EDIT: (id: string) => `/invoice/edit/${id}`,
+
 
   // Settings
   SETTINGS: "/settings",

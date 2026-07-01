@@ -16,7 +16,6 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import { cn } from "@/lib/utils"
 import { showToast } from "../common/Toast"
-import NotificationSidebar from "../common/NotificationSidebar"
 import { logout } from "@/api/auth.api"
 
 // ── Route → label map ────────────────────────────────────────────────────────
@@ -40,12 +39,14 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/accounts": { title: "Accounts", breadcrumb: ["Manage your customer accounts and related information"] },
   "/accounts/create": { title: "Accounts", breadcrumb: ["Accounts", "Create Account"] },
   "/accounts/edit/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
+  "/accounts/detail/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
   "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]},
   "/project/edit/:id" : {title : "Project" , breadcrumb : ["Projects" , "Edit Project"]},
   "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]},
+  "/invoice" : {title : "Invoice" , breadcrumb : ["Manage Invoices"]},
   "/pipeline" : {title : "Pipeline" , breadcrumb : ["Manage your projects and related information"]},
   "/profile/account-info" : {title : "Account Info" , breadcrumb : []}
 
@@ -136,10 +137,7 @@ export function Navbar() {
             <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
           </Button>
 
-          <NotificationSidebar
-            open={showNotification}
-            onClose={() => setShowNotification(false)}
-          />
+           
 
           {/* ── User Dropdown ── */}
           <DropdownMenu>

@@ -32,6 +32,7 @@ export interface FormPageProps {
   onCancel?: () => void;
   /** Show a loading state on the submit button */
   isLoading?: boolean;
+  bordered?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -44,10 +45,13 @@ const FormPage: React.FC<FormPageProps> = ({
   submitLabel = "Submit",
   onCancel,
   isLoading = false,
+  bordered = true,
 }) => {
   return (
-    <div className="min-h-screen p-4 border-[1.5px] border-[#ECECEC] rounded-xl bg-white">
-      {/* ── Page header ── */}
+    <div
+      className={`min-h-screen p-4 rounded-xl bg-white ${bordered ? "border-[1.5px] border-[#ECECEC]" : ""
+        }`}
+    >      {/* ── Page header ── */}
       <div className="mb-3">
         <h1 className="text-lg font-semibold text-gray-900">{heading}</h1>
         {subheading && (

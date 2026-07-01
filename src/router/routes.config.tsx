@@ -25,6 +25,7 @@ const TenantsListPage   = lazy(() => import('@/pages/tenants/TenantsListPage'))
 const CreateTenantPage  = lazy(() => import('@/pages/tenants/CreateTenantPage'))
 const EditTenantPage    = lazy(() => import('@/pages/tenants/EditTenantPage'))
 const AccountListPage   = lazy(() => import('@/pages/accounts/AccountListPage'))
+const AccountDetailPage   = lazy(() => import('@/pages/accounts/AccountDetailPage'))
 const CreateAccountPage = lazy(() => import('@/pages/accounts/CreateAccountPage'))
 const EditAccountPage   = lazy(() => import('@/pages/accounts/EditAccountPage'))
 const TaskListPage      = lazy(() => import('@/pages/tasks/TaskListPage'))
@@ -38,6 +39,10 @@ const EditProfilePage   = lazy(() => import('@/pages/profile/EditProfilePage'))
 const SettingsPage      = lazy(() => import('@/pages/SettingsPage'))
 const DeleteAccountPage      = lazy(() => import('@/pages/profile/DeleteAccountPage'))
 const AccountInformationPage = lazy(() => import('@/pages/profile/AccountInformationPage'))
+const InvoicePage      = lazy(() => import('@/pages/accounts/invoices/AccountInvoiceTab'))
+const CreateInvoicePage      = lazy(() => import('@/pages/accounts/invoices/CreateInvoicePage'))
+const EditInvoicePage      = lazy(() => import('@/pages/accounts/invoices/EditInvoicePage'))
+
 
 // ─── Types ───────────────────────────────────────────────────
 export type SidebarGroup = "main" | "management" | "settings"
@@ -121,6 +126,7 @@ export const protectedRoutes: RouteConfig[] = [
   },
   { path: ROUTES.ACCOUNTS_CREATE, element: CreateAccountPage },
   { path: 'accounts/edit/:id',    element: EditAccountPage },
+  { path: 'accounts/detail/:id',    element: AccountDetailPage },
 
   // ── Profile & Settings ───────────────────────────────────
   { path: ROUTES.PROFILE,      element: MyProfilePage },
@@ -133,6 +139,12 @@ export const protectedRoutes: RouteConfig[] = [
     element: SettingsPage,
     sidebar: { label: "Settings", icon: Settings, group: "settings" },
   },
+
+  { path : ROUTES.INVOICE , element: InvoicePage},
+  { path: ROUTES.INVOICE_CREATE, element: CreateInvoicePage },
+  { path: "invoice/edit/:id", element: EditInvoicePage },
+
+
 ]
 
 // ─── Helper — sidebar ke liye filter ─────────────────────────

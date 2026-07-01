@@ -3,20 +3,23 @@ import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
-import { usersData, type User } from '../../data/user.data'
 import { PlusIcon } from '@/assets/icons/components/PlusIcon'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
 import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon, UsersIcon } from '@/assets/icons/components'
 import { ROUTES } from '@/lib/route'
 import { getAllAccounts } from '@/api/account.api'
+import { CreateAccountRequest } from '@/types/api.types'
 
 // ── Static helpers — component ke bahar ──────────────────────
-const getStats = (data: User[]) => [
+const getStats = (data: CreateAccountRequest[]) => [
   { icon: <UsersIcon />, label: "Total Accounts", value: data.length, subtitle: "All accounts in system" },
   { icon: <ActiveUsersIcon />, label: "Active Accounts", value: data.filter(u => u.status === "active").length, subtitle: "Currently Active" },
   { icon: <InActiveUsersIcon />, label: "Inactive Accounts", value: data.filter(u => u.status === "inactive").length, subtitle: "Currently Inactive" },
-  { icon: <TenantsIcon />, label: "Total Contacts", value: data.filter(u => u.role === "Admin").length, subtitle: "Across all accounts" },
+  { icon: <TenantsIcon />, label: "Total Contacts", value: data.reduce(
+    (sum, u) => sum + (u.contacts?.filter(c => c.designation === "Admin").length ?? 0),
+    0
+  ), subtitle: "Across all accounts" },
 ]
 
 const FILTERS = [
@@ -46,13 +49,13 @@ const FILTERS = [
 
 // ── Component ─────────────────────────────────────────────────
 export default function AccountListPage() {
-  const [selectedRows, setSelectedRows] = useState<any[]>([]);
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [selectedRows, setSelectedRows] = useState<CreateAccountRequest[]>([]);
+  const [accounts, setAccounts] = useState<CreateAccountRequest[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(true);
 
   const navigate = useNavigate()
 
-  const stats = useMemo(() => getStats(usersData), [])
+  const stats = useMemo(() => getStats(accounts), [accounts])
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
@@ -68,7 +71,7 @@ export default function AccountListPage() {
     fetchAccounts();
   }, []);
 
-  const columns = useMemo<ColumnDef<any>[]>(() => [
+  const columns = useMemo<ColumnDef<CreateAccountRequest>[]>(() => [
     {
       key: "accountName",
       label: "Account Name",
@@ -85,34 +88,34 @@ export default function AccountListPage() {
         </div>
       ),
     },
-    { key: "accountOwner", label: "Account Owner", width: "220px", render: (_, row) => <span>{(row as any).accountOwner ?? "—"}</span>, },
+    { key: "accountOwner", label: "Account Owner", width: "220px", render: (_, row) => <span>{(row as CreateAccountRequest).accountOwner ?? "—"}</span>, },
     { key: "phone", label: "Phone", width: "220px", render: (_, row) => {
-      return (row as any).contacts?.[0]?.phone ?? "—";
+      return (row as CreateAccountRequest).contacts?.[0]?.phone ?? "—";
     },},
-    { key: "website", label: "Website", width: "220px", render: (_, row) => <span>{(row as any).website ?? "—"}</span>, },
+    { key: "website", label: "Website", width: "220px", render: (_, row) => <span>{(row as CreateAccountRequest).website ?? "—"}</span>, },
     {
       key: "accountSite",
       label: "Account",
-      render: (_, row) => <span>{(row as any).accountSite ?? "—"}</span>,
+      render: (_, row) => <span>{(row as CreateAccountRequest).accountSite ?? "—"}</span>,
     },
   ], [])
 
   const handleView = useCallback(
-    (row: any) => navigate(ROUTES.ACCOUNTS_EDIT(String(row.accountNumber))),
+    (row: CreateAccountRequest) => navigate(ROUTES.ACCOUNTS_DETAIL(String(row.accountNumber))),
     [navigate]
   );
 
   const handleEdit = useCallback(
-    (row: any) => navigate(ROUTES.ACCOUNTS_EDIT(String(row.accountNumber))),
+    (row: CreateAccountRequest) => navigate(ROUTES.ACCOUNTS_EDIT(String(row.accountNumber))),
     [navigate]
   )
 
-  const handleDelete = useCallback((row: User | User[]) => { }, [])
+  const handleDelete = useCallback((row: CreateAccountRequest | CreateAccountRequest[]) => { }, [])
 
-  const handleRowClick = useCallback((row: User) => { }, [])
+  const handleRowClick = useCallback((row: CreateAccountRequest) => { }, [])
 
   const handleSelection = useCallback(
-    (rows: User[]) => setSelectedRows(rows),
+    (rows: CreateAccountRequest[]) => setSelectedRows(rows),
     []
   )
 
@@ -156,7 +159,7 @@ export default function AccountListPage() {
         searchPlaceholder="Search by name, email, location..."
         selectable
         pageSize={8}
-        emptyMessage="No users found."
+        emptyMessage="No account found."
         headerActions={headerActions}
         loading={accountsLoading}
         onRowClick={handleView}
