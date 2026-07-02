@@ -26,12 +26,24 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
     const handleDownload = async () => {
         if (!invoiceRef.current) return;
 
+        await document.fonts.ready;
+        const images = invoiceRef.current.querySelectorAll("img");
+        await Promise.all(
+            Array.from(images).map((img) =>
+                img.complete
+                    ? Promise.resolve()
+                    : new Promise((res) => { img.onload = res; img.onerror = res; })
+            )
+        );
+
         html2pdf()
             .set({
                 margin: 0.5,
                 filename: `Invoice-${data.invoiceNumber || "preview"}.pdf`,
                 image: { type: "jpeg", quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
+                html2canvas: {scale: 2, useCORS: true, logging: true,
+                    windowWidth: invoiceRef.current.scrollWidth,
+                },
                 jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
             })
             .from(invoiceRef.current)
@@ -41,56 +53,52 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
     return (
         <div className="bg-white min-h-screen">
             {/* Action bar */}
-            <div className="flex flex-col-2 justify-between items-center">
+            <div className="flex items-center justify-between px-4 py-3 gap-[10px]">
                 <button
                     onClick={onBack}
-                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800"
+                    className="flex items-center gap-[10px] text-sm text-gray-500 hover:text-gray-800"
                 >
                     <ArrowLeft size={16} /> Back
                 </button>
-                <div>
-                    <h1 className="text-lg font-semibold">Invoice Preview</h1>
-                </div>
-                <div className="">
-                    <button
-                        style={{ border: "1px solid #5752FE" }}
-                        className="text-[#5752FE] bg-transparent hover:bg-[#5752FE]/5 px-3 py-1 rounded-md text-sm font-medium"
-                        onClick={handleDownload}
-                    >
-                        Download
-                    </button>
-                </div>
+                <h1 className="text-lg font-semibold">Invoice Preview</h1>
+                <button
+                    style={{ border: "1px solid #5752FE" }}
+                    className="text-[#5752FE] bg-transparent hover:bg-[#5752FE]/5 px-3 py-1 rounded-md text-sm font-medium"
+                    onClick={handleDownload}
+                >
+                    Download
+                </button>
             </div>
-            <div className="flex justify-between items-center p-4"></div>
+
             {/* Invoice template — matches your screenshot layout */}
             <div ref={invoiceRef} className="max-w-3xl mx-auto border border-gray-200 rounded-xl p-8 shadow-sm">
                 {/* Header */}
-                <div className="flex justify-between items-start mb-8">
+                <div className="flex justify-between items-center mb-8 gap-[10px]">
                     <img src={logo} alt="Logo" className="h-20" />
-                    <h1 className="text-2xl font-bold text-[#5752FE] mt-5">INVOICE</h1>
+                    <h1 className="text-2xl font-bold text-[#5752FE]">INVOICE</h1>
                 </div>
 
                 {/* Meta row */}
-                <div className="grid grid-cols-3 gap-6 bg-[#5752FE1A]/10 px-4 py-3 mb-6 text-xs">
-                    <div className="flex items-center gap-5">
-                        <p>Invoice No:</p>
-                        <p className="font-semibold">{data.invoiceNumber || "NA"}</p>
+                <div className="flex justify-between bg-[#5752FE]/10 px-4 py-3 mb-6 text-xs" style={{ alignItems: "center" }}>
+                    <div className="flex gap-[5px]" style={{ alignItems: "center", lineHeight: "1.2" }}>
+                        <p style={{ margin: 0 }}>Invoice No:</p>
+                        <p className="font-semibold" style={{ margin: 0 }}>{data.invoiceNumber || "NA"}</p>
                     </div>
-                    <div className="flex items-center gap-5">
-                        <p>Invoice Date:</p>
-                        <p className="font-semibold">{data.invoiceDate || "NA"}</p>
+                    <div className="flex gap-[5px]" style={{ alignItems: "center", lineHeight: "1.2" }}>
+                        <p style={{ margin: 0 }}>Invoice Date:</p>
+                        <p className="font-semibold" style={{ margin: 0 }}>{data.invoiceDate || "NA"}</p>
                     </div>
-                    <div className="flex items-center gap-5">
-                        <p>Due Date:</p>
-                        <p className="font-semibold">{data.dueDate || "NA"}</p>
+                    <div className="flex gap-[5px]" style={{ alignItems: "center", lineHeight: "1.2" }}>
+                        <p style={{ margin: 0 }}>Due Date:</p>
+                        <p className="font-semibold" style={{ margin: 0 }}>{data.dueDate || "NA"}</p>
                     </div>
                 </div>
 
                 {/* Description */}
                 {account?.accountName && (
                     <div className="border-b border-[#E6E6E6] mb-6 pb-4">
-                        <div className="grid grid-cols-2 gap-52">
-                            <div className="mt-3 w-56">
+                        <div className="flex justify-between gap-[100px] text-xs">
+                            <div>
                                 <p className="text-xs font-semibold ">{account.accountName}</p>
                                 <p className="text-xs ">GSTIN: 23AATFN7619K1ZO</p>
                                 <p className="text-xs ">
@@ -105,7 +113,7 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
                                         .join(", ")}
                                 </p>
                             </div>
-                            <div className="w-56">
+                            <div>
                                 <p className="text-xs text-gray-500">Bill Address:</p>
                                 <p className="text-xs font-semibold ">{account.contacts?.[0]?.firstName}</p>
                                 <p className="text-xs">
@@ -126,24 +134,24 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
                 )}
 
                 {/* Items table */}
-                <table className="data-table w-full text-xs mb-6">
+                <table className="data-table w-full text-xs mb-6 border-collapse">
                     <thead>
                         <tr className="bg-[#5752FE] text-white">
-                            <th className="px-3 py-2 text-left">#</th>
+                            <th className="px-3 py-2 text-left w-10">#</th>
                             <th className="px-3 py-2 text-left">Item & Description</th>
-                            <th className="px-3 py-2 text-right">Quantity</th>
-                            <th className="px-3 py-2 text-right">Rate</th>
-                            <th className="px-3 py-2 text-right">Amount</th>
+                            <th className="px-3 py-2 text-right w-20">Quantity</th>
+                            <th className="px-3 py-2 text-right w-24">Rate</th>
+                            <th className="px-3 py-2 text-right w-24">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.items.map((item, i) => (
                             <tr key={i} className="border border-[#E6E6E6]">
-                                <td className="px-3 py-2 text-gray-400 text-xs">{i + 1}</td>
-                                <td className="px-3 py-2 text-xs">{item.itemDetails || "—"}</td>
-                                <td className="px-3 py-2 text-right text-xs">{item.quantity}</td>
-                                <td className="px-3 py-2 text-right text-xs">{fmt(item.rate)}</td>
-                                <td className="px-3 py-2 text-right font-medium text-xs">{fmt(item.amount)}</td>
+                                <td className="px-3 py-2 text-left text-gray-400 w-10">{i + 1}</td>
+                                <td className="px-3 py-2 text-left">{item.itemDetails || "—"}</td>
+                                <td className="px-3 py-2 text-right w-20">{item.quantity}</td>
+                                <td className="px-3 py-2 text-right w-24">{fmt(item.rate)}</td>
+                                <td className="px-3 py-2 text-right font-medium w-24">{fmt(item.amount)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -153,58 +161,57 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
 
                 <div className="flex justify-between items-start">
                     <div className="mt-2">
-                        <p className="text-xs text-[#00000033]-400">Total In Words</p>
+                        <p className="text-xs">Total In Words:</p>
                         <p className="text-xs font-semibold">{toWords(data.grandTotal)}</p>
                     </div>
-                    <div className="flex flex-col items-end gap-1 text-xs mb-8 border border-[#E6E6E6] pt-4 pr-4">
-
-                        <div className="flex gap-12">
-                            <span className="text-gray-400">Sub Total (Rs.)</span>
-                            <span className="font-semibold w-24 text-right">{fmt(data.subTotal)}</span>
+                    <div className="flex flex-col gap-[10px] text-[10px] mb-8 border border-[#E6E6E6]  w-64 items-end">
+                        <div className="flex flex-col gap-[10px] px-4 py-2 w-full">
+                            <div className="flex justify-between gap-[20px] w-full">
+                                <span className="text-gray-400">Sub Total (Rs.)</span>
+                                <span className="font-semibold text-right">{fmt(data.subTotal)}</span>
+                            </div>
+                            <div className="flex justify-between gap-[20px] w-full">
+                                <span className="text-gray-400">Discount ({data.discount}%)</span>
+                                <span className="font-semibold text-right">
+                                    -{fmt(round2(data.subTotal * (data.discount / 100)))}
+                                </span>
+                            </div>
+                            <div className="flex justify-between gap-[20px] w-full ">
+                                <span className="text-gray-400">Tax ({data.tax}%)</span>
+                                <span className="font-semibold text-right">
+                                    {fmt(round2((data.subTotal - round2(data.subTotal * (data.discount / 100))) * (data.tax / 100)))}
+                                </span>
+                            </div>
                         </div>
-                        <div className="flex gap-12">
-                            <span className="text-gray-400">Discount ({data.discount}%)</span>
-                            <span className="font-semibold w-24 text-right">
-                                -{fmt(round2(data.subTotal * (data.discount / 100)))}
-                            </span>
-                        </div>
-                        <div className="flex gap-12">
-                            <span className="text-gray-400">Tax ({data.tax}%)</span>
-                            <span className="font-semibold w-24 text-right">{fmt(round2((data.subTotal - round2(data.subTotal * (data.discount / 100))) * (data.tax / 100)))}</span>
-                        </div>
-                        <div className="flex gap-12 bg-[#5752FE] text-white px-4 py-2 mt-1 -mr-4">
+                        <div className="flex justify-between bg-[#5752FE] text-white px-4 py-2 w-full ">
                             <span>Grand Total (Rs.)</span>
-                            <span className="font-bold w-24 text-right">{fmt(data.grandTotal)}</span>
+                            <span className="font-bold text-right">{fmt(data.grandTotal)}</span>
                         </div>
                     </div>
                 </div>
 
                 {data.bankName && (
-                    <div className="overflow-hidden">
-
+                    <div className="mb-6">
                         <span className="text-[#5752FE] font-semibold text-xs">Bank Details:</span>
-                        {[
-                            { label: "Bank Name", value: data.bankName },
-                            { label: "A/C Holder Name", value: data.accountHolderName },
-                            { label: "Account No", value: data.accountNumber },
-                            { label: "IFSC Code", value: data.ifscCode },
-                            { label: "Bank Routing No.(SWIFT / BIC)", value: data.bankRoutingNo },
-                            { label: "Bank Address", value: data.bankAddress },
-                            { label: "A/C Holder Address", value: data.accountHolderAddress },
-                        ].map((row, i, arr) => (
-                            <div
-                                key={row.label}
-                                className={`grid grid-cols-[180px_1fr] ${i !== arr.length - 1
-                                    }`}
-                            >
-                                <span className=" py-1 text-xs">
-                                    {row.label}:
-                                </span>
-                                <span className=" py-1 text-xs font-semibold">
-                                    {row.value || "—"}
-                                </span>
-                            </div>
-                        ))}
+                        <div>
+                            {[
+                                { label: "Bank Name", value: data.bankName },
+                                { label: "A/C Holder Name", value: data.accountHolderName },
+                                { label: "Account No", value: data.accountNumber },
+                                { label: "IFSC Code", value: data.ifscCode },
+                                { label: "Bank Routing No.(SWIFT / BIC)", value: data.bankRoutingNo },
+                                { label: "Bank Address", value: data.bankAddress },
+                                { label: "A/C Holder Address", value: data.accountHolderAddress },
+                            ].map((row, i, arr) => (
+                                <div
+                                    key={row.label}
+                                    className="flex py-[1px]"
+                                >
+                                    <span className="text-xs">{row.label}:</span>
+                                    <span className="text-xs font-semibold">{row.value || "—"}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
