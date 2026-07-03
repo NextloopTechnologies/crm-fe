@@ -174,7 +174,7 @@ export default function InvoiceForm({
     }));
   };
 
-  const MAX_INVOICE_ITEM = 7;
+  const MAX_INVOICE_ITEM = 6;
   // ─────────────────────────────────────────────────────────────
   // Sections
   // ─────────────────────────────────────────────────────────────
@@ -269,7 +269,7 @@ export default function InvoiceForm({
                     className="w-full h-8 px-2 text-[13px] text-[#1e1e2d] bg-transparent border border-transparent rounded focus:border-[#5752FE] focus:bg-white focus:ring-1 focus:ring-[#5752FE]/10 outline-none placeholder:text-[#cbd5e1] transition-all"
                     placeholder="Item Details"
                     value={item.itemDetails}
-                    maxLength={50}
+                    maxLength={70}
                     onChange={(e) => updateItem(idx, "itemDetails", e.target.value)}
                   />
                 </div>
@@ -292,7 +292,13 @@ export default function InvoiceForm({
                     className="w-full h-8 px-2 text-[13px] text-[#1e1e2d] text-right bg-transparent border border-transparent rounded focus:border-[#5752FE] focus:bg-white focus:ring-1 focus:ring-[#5752FE]/10 outline-none transition-all"
                     value={item.rate || ""}
                     placeholder="0.00"
-                    onChange={(e) => updateItem(idx, "rate", e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const digitsOnly = value.replace(/[.-]/g, "");
+                      if (digitsOnly.length <= 7) {
+                        updateItem(idx, "rate", value);
+                      }
+                    }}
                   />
                 </div>
 
