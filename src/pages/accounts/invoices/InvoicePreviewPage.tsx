@@ -3,9 +3,10 @@ import { CreateAccountRequest, InvoiceResponseDto } from "@/types/api.types";
 import logo from "@/assets/images/CompanyLogo.svg";
 import { toWords } from "@/lib/utils";
 import { ArrowLeft, Download } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import html2pdf from "html2pdf.js";
-
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 interface Props {
     data: InvoiceResponseDto;
     account?: CreateAccountRequest;
@@ -23,33 +24,24 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
 
     const invoiceRef = useRef<HTMLDivElement>(null);
 
-    const handleDownload = async () => {
-        if (!invoiceRef.current) return;
+ const handleDownload = async () => {
+  if (!invoiceRef.current) return;
 
-        await document.fonts.ready;
-        const images = invoiceRef.current.querySelectorAll("img");
-        await Promise.all(
-            Array.from(images).map((img) =>
-                img.complete
-                    ? Promise.resolve()
-                    : new Promise((res) => { img.onload = res; img.onerror = res; })
-            )
-        );
+  const canvas = await html2canvas(invoiceRef.current, {
+    scale: 2,
+    useCORS: true,
+  });
 
-        html2pdf()
-            .set({
-                margin: 0.5,
-                filename: `Invoice-${data.invoiceNumber || "preview"}.pdf`,
-                image: { type: "jpeg", quality: 0.98 },
-                html2canvas: {scale: 2, useCORS: true, logging: true,
-                    windowWidth: invoiceRef.current.scrollWidth,
-                },
-                jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-            })
-            .from(invoiceRef.current)
-            .save();
-    };
+  const imgData = canvas.toDataURL("image/png");
 
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pdfWidth = 210;
+  const pdfHeight = 297;
+
+  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save(`Invoice-${data.accountNumber}.pdf`);
+};
     return (
         <div className="bg-white min-h-screen">
             {/* Action bar */}
@@ -70,8 +62,16 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
                 </button>
             </div>
 
-            {/* Invoice template — matches your screenshot layout */}
-            <div ref={invoiceRef} className="max-w-3xl mx-auto border border-gray-200 rounded-xl p-8 shadow-sm">
+            {/* Invoice template */}
+            <div className="flex justify-center">
+            <div
+  ref={invoiceRef}
+className="relative w-full border border-gray-200 p-8 rounded-xl shadow-sm"
+style={{
+  width: "210mm",
+  minHeight: "297mm",
+  boxSizing: "border-box",
+}} >
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8 gap-[10px]">
                     <img src={logo} alt="Logo" className="h-20" />
@@ -130,7 +130,6 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
                             </div>
                         </div>
                     </div>
-
                 )}
 
                 {/* Items table */}
@@ -148,7 +147,9 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
                         {data.items.map((item, i) => (
                             <tr key={i} className="border border-[#E6E6E6]">
                                 <td className="px-3 py-2 text-left text-gray-400 w-10">{i + 1}</td>
-                                <td className="px-3 py-2 text-left">{item.itemDetails || "—"}</td>
+                                <td className="px-3 py-2 text-left" style={{ wordWrap: "break-word", overflowWrap: "break-word" }}>
+                                    {item.itemDetails || "NA"}
+                                </td>
                                 <td className="px-3 py-2 text-right w-20">{item.quantity}</td>
                                 <td className="px-3 py-2 text-right w-24">{fmt(item.rate)}</td>
                                 <td className="px-3 py-2 text-right font-medium w-24">{fmt(item.amount)}</td>
@@ -158,32 +159,33 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
                 </table>
 
                 {/* Totals */}
-
                 <div className="flex justify-between items-start">
                     <div className="mt-2">
                         <p className="text-xs">Total In Words:</p>
                         <p className="text-xs font-semibold">{toWords(data.grandTotal)}</p>
                     </div>
-                    <div className="flex flex-col gap-[10px] text-[10px] mb-8 border border-[#E6E6E6]  w-64 items-end">
+                    <div className="flex flex-col gap-[10px] text-[10px] mb-8 border border-[#E6E6E6] w-64 items-end">
                         <div className="flex flex-col gap-[10px] px-4 py-2 w-full">
                             <div className="flex justify-between gap-[20px] w-full">
                                 <span className="text-gray-400">Sub Total (Rs.)</span>
                                 <span className="font-semibold text-right">{fmt(data.subTotal)}</span>
                             </div>
                             <div className="flex justify-between gap-[20px] w-full">
-                                <span className="text-gray-400">Discount ({data.discount}%)</span>
-                                <span className="font-semibold text-right">
-                                    -{fmt(round2(data.subTotal * (data.discount / 100)))}
-                                </span>
-                            </div>
-                            <div className="flex justify-between gap-[20px] w-full ">
                                 <span className="text-gray-400">Tax ({data.tax}%)</span>
                                 <span className="font-semibold text-right">
                                     {fmt(round2((data.subTotal - round2(data.subTotal * (data.discount / 100))) * (data.tax / 100)))}
                                 </span>
                             </div>
+                            {data.discount > 0 && (
+                <div className="flex justify-between gap-[20px] w-full">
+                    <span className="text-gray-400">Discount ({data.discount}%)</span>
+                    <span className="font-semibold text-right">
+                        -{fmt(round2(data.subTotal * (data.discount / 100)))}
+                    </span>
+                </div>
+            )}
                         </div>
-                        <div className="flex justify-between bg-[#5752FE] text-white px-4 py-2 w-full ">
+                        <div className="flex justify-between bg-[#5752FE] text-white px-4 py-2 w-full">
                             <span>Grand Total (Rs.)</span>
                             <span className="font-bold text-right">{fmt(data.grandTotal)}</span>
                         </div>
@@ -202,23 +204,27 @@ export default function InvoicePreview({ data, account, onBack, onSave, isLoadin
                                 { label: "Bank Routing No.(SWIFT / BIC)", value: data.bankRoutingNo },
                                 { label: "Bank Address", value: data.bankAddress },
                                 { label: "A/C Holder Address", value: data.accountHolderAddress },
-                            ].map((row, i, arr) => (
-                                <div
-                                    key={row.label}
-                                    className="flex py-[1px]"
-                                >
+                            ].map((row) => (
+                                <div key={row.label} className="flex py-[1px]">
                                     <span className="text-xs">{row.label}:</span>
-                                    <span className="text-xs font-semibold">{row.value || "—"}</span>
+                                    <span className="text-xs font-semibold">{row.value || "NA"}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                 )}
 
-                <div className="flex justify-end mt-12 text-xs">
+                {/* Signature — pinned to bottom */}
+<div
+  style={{
+    position: "absolute",
+    bottom: "20mm",
+    right: "20mm",
+  }} className="text-xs">
                     Authorised Signature
                 </div>
             </div>
+        </div>
         </div>
     );
 }
