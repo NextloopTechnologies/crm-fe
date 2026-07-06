@@ -99,19 +99,19 @@ const Button = forwardRef<HTMLButtonElement, CustomButtonProps>(
 
     return (
       <BaseButton
-        ref={ref}
-        variant={resolvedVariant === "outline" ? "outline" : "ghost"}
-        disabled={disabled || loading}
-        className={cn(
-          'inline-flex items-center justify-center gap-2 rounded-[10px] tracking-[0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b5bd6] focus-visible:ring-offset-2',
-          variantClasses[resolvedVariant],
-          sizeClasses[size],
-          fullWidth && 'w-full',
-          (disabled || loading) && 'cursor-not-allowed opacity-60',
-          className
-        )}
-        {...props}
-      >
+      ref={ref}
+      variant={resolvedVariant === "outline" ? "outline" : "ghost"}
+      disabled={disabled || loading}
+      className={cn(
+        'inline-flex items-center justify-center gap-2 rounded-[10px] tracking-[0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b5bd6] focus-visible:ring-offset-2',
+         variantClasses[resolvedVariant],
+         sizeClasses[size],
+         fullWidth && 'w-full',
+        (disabled || loading) && 'cursor-not-allowed opacity-60',
+        className
+      )}
+      {...props}
+    >
         {loading ? (
           <>
             <Loader2 size={16} className="animate-spin" />
