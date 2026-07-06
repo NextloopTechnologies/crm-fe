@@ -758,7 +758,6 @@ export function DataTable<T extends object>({
       }}
       row={selectedRow}
       onSubmit={async (row, data) => {
-        console.log("Sell opportunity data:", row, data);
       }}
     />
   ) : null
