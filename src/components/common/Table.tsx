@@ -22,13 +22,13 @@ import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   Search, ChevronLeft, ChevronRight,
   Pencil, Trash2, X, ArrowUpDownIcon,
-  Eye
+  Eye,ClipboardList
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { AlertPopupDialog } from "@/components/common/AlertPopupDialog";
-
+import { SellOpportunityModal } from "@/components/common/SellOpportunityModal";
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type ColumnDef<T> = {
   key: keyof T | string;
@@ -68,6 +68,7 @@ interface DataTableProps<T> {
   onEdit?: (row: T) => void;
   onDelete?: (row: T | T[]) => void;
   onView?: (row: T) => void;
+  onCreateOpportunity?: (row: T) => void;
   filters?: FilterConfig[];
   isEditDisabled?: (row: T) => boolean;
 
@@ -318,6 +319,7 @@ export function DataTable<T extends object>({
   onEdit,
   onDelete,
   onView,
+  onCreateOpportunity,
   filters,
   isEditDisabled
 }: DataTableProps<T>) {
@@ -334,6 +336,8 @@ export function DataTable<T extends object>({
   const filterBtnRef = useRef<HTMLButtonElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<T | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isOpportunityModalOpen, setIsOpportunityModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<T | null>(null);
 
   const activeFilterCount = Object.values(appliedFilters).filter(Boolean).length;
 
@@ -400,7 +404,7 @@ export function DataTable<T extends object>({
       : <ChevronDown size={13} className="ml-1 text-[#5752FE]" />;
   };
 
-  const hasActions = onEdit || onDelete || onView;
+  const hasActions = onEdit || onDelete || onView || onCreateOpportunity;
 
   return (
     <>
@@ -620,7 +624,7 @@ export function DataTable<T extends object>({
                             : safeString(getNestedValue(row, col.key as string))}
                         </TableCell>
                       ))}
-                      {(onEdit || onDelete || onView) && (
+                      {(onEdit || onDelete || onView || onCreateOpportunity) && (
                         <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-1">
                             {onView && (
@@ -647,6 +651,20 @@ export function DataTable<T extends object>({
                                 onClick={(e) => { e.stopPropagation();  !isEditDisabled?.(row) && onEdit(row)}}
                               >
                                 <Pencil size={15} />
+                              </Button>
+                            )}
+                            {onCreateOpportunity && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-red-50 text-[#6b6b8d] hover:text-red-500"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedRow(row);
+                                  setIsOpportunityModalOpen(true);
+                                }}
+                              >
+                                <ClipboardList size={15} />
                               </Button>
                             )}
                             {onDelete && (
@@ -730,6 +748,21 @@ export function DataTable<T extends object>({
           setShowDeleteDialog(false);
         }}
       />
+{
+  isOpportunityModalOpen ? (
+    <SellOpportunityModal
+      open={isOpportunityModalOpen}
+      onOpenChange={(open) => {
+        setIsOpportunityModalOpen(open);
+        if (!open) setSelectedRow(null);
+      }}
+      row={selectedRow}
+      onSubmit={async (row, data) => {
+        console.log("Sell opportunity data:", row, data);
+      }}
+    />
+  ) : null
+}
     </>
   );
 }

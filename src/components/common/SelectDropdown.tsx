@@ -16,6 +16,7 @@
     label: string;
     value: string;
     disabled?: boolean;
+    leftIcon?: React.ReactNode;
   }
 
   export interface SelectOptionGroup {
@@ -121,7 +122,14 @@
                       "data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed"
                     )}
                   >
-                    {opt.label}
+                   <span className="flex items-center gap-2">
+                      {opt.leftIcon && (
+                        <span className="flex items-center justify-center shrink-0">
+                          {opt.leftIcon}
+                        </span>
+                      )}
+                      {opt.label}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -148,7 +156,14 @@
                         "data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed"
                       )}
                     >
-                      {opt.label}
+                      <span className="flex items-center gap-2">
+                    {opt.leftIcon && (
+                      <span className="flex items-center justify-center shrink-0">
+                        {opt.leftIcon}
+                      </span>
+                    )}
+                    {opt.label}
+                  </span>
                     </SelectItem>
                   ))}
                   {/* Divider between groups */}
