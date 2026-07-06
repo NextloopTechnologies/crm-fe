@@ -2,6 +2,7 @@ import { forwardRef } from 'react'
 import { Button as BaseButton } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { ComponentProps } from 'react'
+import { Loader2 } from 'lucide-react'
 
 // Base props from shadcn button
 type BaseButtonProps = ComponentProps<typeof BaseButton>
@@ -13,7 +14,7 @@ const variantClasses = {
     'bg-[#5752FE] text-white active:scale-[0.98] transition-all',
 
   outline:
-    'border border-[#e4e4ee] bg-white text-[#111127] hover:border-[#cccce0] hover:bg-[#f0f0f7] active:scale-[0.98] transition-all',
+    'border border-[#e4e4ee] text-[#111127] hover:border-[#cccce0] hover:bg-[#f0f0f7] active:scale-[0.98] transition-all',
 
   ghost:
     'bg-transparent text-[#6b6b8a] hover:bg-[#f0f0f7] hover:text-[#111127] active:scale-[0.98] transition-all',
@@ -30,22 +31,55 @@ const sizeClasses = {
   icon: 'h-9 w-9 p-0',
 }
 
+// ─── Action presets ──────────────────────────────────────────
+type ActionType = 'save' | 'cancel' | 'create' | 'delete'
+
+const actionPresets: Record<
+  ActionType,
+  { variant: keyof typeof variantClasses; label: string; loadingLabel: string }
+> = {
+  save: {
+    variant: 'primary',
+    label: 'Save',
+    loadingLabel: 'Saving...',
+  },
+  create: {
+    variant: 'primary',
+    label: 'Create',
+    loadingLabel: 'Creating...',
+  },
+  cancel: {
+    variant: 'outline',
+    label: 'Cancel',
+    loadingLabel: 'Cancel',
+  },
+  delete: {
+    variant: 'danger',
+    label: 'Delete',
+    loadingLabel: 'Deleting...',
+  },
+}
+
 // ─── Props ───────────────────────────────────────────────────
 interface CustomButtonProps extends Omit<BaseButtonProps, 'variant' | 'size'> {
   variant?: keyof typeof variantClasses
   size?: keyof typeof sizeClasses
   loading?: boolean
   fullWidth?: boolean
+  action?: ActionType
+  showIcon?: boolean
 }
 
 // ─── Component ───────────────────────────────────────────────
 const Button = forwardRef<HTMLButtonElement, CustomButtonProps>(
   (
     {
-      variant = 'primary',
+      variant,
       size = 'md',
       loading = false,
       fullWidth = false,
+      action,
+      showIcon = true,
       disabled,
       children,
       className,
@@ -53,28 +87,40 @@ const Button = forwardRef<HTMLButtonElement, CustomButtonProps>(
     },
     ref
   ) => {
+    const preset = action ? actionPresets[action] : null
+
+    // priority: manual variant > action preset > default 'primary'
+    const resolvedVariant = variant ?? preset?.variant ?? 'primary'
+
+    // priority: children (override) > preset label
+    const resolvedChildren = children ?? preset?.label
+
+    const resolvedLoadingLabel = preset?.loadingLabel ?? resolvedChildren
+
     return (
       <BaseButton
-      ref={ref}
-      variant={variant === "outline" ? "outline" : "ghost"}
-      disabled={disabled || loading}
-      className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-[10px] tracking-[0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b5bd6] focus-visible:ring-offset-2',
-        variantClasses[variant],
-        sizeClasses[size],
-        fullWidth && 'w-full',
-        (disabled || loading) && 'cursor-not-allowed opacity-60',
-        className
-      )}
-      {...props}
-    >
+        ref={ref}
+        variant={resolvedVariant === "outline" ? "outline" : "ghost"}
+        disabled={disabled || loading}
+        className={cn(
+          'inline-flex items-center justify-center gap-2 rounded-[10px] tracking-[0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b5bd6] focus-visible:ring-offset-2',
+          variantClasses[resolvedVariant],
+          sizeClasses[size],
+          fullWidth && 'w-full',
+          (disabled || loading) && 'cursor-not-allowed opacity-60',
+          className
+        )}
+        {...props}
+      >
         {loading ? (
           <>
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            <span>{children}</span>
+            <Loader2 size={16} className="animate-spin" />
+            <span>{resolvedLoadingLabel}</span>
           </>
         ) : (
-          children
+          <>
+            <span>{resolvedChildren}</span>
+          </>
         )}
       </BaseButton>
     )

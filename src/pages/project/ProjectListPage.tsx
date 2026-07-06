@@ -201,6 +201,13 @@ export default function ProjectListPage() {
     [navigate]
 
   );
+
+  const handleCreateOpportunity = useCallback(
+    (row: any) => navigate(ROUTES.PROJECT_EDIT(String(row.projectNumber))),
+    [navigate]
+
+  );
+
   const handleEdit = useCallback(
     (row: any) => {
       navigate(ROUTES.PROJECT_EDIT(String(row.projectNumber)));
@@ -263,6 +270,7 @@ export default function ProjectListPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onView={handleView}
+        onCreateOpportunity={handleCreateOpportunity}
       />
     </div>
   )
