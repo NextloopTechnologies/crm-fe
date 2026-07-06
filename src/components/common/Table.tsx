@@ -22,13 +22,15 @@ import {
   ChevronUp, ChevronDown, ChevronsUpDown,
   Search, ChevronLeft, ChevronRight,
   Pencil, Trash2, X, ArrowUpDownIcon,
-  Eye,ClipboardList
+  Eye,ClipboardList,
+  MoreVertical
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { AlertPopupDialog } from "@/components/common/AlertPopupDialog";
 import { SellOpportunityModal } from "@/components/common/SellOpportunityModal";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type ColumnDef<T> = {
   key: keyof T | string;
@@ -42,7 +44,9 @@ export type RowAction<T> = {
   label: string;
   icon?: React.ReactNode;
   onClick: (row: T) => void;
-  className?: string;
+  hidden?: (row: T) => boolean;
+  disabled?: (row: T) => boolean;
+  destructive?: boolean;
 };
 
 interface FilterConfig {
@@ -69,6 +73,7 @@ interface DataTableProps<T> {
   onDelete?: (row: T | T[]) => void;
   onView?: (row: T) => void;
   onCreateOpportunity?: (row: T) => void;
+  createOpportunityLabel?: string;
   filters?: FilterConfig[];
   isEditDisabled?: (row: T) => boolean;
 
@@ -320,6 +325,7 @@ export function DataTable<T extends object>({
   onDelete,
   onView,
   onCreateOpportunity,
+  createOpportunityLabel = "Create Opportunity",
   filters,
   isEditDisabled
 }: DataTableProps<T>) {
@@ -406,6 +412,47 @@ export function DataTable<T extends object>({
 
   const hasActions = onEdit || onDelete || onView || onCreateOpportunity;
 
+  const actions: RowAction<T>[] = [
+    ...(onView
+      ? [{
+        label: "View",
+        icon: <Eye size={16} />,
+        onClick: (row: T) => onView(row),
+      }]
+      : []),
+
+    ...(onEdit
+      ? [{
+        label: "Edit",
+        icon: <Pencil size={16} />,
+        onClick: (row: T) => onEdit(row),
+        disabled: isEditDisabled,
+      }]
+      : []),
+
+    ...(onCreateOpportunity
+      ? [{
+        label: createOpportunityLabel,
+        icon: <ClipboardList size={16} />,
+        onClick: (row: T) => {
+          setSelectedRow(row);
+          setIsOpportunityModalOpen(true);
+        },
+      }]
+      : []),
+
+    ...(onDelete
+      ? [{
+        label: "Delete",
+        icon: <Trash2 size={16} />,
+        destructive: true,
+        onClick: (row: T) => {
+          setDeleteTarget(row);
+          setShowDeleteDialog(true);
+        },
+      }]
+      : []),
+  ];
   return (
     <>
       <div className={cn("flex flex-col gap-3 border border-[#E0E0E0] rounded-[8px] p-6", className)}>
@@ -565,11 +612,9 @@ export function DataTable<T extends object>({
                     </span>
                   </TableHead>
                 ))}
-                {(onEdit || onDelete || onView) && (
                   <TableHead className="w-16 px-4 text-xs font-semibold text-[#000000] uppercase tracking-wide">
                     Actions
                   </TableHead>
-                )}
               </TableRow>
             </TableHeader>
 
@@ -624,66 +669,30 @@ export function DataTable<T extends object>({
                             : safeString(getNestedValue(row, col.key as string))}
                         </TableCell>
                       ))}
-                      {(onEdit || onDelete || onView || onCreateOpportunity) && (
-                        <TableCell className="px-4" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center gap-1">
-                            {onView && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
-                                onClick={(e) => { e.stopPropagation(); onView(row)}}
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu >
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+
+                          <DropdownMenuContent align="end" 
+                          className="w-48 bg-[#F8F8FA] border border-[#ECECEC] rounded-xl shadow-lg p-1">
+                            {actions.map((action) => (
+                              <DropdownMenuItem
+                                key={action.label}
+                                disabled={action.disabled?.(row)}
+                                className={action.destructive ? "text-red-600" : ""}
+                                onClick={() => action.onClick(row)}
                               >
-                                <Eye size={15} />
-                              </Button>
-                            )}
-                            {onEdit && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className={cn(
-                                  "h-8 w-8",
-                                  isEditDisabled?.(row)
-                                    ? "opacity-30 cursor-not-allowed text-[#6b6b8d]"
-                                    : "hover:bg-[#f0f0f8] text-[#6b6b8d] hover:text-[#5752FE]"
-                                )}
-                                disabled={isEditDisabled?.(row)}
-                                onClick={(e) => { e.stopPropagation();  !isEditDisabled?.(row) && onEdit(row)}}
-                              >
-                                <Pencil size={15} />
-                              </Button>
-                            )}
-                            {onCreateOpportunity && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 hover:bg-red-50 text-[#6b6b8d] hover:text-red-500"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedRow(row);
-                                  setIsOpportunityModalOpen(true);
-                                }}
-                              >
-                                <ClipboardList size={15} />
-                              </Button>
-                            )}
-                            {onDelete && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 hover:bg-red-50 text-[#6b6b8d] hover:text-red-500"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteTarget(row);
-                                  setShowDeleteDialog(true);
-                                }}
-                              >
-                                <Trash2 size={15} />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      )}
+                                {action.icon}
+                                <span className="ml-2">{action.label}</span>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
                   );
                 })

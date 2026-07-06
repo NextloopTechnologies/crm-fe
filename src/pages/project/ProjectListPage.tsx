@@ -270,6 +270,7 @@ export default function ProjectListPage() {
         onDelete={handleDelete}
         onView={handleView}
         onCreateOpportunity={handleCreateOpportunity}
+        createOpportunityLabel="Sell Opportunity"
       />
     </div>
   )
