@@ -51,7 +51,9 @@ export function SellOpportunityModal<T>({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] w-full p-10 border border-[#ECECEC] shadow-xl rounded-[12px] w-full">
         <div className="flex flex-row gap-3 w-full">
-          <ClipboardList className="text-[#FBBC05] bg-[#FBBC051A]/10 rounded-md" />
+          <span className="flex items-center justify-center h-8 w-8 rounded-md bg-[#FBBC05]/10">
+            <ClipboardList size={22} className="text-[#FBBC05]" />
+          </span>
           <h1 className="text-xl font-semibold text-[#111127]">Sell Opportunity</h1>
         </div>
 
