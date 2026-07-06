@@ -229,7 +229,7 @@ export default function AccountDetailPage() {
 
                 {/* ── Invoice Tab ── passes accountNumber so it can fetch filtered invoices */}
                 {activeTab === "invoice" && (
-                    <AccountInvoiceTab accountNumber={account.accountNumber} />
+                    <AccountInvoiceTab accountNumber={account.accountNumber} account={account} />
                 )}
 
             </div>

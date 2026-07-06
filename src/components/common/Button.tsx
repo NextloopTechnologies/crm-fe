@@ -59,7 +59,7 @@ const Button = forwardRef<HTMLButtonElement, CustomButtonProps>(
       variant={variant === "outline" ? "outline" : "ghost"}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-[10px] font-semibold tracking-[0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b5bd6] focus-visible:ring-offset-2',
+        'inline-flex items-center justify-center gap-2 rounded-[10px] tracking-[0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b5bd6] focus-visible:ring-offset-2',
         variantClasses[variant],
         sizeClasses[size],
         fullWidth && 'w-full',

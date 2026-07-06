@@ -10,13 +10,16 @@ import {
   FileText,
   ReceiptText,
   ArrowLeft,
+  Plus,
+  CirclePlus,
 } from "lucide-react";
-import { CreateInvoiceRequest, InvoiceItemDto, InvoiceStatus } from "@/types/api.types";
+import { CreateInvoiceRequest, InvoiceResponseDto , InvoiceItemDto, InvoiceStatus, CreateAccountRequest } from "@/types/api.types";
 import { ROUTES } from "@/lib/route";
 import BackButton from "../common/BackButton";
 import { BANK_DETAILS, BANK_OPTIONS } from "@/constants/BankDetailOption";
 import { InlineSelectDropdown } from "../common/InlineSelectDropDown";
 import { InlineInput } from "../common/InlineInput";
+import InvoicePreview from "@/pages/accounts/invoices/InvoicePreviewPage";
 // ─────────────────────────────────────────────────────────────
 // Options
 // ─────────────────────────────────────────────────────────────
@@ -25,6 +28,7 @@ const STATUS_OPTIONS = [
   { label: "Sent", value: "Sent" },
   { label: "Paid", value: "Paid" },
   { label: "Overdue", value: "Overdue" },
+  { label: "FollowUp", value: "FollowUp" },
   { label: "Cancelled", value: "Cancelled" },
 ];
 
@@ -48,7 +52,8 @@ const fmt = (n: number) =>
 // ─────────────────────────────────────────────────────────────
 interface InvoiceFormProps {
   mode: "add" | "edit";
-  defaultValues?: Partial<CreateInvoiceRequest>;
+  account?: CreateAccountRequest; 
+  defaultValues?: Partial<CreateInvoiceRequest | InvoiceResponseDto>;
   accountNumber?: string; // pre-filled from AccountDetailPage
   onSubmit: (data: CreateInvoiceRequest) => void;
   isLoading?: boolean;
@@ -62,10 +67,12 @@ export default function InvoiceForm({
   mode,
   defaultValues = {},
   accountNumber,
+  account,
   onSubmit,
   isLoading,
   onCancel,
 }: InvoiceFormProps) {
+  const [isPreview, setIsPreview] = useState(false);
   const [formData, setFormData] = useState<CreateInvoiceRequest>({
     invoiceDate: "",
     dueDate: "",
@@ -97,8 +104,9 @@ export default function InvoiceForm({
   const recalcTotals = useCallback(
     (items: InvoiceItemDto[], discount: number, taxPct: number) => {
       const sub = items.reduce((acc, it) => acc + it.amount, 0);
-      const taxAmt = round2((sub - discount) * (taxPct / 100));
-      const grand = round2(sub - discount + taxAmt);
+      const discountAmt = round2(sub * (discount / 100));
+      const taxAmt = round2((sub - discountAmt) * (taxPct / 100));
+      const grand = round2(sub - discountAmt + taxAmt);
       setFormData((prev) => ({ ...prev, subTotal: round2(sub), grandTotal: grand }));
     },
     []
@@ -166,7 +174,7 @@ export default function InvoiceForm({
     }));
   };
 
-  const MAX_INVOICE_ITEM = 10;
+  const MAX_INVOICE_ITEM = 6;
   // ─────────────────────────────────────────────────────────────
   // Sections
   // ─────────────────────────────────────────────────────────────
@@ -185,13 +193,21 @@ export default function InvoiceForm({
             type="date"
             required
             value={formData.invoiceDate}
-            onChange={(e) => set("invoiceDate")(e.target.value)}
+            onChange={(e) => {
+              set("invoiceDate")(e.target.value);
+              // Reset due date if it's before new invoice date
+              if (formData.dueDate && formData.dueDate < e.target.value) {
+                set("dueDate")("");
+              }
+            }}
           />
           <Input
             id="dueDate"
             label="Due Date"
             type="date"
             required
+            min={formData.invoiceDate}
+            disabled={!formData.invoiceDate}
             value={formData.dueDate}
             onChange={(e) => set("dueDate")(e.target.value)}
           />
@@ -240,7 +256,6 @@ export default function InvoiceForm({
                 </div>
               ))}
             </div>
-
             {/* Rows */}
             {formData.items.map((item, idx) => (
               <div
@@ -254,6 +269,7 @@ export default function InvoiceForm({
                     className="w-full h-8 px-2 text-[13px] text-[#1e1e2d] bg-transparent border border-transparent rounded focus:border-[#5752FE] focus:bg-white focus:ring-1 focus:ring-[#5752FE]/10 outline-none placeholder:text-[#cbd5e1] transition-all"
                     placeholder="Item Details"
                     value={item.itemDetails}
+                    maxLength={70}
                     onChange={(e) => updateItem(idx, "itemDetails", e.target.value)}
                   />
                 </div>
@@ -276,7 +292,13 @@ export default function InvoiceForm({
                     className="w-full h-8 px-2 text-[13px] text-[#1e1e2d] text-right bg-transparent border border-transparent rounded focus:border-[#5752FE] focus:bg-white focus:ring-1 focus:ring-[#5752FE]/10 outline-none transition-all"
                     value={item.rate || ""}
                     placeholder="0.00"
-                    onChange={(e) => updateItem(idx, "rate", e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const digitsOnly = value.replace(/[.-]/g, "");
+                      if (digitsOnly.length <= 7) {
+                        updateItem(idx, "rate", value);
+                      }
+                    }}
                   />
                 </div>
 
@@ -297,8 +319,22 @@ export default function InvoiceForm({
                 </div>
               </div>
             ))}
+            
           </div>
-          
+            
+          {formData.items.length < MAX_INVOICE_ITEM && (
+            <div className="flex justify-start mb-3">
+              <button
+                type="button"
+                onClick={addRow}
+                className="flex items-center gap-2 text-[13px] font-medium text-[#5752FE] hover:text-[#5752FE]/80 transition-colors"
+              >
+                <CirclePlus size={16} />
+                Add Row
+              </button>
+            </div>
+          )}
+
           {/* Totals bar */}
           <div className="grid grid-cols-4 gap-0 border border-[#e2e8f0] rounded-xl overflow-hidden">
             <div className="px-4 py-3 border-r border-[#e2e8f0]">
@@ -307,12 +343,13 @@ export default function InvoiceForm({
             </div>
 
             <div className="px-4 py-3 border-r border-[#e2e8f0]">
-              <p className="text-[11px] text-[#94a3b8] mb-1">Discount (Rs.)</p>
+              <p className="text-[11px] text-[#94a3b8] mb-1">Discount (%)</p>
               <input
                 type="number"
                 min={0}
+                max={100}
                 value={formData.discount || ""}
-                placeholder="0"
+                placeholder="0%"
                 onChange={(e) => set("discount")(parseFloat(e.target.value) || 0)}
                 className="w-full text-[13px] font-semibold text-[#1e1e2d] bg-transparent outline-none placeholder:text-[#cbd5e1]"
               />
@@ -330,7 +367,6 @@ export default function InvoiceForm({
                   onChange={(e) => set("tax")(parseFloat(e.target.value) || 0)}
                   className="w-full text-[13px] font-semibold text-[#1e1e2d] bg-transparent outline-none placeholder:text-[#cbd5e1]"
                 />
-                <span className="text-[12px] text-[#94a3b8]">%</span>
               </div>
             </div>
 
@@ -369,7 +405,7 @@ export default function InvoiceForm({
                   </label>
 
                   <p className="text-sm font-semibold text-gray-900 break-words">
-                    {formData.accountHolderName || "-"}
+                    {formData.accountHolderName || "NA"}
                     </p>
                 </div>
 
@@ -379,7 +415,7 @@ export default function InvoiceForm({
                   </label>
 
                   <p className="text-sm font-semibold text-gray-900 break-words">
-                    {formData.accountNumber || "-"}
+                    {formData.accountNumber || "NA"}
                     </p>
                 </div>
 
@@ -389,7 +425,7 @@ export default function InvoiceForm({
                   </label>
 
                   <p className="text-sm font-semibold text-gray-900 break-words">
-                    {formData.ifscCode || "-"}
+                    {formData.ifscCode || "NA"}
                     </p>
                 </div>
 
@@ -399,17 +435,17 @@ export default function InvoiceForm({
                   </label>
 
                   <p className="text-sm font-semibold text-gray-900 break-words">
-                    {formData.bankAddress || "-"}
+                    {formData.bankAddress || "NA"}
                     </p>
                 </div>
 
                 <div className="flex items-start gap-6">
                   <label className="min-w-[160px] text-sm font-medium text-gray-500">
-                    Bank Routing No
+                    Bank Routing No.(SWIFT / BIC)
                   </label>
 
                   <p className="text-sm font-semibold text-gray-900 break-words">
-                    {formData.bankRoutingNo || "-"}
+                    {formData.bankRoutingNo || "NA"}
                     </p>
                 </div>
 
@@ -419,7 +455,7 @@ export default function InvoiceForm({
                   </label>
 
                   <p className="text-sm font-semibold text-gray-900 break-words">
-                    {formData.accountHolderAddress || "-"}
+                    {formData.accountHolderAddress || "NA"}
                     </p>
                 </div>
                 </div>
@@ -431,21 +467,47 @@ export default function InvoiceForm({
     },
   ];
 
+  const handlePreview = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsPreview(true);
+  };
+
+  // InvoiceForm.tsx — bottom of component
+  if (isPreview) {
+    return (
+      <InvoicePreview
+        data={formData as InvoiceResponseDto}
+        account={account}
+        onBack={() => setIsPreview(false)}
+        onSave={() => onSubmit(formData)}
+        isLoading={isLoading}
+      />
+    );
+  }
   // ─────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────
   return (
     <div className="bg-white min-h-screen ">
+       <div className="px-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#1e1e2d] transition-colors"
+        >
+          <ArrowLeft size={12} />Back
+        </button>
+      </div>
       <FormPage
         heading={mode === "add" ? "Create Invoice" : "Edit Invoice"}
         subheading={mode === "add" ? "Add a new invoice to the system." : "Update invoice details."}
         sections={sections}
         onSubmit={handleSubmit}
-        onCancel={onCancel ?? (() => history.back())}
+        onCancel={onCancel}
         bordered={false}
         submitLabel={
           <div className="flex gap-2">
-                    <Button type="submit" variant="primary" size="lg" className="mt-1">Preview</Button>
+                    <Button type="button" onClick={handlePreview} className="mt-1">Preview</Button>
           <Button type="submit" variant="primary" size="lg" className="mt-1">
             {isLoading ? (
               <div className="flex items-center gap-2">

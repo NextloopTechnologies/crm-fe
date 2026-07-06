@@ -12,12 +12,13 @@ import InvoiceForm from "@/components/forms/InvoiceForm";
 
 interface Props {
   accountNumber?: string;
+  account?: CreateAccountRequest;
   onSuccess?: () => void; 
   onCancel?: () => void;
 }
 
 
-export default function CreateInvoicePage({ accountNumber, onSuccess, onCancel }: Props) {
+export default function CreateInvoicePage({ accountNumber, account, onSuccess, onCancel }: Props) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -50,6 +51,7 @@ export default function CreateInvoicePage({ accountNumber, onSuccess, onCancel }
   return (
     <InvoiceForm
       mode="add"
+      account={account}
       onSubmit={handleSubmit}
       isLoading={loading}
       onCancel={onCancel}
