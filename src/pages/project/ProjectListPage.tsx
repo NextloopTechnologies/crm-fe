@@ -219,6 +219,12 @@ export default function ProjectListPage() {
 
   const handleDeleteSelected = useCallback(() => { }, [selectedRows])
 
+  const handleCreateOpportunity = useCallback(
+    (row: any) => navigate(ROUTES.PROJECT_EDIT(String(row.projectNumber))),
+    [navigate]
+
+  );
+
   const headerActions = useMemo(() => (
     <div className="flex items-center gap-2">
       {selectedRows.length > 0 && (
@@ -263,6 +269,7 @@ export default function ProjectListPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onView={handleView}
+        onCreateOpportunity={handleCreateOpportunity}
       />
     </div>
   )
