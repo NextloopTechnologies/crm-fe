@@ -187,6 +187,7 @@ export interface ProjectFormData {
     endDate: string;
     description: string;
     teamMember: string;
+    relatedToType: string;
     relatedId: string;
 }
 
@@ -204,6 +205,11 @@ const projectStatusOptions = [
     { label: "On Hold", value: "On Hold" },
     { label: "Completed", value: "Completed" },
     { label: "Cancelled", value: "Cancelled" },
+];
+
+const projectRelatedTypeOptions = [
+    { label: "Account", value: "Account" },
+    { label: "Lead", value: "Lead" },
 ];
 
 interface ProjectFormProps {
@@ -233,7 +239,7 @@ export default function ProjectForm({
         endDate: defaultValues.endDate ?? "",
         description: defaultValues.description ?? "",
         teamMember: defaultValues.teamMember ?? "",
-        relatedId: defaultValues.relatedId ?? "",
+        relatedToId: defaultValues.relatedToId ?? "",
         relatedToType: defaultValues.relatedToType ?? ""
     });
 
@@ -268,15 +274,8 @@ export default function ProjectForm({
     ) => {
         e.preventDefault();
 
-        const formattedStartDate = formatDate(form.startDate);
-        const formattedEndDate = formatDate(form.endDate);
 
-        const payload = {
-            ...form,
-            startDate: formattedStartDate,
-            endDate: formattedEndDate
-        }
-        onSubmit(payload);
+        onSubmit(form);
     };
 
     // ───────────────────────────────────────────────────────────
@@ -313,7 +312,6 @@ export default function ProjectForm({
                         onChange={set("projectType")}
                         required
                         leftIcon={<ShieldIcon />}
-                        error={touched && !form.projectType ? "Project Type is required" : undefined}
                     />
 
                     <SelectDropdown
@@ -324,7 +322,6 @@ export default function ProjectForm({
                         onChange={set("projectStatus")}
                         required
                         leftIcon={<ShieldIcon />}
-                        error={touched && !form.projectStatus ? "Project Status is required" : undefined}
                     />
 
                     <Input
@@ -359,9 +356,18 @@ export default function ProjectForm({
                         
                     />
 
+                    <SelectDropdown
+                        label="Related Type"
+                        placeholder="Select Related Type"
+                        options={projectRelatedTypeOptions}
+                        value={form.relatedToType}
+                        onChange={set("relatedToType")}
+                        leftIcon={<ShieldIcon />}
+                    />
+
                     <AccountDropdown
-                        value={form.relatedId || ""}
-                        onChange={(accNum) => setForm((prev) => ({ ...prev, relatedId: accNum }))}
+                        value={form.relatedToId || ""}
+                        onChange={(accNum) => setForm((prev) => ({ ...prev, relatedToId: accNum }))}
                     />
 
                     <div className="col-span-3 flex flex-col gap-2">
