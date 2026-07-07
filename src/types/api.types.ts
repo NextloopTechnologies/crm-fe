@@ -192,7 +192,7 @@ export interface CreateUserRequest {
   assignToManagerUsername?: string
 
 }
-export interface CreateProjectRequest {
+export interface  CreateProjectRequest {
   projectName: string;
   description: string;
   projectStatus: string;
@@ -200,8 +200,8 @@ export interface CreateProjectRequest {
   endDate: string;
   startDate: string;
   teamMember?: string
-  clientId?: string
-
+  relatedId?: string;
+  relatedToType?: string;
 }
 
 // ── Client ────────────────────────────────────────────────────────────────────

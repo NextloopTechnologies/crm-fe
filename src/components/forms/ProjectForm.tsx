@@ -8,15 +8,159 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import {
     UserIcon,
 } from "@/assets/icons/components/index";
-import { ArrowLeft, CalendarDays, UsersIcon } from "lucide-react";
+import { ArrowLeft, CalendarDays, ChevronDown, Search, UsersIcon, X } from "lucide-react";
 import { CreateProjectRequest } from "@/types/api.types";
-import { formatDate } from "@/lib/utils";
+import { formatDate, toInputDateTime } from "@/lib/utils";
 import { ROUTES } from "@/lib/route";
 import BackButton from "../common/BackButton";
+import { getAllAccounts } from "@/api/account.api";
 
 // ─────────────────────────────────────────────────────────────
 // Icons
 // ─────────────────────────────────────────────────────────────
+
+interface AccountOption {
+  accountNumber: string;
+  accountName: string;
+}
+
+interface AccountDropdownProps {
+  value: string;
+  onChange: (accountNumber: string) => void;
+}
+
+function AccountDropdown({ value, onChange }: AccountDropdownProps) {
+  const [accounts, setAccounts] = useState<AccountOption[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      setLoading(true);
+      try {
+        const res = await getAllAccounts();
+        // Adjust based on your actual response shape: res.data or res
+        const list: AccountOption[] = (res.data ?? res ?? []).map((acc: AccountOption) => ({
+          accountNumber: acc.accountNumber,
+          accountName: acc.accountName,
+        }));
+        setAccounts(list);
+      } catch (err) {
+        console.error("Failed to fetch accounts", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAccounts();
+  }, []);
+
+  const filtered = accounts.filter(
+    (acc) =>
+      acc.accountName.toLowerCase().includes(search.toLowerCase()) ||
+      acc.accountNumber.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const selected = accounts.find((acc) => acc.accountNumber === value);
+
+  return (
+    <div className="relative w-full">
+      <label className="block text-sm font mb-2.5">
+        Client Id
+      </label>
+
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        style={{ border: "1.5px solid #e4e4ee" }}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-white text-sm text-left hover:border-[#5752FE] transition-colors focus:outline-none focus:ring-2 focus:ring-[#5752FE]/20"
+      >
+        <span className={selected ? "text-gray-800" : "text-gray-400"}>
+          {selected
+            ? `${selected.accountName} `
+            : "Select account"}
+        </span>
+        <div className="flex items-center gap-1 shrink-0">
+          {value && (
+            <span
+              role="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange("");
+                setSearch("");
+              }}
+              className="text-gray-400 hover:text-red-400 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </span>
+          )}
+          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        </div>
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-[#E4E2FF] rounded-xl shadow-lg overflow-hidden">
+          {/* Search */}
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-[#ECECEC]">
+            <Search className="w-4 h-4 text-gray-400 shrink-0" />
+            <input
+              autoFocus
+              type="text"
+              placeholder="Search by name or number..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 text-sm outline-none bg-transparent text-gray-700 placeholder-gray-400"
+            />
+            {search && (
+              <button type="button" onClick={() => setSearch("")}>
+                <X className="w-3.5 h-3.5 text-gray-400" />
+              </button>
+            )}
+          </div>
+
+          {/* List */}
+          <ul className="max-h-52 overflow-y-auto">
+            {loading ? (
+              <li className="px-4 py-3 text-sm text-gray-400 text-center">
+                Loading accounts...
+              </li>
+            ) : filtered.length === 0 ? (
+              <li className="px-4 py-3 text-sm text-gray-400 text-center">
+                No accounts found.
+              </li>
+            ) : (
+              filtered.map((acc) => (
+                <li
+                  key={acc.accountNumber}
+                  onClick={() => {
+                    onChange(acc.accountNumber);
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                  className={`flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer hover:bg-[#F0EFFF] transition-colors ${
+                    value === acc.accountNumber
+                      ? "bg-[#5752FE]/10 text-[#5752FE] font-medium"
+                      : "text-gray-700"
+                  }`}
+                >
+                  <span>{acc.accountName}</span>
+                  <span className="text-xs text-gray-400 font-mono">{acc.accountNumber}</span>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+
+      {/* Backdrop */}
+      {open && (
+        <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+      )}
+    </div>
+  );
+}
 
 const ShieldIcon = () => (
     <svg
@@ -43,7 +187,7 @@ export interface ProjectFormData {
     endDate: string;
     description: string;
     teamMember: string;
-    clientId: string;
+    relatedId: string;
 }
 
 const projectTypeOptions = [
@@ -89,7 +233,8 @@ export default function ProjectForm({
         endDate: defaultValues.endDate ?? "",
         description: defaultValues.description ?? "",
         teamMember: defaultValues.teamMember ?? "",
-        clientId: defaultValues.clientId ?? ""
+        relatedId: defaultValues.relatedId ?? "",
+        relatedToType: defaultValues.relatedToType ?? ""
     });
 
     const [touched, setTouched] = useState(false);
@@ -188,8 +333,8 @@ export default function ProjectForm({
                         placeholder="DD-MM-YYYY"
                         type="datetime-local"
                         required
-                        value={form.startDate}
-                        onChange={(e) => set("startDate")(e.target.value)}
+                        value={toInputDateTime(form.startDate)}
+                        onChange={(e) => set("startDate")(formatDate(e.target.value))}
                         leftIcon={<CalendarDays className="w-5 h-5" />}
                     />
 
@@ -199,8 +344,8 @@ export default function ProjectForm({
                         placeholder="DD-MM-YYYY"
                         type="datetime-local"
                         required
-                        value={form.endDate}
-                        onChange={(e) => set("endDate")(e.target.value)}
+                        value={toInputDateTime(form.endDate)}
+                        onChange={(e) => set("endDate")(formatDate(e.target.value))}
                         leftIcon={<CalendarDays className="w-5 h-5" />}
                     />
 
@@ -214,12 +359,9 @@ export default function ProjectForm({
                         
                     />
 
-                    <Input
-                        id="clientId"
-                        label="Client Id"
-                        placeholder="Enter clientId"
-                        value={form.clientId}
-                        onChange={(e) => set("clientId")(e.target.value)}
+                    <AccountDropdown
+                        value={form.relatedId || ""}
+                        onChange={(accNum) => setForm((prev) => ({ ...prev, relatedId: accNum }))}
                     />
 
                     <div className="col-span-3 flex flex-col gap-2">
