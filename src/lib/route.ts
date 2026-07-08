@@ -10,7 +10,7 @@ export const ROUTES = {
 
   // Leads
   LEADS: "/leads",
-  LEADS_CREATE: "/leads/add",
+  LEADS_CREATE: "/leads/create",
   LEADS_EDIT: (id: string) => `/leads/edit/${id}`,
   LEADS_DETAIL: (id: string) => `/leads/detail/${id}`,
 

@@ -14,8 +14,8 @@ import { CreateAccountRequest } from '@/types/api.types'
 // ── Static helpers — component ke bahar ──────────────────────
 const getStats = (data: CreateAccountRequest[]) => [
   { icon: <UsersIcon />, label: "Total Accounts", value: data.length, subtitle: "All accounts in system" },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: data.filter(u => u.status === "active").length, subtitle: "Currently Active" },
-  { icon: <InActiveUsersIcon />, label: "Inactive Accounts", value: data.filter(u => u.status === "inactive").length, subtitle: "Currently Inactive" },
+  // { icon: <ActiveUsersIcon />, label: "Active Accounts", value: data.filter(u => u.status === "active").length, subtitle: "Currently Active" },
+  // { icon: <InActiveUsersIcon />, label: "Inactive Accounts", value: data.filter(u => u.status === "inactive").length, subtitle: "Currently Inactive" },
   { icon: <TenantsIcon />, label: "Total Contacts", value: data.reduce(
     (sum, u) => sum + (u.contacts?.filter(c => c.designation === "Admin").length ?? 0),
     0
@@ -133,13 +133,6 @@ export default function AccountListPage() {
           Delete ({selectedRows.length})
         </Button>
       )}
-      <Button
-        className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1"
-        onClick={() => navigate(ROUTES.ACCOUNTS_CREATE)}
-      >
-        <PlusIcon />
-        Add Account
-      </Button>
     </div>
   ), [selectedRows.length, handleDeleteSelected, navigate])
 

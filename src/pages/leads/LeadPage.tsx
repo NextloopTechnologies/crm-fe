@@ -51,6 +51,12 @@ export default function LeadsPage() {
         );
     }, [leads, search]);
 
+    const visibleLeads = useMemo(() => {
+    return filteredLeads.filter(
+        (lead) => lead.leadStatus !== "Contacted"
+    );
+}, [filteredLeads]);
+
     const handleStatusChange = async (
         leadNumber: string,
         status: string
@@ -79,28 +85,28 @@ export default function LeadsPage() {
             {
                 icon: <UsersIcon />,
                 label: "Total Leads",
-                value: leads.length,
+                value: visibleLeads.length,
                 subtitle: "All leads in pipeline",
                 trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
             },
             {
                 icon: <NewLeadsIcon />,
                 label: "New (7 days)",
-                value: leads.filter(l => isWithin7Days(l.creationDate)).length,
+                value: visibleLeads.filter(l => isWithin7Days(l.creationDate)).length,
                 subtitle: "Created this week",
                 trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
             },
             {
                 icon: <ActiveUsersIcon />,
-                label: "Contacted",
-                value: leads.filter(l => l.leadStatus === "Contacted").length,
+                label: "Intrested",
+                value: visibleLeads.filter(l => l.leadStatus === "Attempted to Contact").length,
                 subtitle: "Reached out successfully",
                 trend: { icon: <UpArrowIcon />, text: "8%", color: "text-[#22c55e]" },
             },
             {
                 icon: <InActiveUsersIcon />,
                 label: "Lost / Junk",
-                value: leads.filter(l => ["Lost Lead", "Junk Lead", "Not Qualified"].includes(l.leadStatus ?? "")).length,
+                value: visibleLeads.filter(l => ["Lost Lead", "Junk Lead", "Not Qualified"].includes(l.leadStatus ?? "")).length,
                 subtitle: "Closed without conversion",
                 trend: { icon: <DownArrowIcon />, text: "5%", color: "text-[#EB4335]" },
             },
@@ -160,7 +166,7 @@ export default function LeadsPage() {
 
             <div className="rounded-lg">
                 {view === "board"
-                    ? <PipelinePage leads={filteredLeads} onCardClick={handleCardClick} onColumnClick={handleColumnClick} onStatusChange={async (leadNumber, status) => {
+                    ? <PipelinePage leads={visibleLeads} onCardClick={handleCardClick} onColumnClick={handleColumnClick} onStatusChange={async (leadNumber, status) => {
                         setStatusLoadingLeads(prev => new Set(prev).add(leadNumber));
                         try {
                           await updateLeadStatusbyLeadNumber(leadNumber, status);
@@ -179,7 +185,7 @@ export default function LeadsPage() {
                           });
                         }
                       }}/>
-                    : <LeadsList leads={filteredLeads} loading={leadsLoading} initialStatuses={initialStatuses} onStatusChange={handleStatusChange} statusLoadingLeads={statusLoadingLeads} />
+                    : <LeadsList leads={visibleLeads} loading={leadsLoading} initialStatuses={initialStatuses} onStatusChange={handleStatusChange} statusLoadingLeads={statusLoadingLeads} />
                 }
             </div>
         </div>
