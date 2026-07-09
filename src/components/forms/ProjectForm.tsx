@@ -65,8 +65,8 @@ function AccountDropdown({ value, onChange }: AccountDropdownProps) {
 
   return (
     <div className="relative w-full">
-      <label className="block text-sm font mb-2.5">
-        Client Id
+      <label className="block text-sm font-medium text-[#111127] mb-2">
+        Account<span className="text-red-600">*</span>
       </label>
 
       {/* Trigger */}
@@ -293,6 +293,10 @@ export default function ProjectForm({
 
             children: (
                 <>
+                    <AccountDropdown
+                        value={form.relatedToId || ""}
+                        onChange={(accNum) => setForm((prev) => ({ ...prev, relatedToId: accNum }))}
+                    />
 
                     <Input
                         id="projectName"
@@ -344,30 +348,6 @@ export default function ProjectForm({
                         value={toInputDateTime(form.endDate)}
                         onChange={(e) => set("endDate")(formatDate(e.target.value))}
                         leftIcon={<CalendarDays className="w-5 h-5" />}
-                    />
-
-                    <Input
-                        id="teamMember"
-                        label="No Of Members"
-                        placeholder="Enter Project Member"
-                        value={form.teamMember}
-                        onChange={(e) => set("teamMember")(e.target.value)}
-                        leftIcon={<UsersIcon className="w-5 h-5" />}
-                        
-                    />
-
-                    <SelectDropdown
-                        label="Related Type"
-                        placeholder="Select Related Type"
-                        options={projectRelatedTypeOptions}
-                        value={form.relatedToType}
-                        onChange={set("relatedToType")}
-                        leftIcon={<ShieldIcon />}
-                    />
-
-                    <AccountDropdown
-                        value={form.relatedToId || ""}
-                        onChange={(accNum) => setForm((prev) => ({ ...prev, relatedToId: accNum }))}
                     />
 
                     <div className="col-span-3 flex flex-col gap-2">
