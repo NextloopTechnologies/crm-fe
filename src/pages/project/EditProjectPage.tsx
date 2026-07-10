@@ -36,7 +36,9 @@ export default function EditProjectPage() {
             projectStatus: project.projectStatus ?? "",
             startDate: project.startDate ?? "",
             endDate: project.endDate ?? "",
-            description: project.description ?? ""
+            description: project.description ?? "",
+            relatedToType: project.relatedToType ?? "",
+            relatedToId: project.relatedToId ?? "",
         });
       }catch (error) {
         console.error(error);
@@ -55,11 +57,11 @@ export default function EditProjectPage() {
         const response = await updateProject(id!, data);
         
         if (response.code === ResponseCode.SUCCESS) {
-          showToast(getSuccessToast("Task", "updated"));
+          showToast(getSuccessToast("Project", "updated"));
 
   
           setTimeout(() => {
-            navigate(ROUTES.TASKS);
+            navigate(ROUTES.PROJECT);
           }, 500);
         }
       } catch (error) {
