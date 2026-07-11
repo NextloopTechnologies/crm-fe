@@ -45,3 +45,24 @@ export const toWords = (amount: number): string => {
 
   return `${rupeeWords}${paiseWords} Only`;
 };
+
+export const replaceNAWithEmpty = <T>(value: T): T => {
+  if (value === "NA") {
+    return "" as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => replaceNAWithEmpty(item)) as T;
+  }
+
+  if (typeof value === "object" && value !== null) {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, val]) => [
+        key,
+        replaceNAWithEmpty(val),
+      ])
+    ) as T;
+  }
+
+  return value;
+};

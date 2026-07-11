@@ -13,11 +13,12 @@ import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from '@/lib/route';
-import { LEAD_STATUS_OPTIONS, LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
+import { LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
 import BackButton from '@/components/common/BackButton';
 import { ArrowLeft } from 'lucide-react';
 import { getChangedFields } from '@/lib/objectDiff';
 import { createAccount } from '@/api/account.api';
+import { replaceNAWithEmpty } from '@/lib/utils';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -94,6 +95,7 @@ export default function EditLeadPage() {
       const lead = response.data;
 
       const mappedLead = {
+        leadNumber: lead.leadNumber ?? "",
         company: lead.company ?? "",
         firstName: lead.firstName ?? "",
         lastName: lead.lastName ?? "",
@@ -105,6 +107,10 @@ export default function EditLeadPage() {
         website: lead.website ?? "",
         leadSource: lead.leadSource ?? "",
         leadStatus: lead.leadStatus ?? "",
+        projectNo: lead.projectNo ?? "",
+        accountNo: lead.projectNo ?? "",
+        leadType: lead.projectNo ?? "",
+        leadDescription: lead.projectNo ?? "",
         industry: lead.industry ?? "",
         noOfEmployees: String(lead.noOfEmployees ?? ""),
         annualRevenue: String(lead.annualRevenue ?? ""),
@@ -113,7 +119,7 @@ export default function EditLeadPage() {
         skypeId: lead.skypeId ?? "",
         secondaryEmail: lead.secondaryEmail ?? "",
         twitter: lead.twitter ?? "",
-
+        leadOwner: lead.leadOwner ?? "",
         leadAddressRequestDto: {
           country: lead.leadAddressResponseDto?.country ?? "",
           flatNo: lead.leadAddressResponseDto?.flatNo ?? "",
@@ -171,7 +177,7 @@ export default function EditLeadPage() {
 
         if (
           statusChanged &&
-          formData.leadStatus === "Contacted"
+          formData.leadStatus === "Deal Won"
         ) {
 
           const accountPayload: CreateAccountRequest = {
@@ -209,7 +215,7 @@ export default function EditLeadPage() {
             ],
           };
 
-          await createAccount(accountPayload);
+          await createAccount(replaceNAWithEmpty(accountPayload));
         }
 
         showToast({

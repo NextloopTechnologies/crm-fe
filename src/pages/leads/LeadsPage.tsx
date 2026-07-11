@@ -104,6 +104,10 @@ export default function LeadsPage() {
     website: "",
     leadSource: "",
     leadStatus: "",
+    projectNo: "",
+    accountNo: "",
+    leadType: "",
+    leadDescription: "",
     industry: "",
     noOfEmployees: "",
     annualRevenue: "",
@@ -234,6 +238,7 @@ export default function LeadsPage() {
             id="email"
             label="Email"
             placeholder="Enter email"
+            required
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -254,6 +259,7 @@ export default function LeadsPage() {
             id="mobile"
             label="Mobile"
             placeholder="Enter mobile number"
+            required
             type="tel"
             value={formData.mobile}
             onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}

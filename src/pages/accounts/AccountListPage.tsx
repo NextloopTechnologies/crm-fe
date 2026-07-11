@@ -89,14 +89,14 @@ export default function AccountListPage() {
       ),
     },
     { key: "accountOwner", label: "Account Owner", width: "220px", render: (_, row) => <span>{(row as CreateAccountRequest).accountOwner ?? "—"}</span>, },
-    { key: "phone", label: "Phone", width: "220px", render: (_, row) => {
-      return (row as CreateAccountRequest).contacts?.[0]?.phone ?? "—";
+    { key: "mobile", label: "Mobile", width: "220px", render: (_, row) => {
+      return (row as CreateAccountRequest).contacts?.[0]?.mobile ?? "—";
     },},
     { key: "website", label: "Website", width: "220px", render: (_, row) => <span>{(row as CreateAccountRequest).website ?? "—"}</span>, },
     {
-      key: "accountSite",
-      label: "Account",
-      render: (_, row) => <span>{(row as CreateAccountRequest).accountSite ?? "—"}</span>,
+      key: "email",
+      label: "Email",
+      render: (_, row) => <span>{(row as CreateAccountRequest).contacts?.[0].email ?? "—"}</span>,
     },
   ], [])
 

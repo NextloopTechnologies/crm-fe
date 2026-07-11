@@ -12,9 +12,9 @@ import { COLUMN_CONFIG, LEAD_STATUS_OPTIONS, PIPELINE_COLUMNS, PipelineCol, STAT
 import { CreateLeadRequest } from "@/types/api.types";
 import { LeadStatusDropdown } from "@/components/LeadStatusDropdown";
 
-const resolveColumn = (lead: CreateLeadRequest): PipelineCol => {
-  if (isWithin7Days(lead.creationDate ?? "")) return "New Lead";
-  return STATUS_TO_COLUMN[lead.leadStatus ?? ""] ?? "New Lead";
+const resolveColumn = (lead: CreateLeadRequest): PipelineCol | null => {
+  const mapped = STATUS_TO_COLUMN[lead.leadStatus ?? ""];
+  return mapped ?? null;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -241,7 +241,10 @@ export default function PipelinePage({
       Won: [],
       Lost: [],
     };
-    filtered.forEach(l => map[resolveColumn(l)].push(l));
+  filtered.forEach(l => {
+    const col = resolveColumn(l);
+    if (col) map[col].push(l); 
+  });
     return map;
   }, [leads, appliedFilters]);
 

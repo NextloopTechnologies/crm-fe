@@ -155,14 +155,14 @@ export const LeadStatusBadge = ({
 export const LEAD_STATUS_OPTIONS_LIST = [
   { label: "New Lead", value: "New Lead" },
   { label: "Contacted", value: "Contacted" },
-  { label: "Interested", value: "Attempted to Contact" },
-  { label: "Not-Interested", value: "Not-Interested" },
+  { label: "Interested", value: "Interested" },
+  { label: "Not Interested", value: "Not Interested" },
   { label: "Meeting Scheduled", value: "Meeting Scheduled" },
   { label: "Requirement Received", value: "Requirement Received" },
   { label: "Proposal Shared", value: "Proposal Shared" },
   { label: "Commercial Discussion", value: "Commercial Discussion" },
   { label: "Profiles Shared", value: "Profiles Shared" },
-  { label: "Deal Won", value: "Contacted" },
+  { label: "Deal Won", value: "Deal Won" },
   { label: "Active Client", value: "Active Client" },
   { label: "On Hold", value: "On Hold" },
   { label: "No Response", value: "No Response" },
@@ -185,22 +185,11 @@ export const STATUS_TO_COLUMN: Record<string, PipelineCol> = {
   Contacted: "New Lead",
 
   Interested: "Interested",
-  "Meeting Scheduled": "Interested",
-  "Hot Lead" : "Interested",
-  "Warm Lead" : "Interested",
 
-  "Requirement Received": "Proposal",
   "Proposal Shared": "Proposal",
-  "Commercial Discussion": "Proposal",
-  "Profiles Shared": "Proposal",
 
   "Deal Won": "Won",
-  "Active Client": "Won",
 
-  "On Hold": "Lost",
-  "Not-Interested" : "Lost",
-  "No Response": "Lost",
-  "Cold Lead": "Lost",
   Lost: "Lost",
 };
 
