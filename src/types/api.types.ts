@@ -204,8 +204,8 @@ export interface CreateProjectRequest {
   endDate: string;
   startDate: string;
   teamMember?: string
-  clientId?: string
-
+  relatedToId?: string;
+  relatedToType?: string;
 }
 
 // ── Client ────────────────────────────────────────────────────────────────────
