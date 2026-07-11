@@ -20,14 +20,14 @@ export function SellOpportunityModal<T>({
   row,
   onSubmit,
 }: SellOpportunityModalProps<T>) {
-  const [sellType, setSellType] = useState("");
+  const [sellType, setSellType] = useState("upSell");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const isSellTypeSelected = !!sellType;
 
   useEffect(() => {
     if (open) {
-      setSellType("");
+      setSellType("upSell");
       setDescription("");
       setSaving(false);
     }
@@ -84,28 +84,26 @@ export function SellOpportunityModal<T>({
           </div>
 
           <div
-            className={`flex-1 transition-opacity duration-200 ${isSellTypeSelected ? "opacity-100" : "opacity-40 pointer-events-none"
+            className={`flex-1 transition-opacity duration-200
               }`}
           >
             <label
-              className={`text-sm font-medium transition-colors duration-200 ${isSellTypeSelected ? "text-[#252525]" : "text-[#252525]/30"
+              className={`text-sm font-medium text-gray-700
                 }`}
             >
               Description
             </label>
             <Textarea
               placeholder="Enter description"
-              rows={3}
+              rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              disabled={!isSellTypeSelected}
-              className={`w-full rounded-lg px-4 py-3 text-sm resize-none ${isSellTypeSelected ? "border border-[#252525]/30" : "border-none"}`}
-            />
+              className={`w-full rounded-lg px-4 py-3 text-sm resize-none border border-gray-300 !bg-transparent placeholder:text-gray-400`}/>
           </div>
         </div>
 
         <div
-          className={`flex justify-end gap-3 mt-8 transition-opacity duration-200 ${isSellTypeSelected ? "opacity-100" : "opacity-40 pointer-events-none"
+          className={`flex justify-end gap-3 mt-8 transition-opacity duration-200
             }`}
         >
           <Button action="cancel" loading={saving} onClick={handleCancel} />

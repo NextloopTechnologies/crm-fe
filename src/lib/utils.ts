@@ -14,6 +14,15 @@ export const  formatDate = (value: string) => {
   return `${day}-${month}-${year} ${time}`;
 };
 
+export const toInputDateTime = (value: string) => {
+  if (!value) return "";
+
+  const [date, time] = value.split(" ");
+  const [day, month, year] = date.split("-");
+
+  return `${year}-${month}-${day}T${time}`;
+};
+
 export const parseDateOnly = (dateTime: string): string => {
   return dateTime.split(" ")[0];
 };
