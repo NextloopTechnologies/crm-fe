@@ -22,6 +22,7 @@ import { getAllAccounts } from "@/api/account.api";
 interface AccountOption {
   accountNumber: string;
   accountName: string;
+  accountType: string;
 }
 
 interface AccountDropdownProps {
@@ -41,7 +42,9 @@ function AccountDropdown({ value, onChange }: AccountDropdownProps) {
       try {
         const res = await getAllAccounts();
         // Adjust based on your actual response shape: res.data or res
-        const list: AccountOption[] = (res.data ?? res ?? []).map((acc: AccountOption) => ({
+        const list: AccountOption[] = (res.data ?? res ?? [])
+        .filter((acc: AccountOption) => acc.accountType !== "Cross Sell")
+        .map((acc: AccountOption) => ({
           accountNumber: acc.accountNumber,
           accountName: acc.accountName,
         }));

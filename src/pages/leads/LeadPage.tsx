@@ -65,11 +65,12 @@ export default function LeadsPage() {
 
     const accountPayload: CreateAccountRequest = {
         accountName: lead.company ?? "",
+        accountType: lead.leadType ?? "New Business",
         rating: lead.rating === "NA" ? "" : lead.rating ?? "",
         website: lead.website === "NA" ? "" : lead.website ?? "",
         employees: String(lead.noOfEmployees ?? "").replace("NA", ""),
         annualRevenue: String(lead.annualRevenue ?? "").replace("NA", ""),
-
+        parentAccount: lead.leadNumber,
         contacts: [
             {
                 title: lead.title === "NA" ? "" : lead.title ?? "",

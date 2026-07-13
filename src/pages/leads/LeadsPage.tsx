@@ -106,7 +106,7 @@ export default function LeadsPage() {
     leadStatus: "",
     projectNo: "",
     accountNo: "",
-    leadType: "",
+    leadType: "New Business",
     leadDescription: "",
     industry: "",
     noOfEmployees: "",
@@ -120,6 +120,7 @@ export default function LeadsPage() {
     leadNumber: "",
 
     leadAddressRequestDto: {
+      addressType: "",
       country: "",
       flatNo: "",
       street: "",

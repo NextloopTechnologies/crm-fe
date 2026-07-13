@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
-import { Calendar, ClipboardList, Clock3, Trash2 } from 'lucide-react'
+import { Calendar, ClipboardList, Clock3, MoveUpRightIcon, Trash2 } from 'lucide-react'
 import { PlusIcon } from '@/assets/icons/components/PlusIcon'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
@@ -139,10 +139,16 @@ export default function ProjectListPage() {
       key: "projectName",
       label: "Project Name",
       width: "180px",
-      render: (_, row) => (
+      render: (_, row) => (<div className='flex gap-2'>
+         {row.accountType === "Up Sell" && (
+          <span className="flex items-center justify-center h-6 w-6 rounded-md bg-[#0BD901]/10">
+            <MoveUpRightIcon size={15} className="text-[#0BD901]" />
+          </span>
+        )}
         <span className="text-sm font-medium text-[#1a1a2e]">
           {(row as any).projectName ?? "—"}
         </span>
+      </div>
       ),
     },
     {

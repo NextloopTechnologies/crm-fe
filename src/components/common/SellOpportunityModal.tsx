@@ -6,15 +6,24 @@ import { ClipboardList, ListTodo, MoveUpRightIcon, } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./Button";
 import { ROUTES } from "@/lib/route";
+import { getAccountByAccountNumber } from "@/api/account.api";
+import { createLead } from "@/api/leads.api";
+import { CreateLeadRequest } from "@/types/api.types";
+import { LEAD_TYPE_MAP, omitEmptyStrings, RATING_ENUM, replaceNAWithEmpty } from "@/lib/utils";
 
-interface SellOpportunityModalProps<T> {
+interface SellOpportunityRow {
+  projectNumber: string;
+  relatedToId: string;
+}
+
+interface SellOpportunityModalProps<T extends SellOpportunityRow> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   row: T | null;
-  onSubmit: (row: T, data: { sellType: string; description: string }) => Promise<void> | void;
+  onSubmit?: (row: T, data: { sellType: string; description: string }) => Promise<void> | void;
 }
 
-export function SellOpportunityModal<T>({
+export function SellOpportunityModal<T extends SellOpportunityRow>({
   open,
   onOpenChange,
   row,
@@ -23,6 +32,7 @@ export function SellOpportunityModal<T>({
   const [sellType, setSellType] = useState("upSell");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const isSellTypeSelected = !!sellType;
 
   useEffect(() => {
@@ -30,15 +40,88 @@ export function SellOpportunityModal<T>({
       setSellType("upSell");
       setDescription("");
       setSaving(false);
+      setError(null);
     }
   }, [open]);
 
   const handleSave = async () => {
     if (!row || !isSellTypeSelected) return;
     setSaving(true);
+    setError(null);
+
     try {
-      await onSubmit(row, { sellType, description });
+      // 1. Fetch account details using the account number from the row
+      const accountRes = await getAccountByAccountNumber(row.relatedToId);
+      const account = accountRes?.data;
+
+      if (!account) {
+        throw new Error("Account not found for this project.");
+      }
+
+      const contact = account.contacts?.[0] || {};
+      const address = account.addresses?.[0] || {};
+
+      // 2. Build raw lead payload
+      const rawLeadData: CreateLeadRequest = {
+        leadOwner: account.accountOwner,
+        leadNumber: "",
+        company: account.accountName,
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        title: contact.title,
+        email: contact.email,
+        phone: contact.phone,
+        fax: contact.fax,
+        mobile: contact.mobile,
+        website: account.website,
+        leadSource: "Other",
+        leadStatus: "New Lead",
+        projectNo: row.projectNumber,
+        accountNo: account.accountNumber,
+        leadType: LEAD_TYPE_MAP[sellType] ?? sellType,
+        leadDescription: description,
+        industry: "",
+        noOfEmployees: account.employees,
+        annualRevenue: account.annualRevenue,
+        rating: (RATING_ENUM as readonly string[]).includes(account.rating)
+          ? account.rating
+          : undefined,
+        skypeId: contact.skypeId,
+        secondaryEmail: contact.secondaryEmail,
+        leadAddressRequestDto: {
+          addressType: address.addressType,
+          country: address.country,
+          flatNo: address.flatNo,
+          street: address.street,
+          city: address.city,
+          state: address.state,
+          zipCode: address.zipCode,
+          latitude: address.latitude,
+          longitude: address.longitude,
+          organizationId: localStorage.getItem("orgnizationId") || ""
+        },
+      };
+
+      const cleaned = replaceNAWithEmpty(rawLeadData);
+      const leadData: CreateLeadRequest = {
+        ...omitEmptyStrings(cleaned),
+        leadAddressRequestDto: omitEmptyStrings(cleaned.leadAddressRequestDto),
+      } as CreateLeadRequest;
+
+      // 4. Create the lead
+      await createLead(leadData);
+
+      // 5. Optional external callback
+      if (onSubmit) {
+        await onSubmit(row, { sellType, description });
+      }
+
       onOpenChange(false);
+    } catch (err) {
+      if (err instanceof Error) {
+      console.error("Failed to create lead:", err);
+      setError(err?.message || "Something went wrong while creating the lead.");
+      }
     } finally {
       setSaving(false);
     }
