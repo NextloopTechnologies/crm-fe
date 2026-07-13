@@ -12,9 +12,9 @@ import { COLUMN_CONFIG, LEAD_STATUS_OPTIONS, PIPELINE_COLUMNS, PipelineCol, STAT
 import { CreateLeadRequest } from "@/types/api.types";
 import { LeadStatusDropdown } from "@/components/LeadStatusDropdown";
 
-const resolveColumn = (lead: CreateLeadRequest): PipelineCol => {
-  if (isWithin7Days(lead.creationDate ?? "")) return "New";
-  return STATUS_TO_COLUMN[lead.leadStatus ?? ""] ?? "New";
+const resolveColumn = (lead: CreateLeadRequest): PipelineCol | null => {
+  const mapped = STATUS_TO_COLUMN[lead.leadStatus ?? ""];
+  return mapped ?? null;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -122,8 +122,11 @@ const KanbanColumn = ({
   statusLoadingLeads,
 }: KanbanColumnProps) => {
   const cfg = COLUMN_CONFIG[col];
-  const visibleLeads = leads.slice(0,5);
-  const totalRevenue = leads.reduce((s, l) => s + parseFloat(l.annualRevenue ?? "0"), 0);
+  const visibleLeads = Array.isArray(leads) ? leads.slice(0, 5) : [];
+  const totalRevenue = (leads ?? []).reduce(
+    (s, l) => s + parseFloat(l.annualRevenue ?? "0"),
+    0
+  );  
   const valueLabel = totalRevenue > 0 ? `$${(totalRevenue / 1_000_000).toFixed(1)}M` : "";
 
   return (
@@ -144,7 +147,7 @@ const KanbanColumn = ({
               className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
               style={{ background: cfg.color }}
             >
-              {leads.length}
+              {Array.isArray(leads) ? leads.length : 0}
             </span>
           </div>
         </div>
@@ -169,7 +172,7 @@ const KanbanColumn = ({
             ))
           )}
         </div>
-        {leads.length > 5 && (
+        {(leads ?? []).length > 5 && (
           <button
             onClick={() => onAddLead(col)}
             className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed text-[12px] font-semibold transition-colors hover:bg-white/60"
@@ -231,8 +234,17 @@ export default function PipelinePage({
       return matchSource && matchOwner && matchIndustry && matchDate;
     });
 
-    const map = { New: [], Qualified: [], Contacted: [], "Lost Lead": [] } as Record<PipelineCol, any[]>;
-    filtered.forEach(l => map[resolveColumn(l)].push(l));
+    const map: Record<PipelineCol, CreateLeadRequest[]> = {
+      "New Lead": [],
+      Interested: [],
+      Proposal: [],
+      Won: [],
+      Lost: [],
+    };
+  filtered.forEach(l => {
+    const col = resolveColumn(l);
+    if (col) map[col].push(l); 
+  });
     return map;
   }, [leads, appliedFilters]);
 

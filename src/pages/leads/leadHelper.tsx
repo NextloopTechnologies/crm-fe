@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { STATUS_COLOR } from "@/constants/LeadStatus";
 
 // ================================
 // Utils

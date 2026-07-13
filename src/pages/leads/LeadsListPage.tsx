@@ -67,10 +67,10 @@ export default function LeadsList({
             render: (_, row) => <span>{row.email ?? "—"}</span>,
         },
         {
-            key: "phone",
-            label: "Phone",
+            key: "mobile",
+            label: "Mobile",
             width: "220px",
-            render: (_, row) => <span>{row.phone ?? "—"}</span>,
+            render: (_, row) => <span>{row.mobile ?? "—"}</span>,
         },
         {
             key: "leadSource",
@@ -126,8 +126,13 @@ export default function LeadsList({
                     <Avatar className="h-8 w-8">
                         <AvatarImage src={`${import.meta.env.VITE_AVATAR_URL}&seed=${row.leadOwner}`} />
                         <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-                            {row.leadOwner?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
-                        </AvatarFallback>
+                            {row.leadOwner
+                                ? row.leadOwner
+                                    .split(" ")
+                                    .map((n: string) => n[0])
+                                    .join("")
+                                    .slice(0, 2)
+                                : "—"}                        </AvatarFallback>
                     </Avatar>
                     <span>{row.leadOwner ?? "—"}</span>
                 </div>

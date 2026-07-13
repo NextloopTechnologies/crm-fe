@@ -101,6 +101,10 @@ export interface CreateLeadRequest {
   website?: string
   leadSource: string
   leadStatus: string
+  projectNo: string
+  accountNo: string
+  leadType: string
+  leadDescription: string
   industry?: string
   noOfEmployees?: string
   annualRevenue?: string

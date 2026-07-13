@@ -3,10 +3,12 @@ import { LayoutGrid, List } from "lucide-react";
 import LeadsList from "./LeadsListPage";
 import PipelinePage from "@/pages/PipelinePage";
 import StatsCard from "@/components/common/StatsCards";
-import { getAllLeads, updateLeadStatusbyLeadNumber } from "@/api/leads.api";
+import { getAllLeads, getLeadByLeadNumber, updateLeadStatusbyLeadNumber } from "@/api/leads.api";
 import { UsersIcon, NewLeadsIcon, ActiveUsersIcon, InActiveUsersIcon, UpArrowIcon, DownArrowIcon } from "@/assets/icons/components/index";
-import { CreateLeadRequest } from "@/types/api.types";
+import { CreateAccountRequest, CreateLeadRequest } from "@/types/api.types";
 import { isWithin7Days } from "./leadHelper";
+import { createAccount } from "@/api/account.api";
+import { replaceNAWithEmpty } from "@/lib/utils";
 
 const COLUMN_TO_STATUSES: Record<string, string[]> = {
     "New": ["Not Contacted", "Attempted to Contact", "None"],
@@ -51,6 +53,54 @@ export default function LeadsPage() {
         );
     }, [leads, search]);
 
+    const visibleLeads = useMemo(() => {
+    return filteredLeads.filter(
+        (lead) => lead.leadStatus !== "Deal Won"
+    );
+}, [filteredLeads]);
+
+   const createAccountFromLead = async (leadNumber: string) => {
+    const leadResponse = await getLeadByLeadNumber(leadNumber);
+    const lead = leadResponse.data;
+
+    const accountPayload: CreateAccountRequest = {
+        accountName: lead.company ?? "",
+        rating: lead.rating === "NA" ? "" : lead.rating ?? "",
+        website: lead.website === "NA" ? "" : lead.website ?? "",
+        employees: String(lead.noOfEmployees ?? "").replace("NA", ""),
+        annualRevenue: String(lead.annualRevenue ?? "").replace("NA", ""),
+
+        contacts: [
+            {
+                title: lead.title === "NA" ? "" : lead.title ?? "",
+                firstName: lead.firstName === "NA" ? "" : lead.firstName ?? "",
+                lastName: lead.lastName === "NA" ? "" : lead.lastName ?? "",
+                email: lead.email === "NA" ? "" : lead.email ?? "",
+                secondaryEmail: lead.secondaryEmail === "NA" ? "" : lead.secondaryEmail ?? "",
+                phone: lead.phone === "NA" ? "" : lead.phone ?? "",
+                mobile: lead.mobile === "NA" ? "" : lead.mobile ?? "",
+                skypeId: lead.skypeId === "NA" ? "" : lead.skypeId ?? "",
+                fax: lead.fax === "NA" ? "" : lead.fax ?? "",
+            }
+        ],
+
+        addresses: [
+            {
+                country: lead.leadAddressResponseDto?.country === "NA" ? "" : lead.leadAddressResponseDto?.country ?? "",
+                flatNo: lead.leadAddressResponseDto?.flatNo === "NA" ? "" : lead.leadAddressResponseDto?.flatNo ?? "",
+                street: lead.leadAddressResponseDto?.street === "NA" ? "" : lead.leadAddressResponseDto?.street ?? "",
+                city: lead.leadAddressResponseDto?.city === "NA" ? "" : lead.leadAddressResponseDto?.city ?? "",
+                state: lead.leadAddressResponseDto?.state === "NA" ? "" : lead.leadAddressResponseDto?.state ?? "",
+                zipCode: lead.leadAddressResponseDto?.zipCode === "NA" ? "" : lead.leadAddressResponseDto?.zipCode ?? "",
+                latitude: String(lead.leadAddressResponseDto?.latitude ?? ""),
+                longitude: String(lead.leadAddressResponseDto?.longitude ?? ""),
+            }
+        ],
+    };
+
+    await createAccount(accountPayload);
+};
+
     const handleStatusChange = async (
         leadNumber: string,
         status: string
@@ -58,18 +108,23 @@ export default function LeadsPage() {
         setStatusLoadingLeads(prev => new Set(prev).add(leadNumber));
         try {
             await updateLeadStatusbyLeadNumber(leadNumber, status);
+
+        if (status === "Deal Won") {
+            await createAccountFromLead(leadNumber);
+        }
+
             setLeads(prev => prev.map(lead =>
                 lead.leadNumber === leadNumber
                     ? { ...lead, leadStatus: status }
                     : lead
             ));
-        } catch (err) {
-            console.error("Status update failed", err);
+        } catch (error) {
+            console.error("Status update failed", error);
         } finally {
             setStatusLoadingLeads(prev => {
-                const next = new Set(prev);
-                next.delete(leadNumber);
-                return next;
+            const updated = new Set(prev);
+               updated.delete(leadNumber);
+                return updated;
             });
         }
     };
@@ -79,28 +134,28 @@ export default function LeadsPage() {
             {
                 icon: <UsersIcon />,
                 label: "Total Leads",
-                value: leads.length,
+                value: visibleLeads.length,
                 subtitle: "All leads in pipeline",
                 trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
             },
             {
                 icon: <NewLeadsIcon />,
                 label: "New (7 days)",
-                value: leads.filter(l => isWithin7Days(l.creationDate)).length,
+                value: visibleLeads.filter(l => isWithin7Days(l.creationDate)).length,
                 subtitle: "Created this week",
                 trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
             },
             {
                 icon: <ActiveUsersIcon />,
-                label: "Contacted",
-                value: leads.filter(l => l.leadStatus === "Contacted").length,
+                label: "Intrested",
+                value: visibleLeads.filter(l => l.leadStatus === "Attempted to Contact").length,
                 subtitle: "Reached out successfully",
                 trend: { icon: <UpArrowIcon />, text: "8%", color: "text-[#22c55e]" },
             },
             {
                 icon: <InActiveUsersIcon />,
                 label: "Lost / Junk",
-                value: leads.filter(l => ["Lost Lead", "Junk Lead", "Not Qualified"].includes(l.leadStatus ?? "")).length,
+                value: visibleLeads.filter(l => ["Lost Lead", "Junk Lead", "Not Qualified"].includes(l.leadStatus ?? "")).length,
                 subtitle: "Closed without conversion",
                 trend: { icon: <DownArrowIcon />, text: "5%", color: "text-[#EB4335]" },
             },
@@ -160,26 +215,8 @@ export default function LeadsPage() {
 
             <div className="rounded-lg">
                 {view === "board"
-                    ? <PipelinePage leads={filteredLeads} onCardClick={handleCardClick} onColumnClick={handleColumnClick} onStatusChange={async (leadNumber, status) => {
-                        setStatusLoadingLeads(prev => new Set(prev).add(leadNumber));
-                        try {
-                          await updateLeadStatusbyLeadNumber(leadNumber, status);
-                          setLeads(prev => prev.map(lead =>
-                            lead.leadNumber === leadNumber
-                              ? { ...lead, leadStatus: status }
-                              : lead
-                          ));
-                        } catch (err) {
-                          console.error("Status update failed", err);
-                        } finally {
-                          setStatusLoadingLeads(prev => {
-                            const next = new Set(prev);
-                            next.delete(leadNumber);
-                            return next;
-                          });
-                        }
-                      }}/>
-                    : <LeadsList leads={filteredLeads} loading={leadsLoading} initialStatuses={initialStatuses} onStatusChange={handleStatusChange} statusLoadingLeads={statusLoadingLeads} />
+                    ? <PipelinePage leads={visibleLeads} onCardClick={handleCardClick} onColumnClick={handleColumnClick} onStatusChange={handleStatusChange}/>
+                    : <LeadsList leads={visibleLeads} loading={leadsLoading} initialStatuses={initialStatuses} onStatusChange={handleStatusChange} statusLoadingLeads={statusLoadingLeads} />
                 }
             </div>
         </div>

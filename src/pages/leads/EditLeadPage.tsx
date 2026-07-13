@@ -8,15 +8,17 @@ import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
 import { InlineSelectDropdown } from '@/components/common/InlineSelectDropDown';
 import { createLead, getLeadByLeadNumber, updateLead } from '@/api/leads.api';
-import { CreateLeadRequest } from '@/types/api.types';
+import { CreateAccountRequest, CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate, useParams } from "react-router-dom";
 import { ROUTES } from '@/lib/route';
-import { LEAD_STATUS_OPTIONS, LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
+import { LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
 import BackButton from '@/components/common/BackButton';
 import { ArrowLeft } from 'lucide-react';
 import { getChangedFields } from '@/lib/objectDiff';
+import { createAccount } from '@/api/account.api';
+import { replaceNAWithEmpty } from '@/lib/utils';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -93,6 +95,7 @@ export default function EditLeadPage() {
       const lead = response.data;
 
       const mappedLead = {
+        leadNumber: lead.leadNumber ?? "",
         company: lead.company ?? "",
         firstName: lead.firstName ?? "",
         lastName: lead.lastName ?? "",
@@ -104,6 +107,10 @@ export default function EditLeadPage() {
         website: lead.website ?? "",
         leadSource: lead.leadSource ?? "",
         leadStatus: lead.leadStatus ?? "",
+        projectNo: lead.projectNo ?? "",
+        accountNo: lead.projectNo ?? "",
+        leadType: lead.projectNo ?? "",
+        leadDescription: lead.projectNo ?? "",
         industry: lead.industry ?? "",
         noOfEmployees: String(lead.noOfEmployees ?? ""),
         annualRevenue: String(lead.annualRevenue ?? ""),
@@ -112,7 +119,7 @@ export default function EditLeadPage() {
         skypeId: lead.skypeId ?? "",
         secondaryEmail: lead.secondaryEmail ?? "",
         twitter: lead.twitter ?? "",
-
+        leadOwner: lead.leadOwner ?? "",
         leadAddressRequestDto: {
           country: lead.leadAddressResponseDto?.country ?? "",
           flatNo: lead.leadAddressResponseDto?.flatNo ?? "",
@@ -148,29 +155,81 @@ export default function EditLeadPage() {
 
       const payload = getChangedFields(initialData, formData);
 
-      if (Object.keys(payload).length === 0) {
-        showToast({
-          title: "No changes",
-          description: "Please update at least one field.",
-          type: "info",
-        });
-    
-        return;
-      }
+    if (Object.keys(payload).length === 0) {
+      showToast({
+        title: "No changes",
+        description: "Please update at least one field.",
+        type: "info",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await updateLead(id!, payload);
       if (response.code === ResponseCode.SUCCESS) {
+
+// TODO: Temporary implementation.
+// Currently, the frontend manually creates an Account when the lead status changes.
+// This logic will be moved to the backend in the future so account creation happens automatically.
+        const statusChanged =
+          initialData.leadStatus !== formData.leadStatus;
+
+        if (
+          statusChanged &&
+          formData.leadStatus === "Deal Won"
+        ) {
+
+          const accountPayload: CreateAccountRequest = {
+            accountName: formData.company ?? "",
+            rating: formData.rating,
+            website: formData.website,
+            employees: formData.noOfEmployees,
+            annualRevenue: formData.annualRevenue,
+
+            contacts: [
+              {
+                title: "Mr",
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                secondaryEmail: formData.secondaryEmail,
+                phone: formData.phone,
+                mobile: formData.mobile,
+                skypeId: formData.skypeId,
+                fax: formData.fax,
+              },
+            ],
+
+            addresses: [
+              {
+                country: formData.leadAddressRequestDto?.country,
+                flatNo: formData.leadAddressRequestDto?.flatNo,
+                street: formData.leadAddressRequestDto?.street,
+                city: formData.leadAddressRequestDto?.city,
+                state: formData.leadAddressRequestDto?.state,
+                zipCode: formData.leadAddressRequestDto?.zipCode,
+                latitude: formData.leadAddressRequestDto?.latitude,
+                longitude: formData.leadAddressRequestDto?.longitude,
+              },
+            ],
+          };
+
+          await createAccount(replaceNAWithEmpty(accountPayload));
+        }
+
         showToast({
           title: "Lead updated!",
           description: "Lead details updated successfully.",
           type: "success",
-          icon: <CreatedIcon />
+          icon: <CreatedIcon />,
         });
 
         setTimeout(() => {
           navigate(ROUTES.LEADS);
         }, 500);
+
+        return;
       }
       if (response?.description === "Email already exists.") {
         setErrors((prev) => ({
@@ -226,7 +285,6 @@ export default function EditLeadPage() {
             id="firstName"
             label="First Name"
             placeholder="Enter first name"
-            required
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
@@ -273,6 +331,7 @@ export default function EditLeadPage() {
             label="Mobile"
             placeholder="Enter mobile number"
             type="tel"
+            required
             value={formData.mobile}
             onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
@@ -306,7 +365,6 @@ export default function EditLeadPage() {
               setFormData({ ...formData, leadStatus: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
             error={(touched || isSubmitted) && !formData.leadStatus ? "Lead status is required" : undefined}
           />
@@ -321,7 +379,6 @@ export default function EditLeadPage() {
               setFormData({ ...formData, leadSource: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
             error={(touched || isSubmitted) && !formData.leadSource ? "Lead source is required" : undefined}
           />
@@ -334,7 +391,6 @@ export default function EditLeadPage() {
               setFormData({ ...formData, industry: val });
               setTouched(true);
             }}
-            required
             leftIcon={<ShieldIcon />}
             error={(touched || isSubmitted) && !formData.industry ? "Industry is required" : undefined}
           />
@@ -430,7 +486,7 @@ export default function EditLeadPage() {
             placeholder="Select country"
             value={formData.leadAddressRequestDto?.country || ''}
             onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, country: e.target.value } })}
-            required
+            
           />
           <InlineInput id="street" label="Street" placeholder="Enter street address" value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} />
           <InlineInput id="state" label="State" placeholder="Enter state / province" value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} />

@@ -65,7 +65,7 @@ export default function LeadDetailPage() {
 
     const ratingCls = RATING_COLOR[lead.rating] ?? "text-slate-600 bg-slate-100";
     const addr = lead.leadAddressResponseDto;
-    const fullName = [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "—";
+    const fullName = [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "NA";
 
     return (
         <div className="bg-white min-h-screen rounded-xl flex flex-col">
@@ -180,7 +180,7 @@ export default function LeadDetailPage() {
                                     ? <span className={`inline-flex items-center gap-1 text-[12px] font-semibold px-2 py-0.5 rounded-full ${ratingCls}`}>
                                         <Star size={10} /> {lead.rating}
                                     </span>
-                                    : "—"
+                                    : "NA"
                             } />
                             <Field label="Title" value={displayValue(lead.title)} />
                             <Field label="Industry" value={displayValue(lead.industry)} />
@@ -194,12 +194,12 @@ export default function LeadDetailPage() {
                             <Field label="Email" value={
                                 lead.email
                                     ? <a href={`mailto:${lead.email}`} className="text-[#5752FE] hover:underline">{lead.email}</a>
-                                    : "—"
+                                    : "NA"
                             } />
                             <Field label="Secondary Email" value={
                                 lead.secondaryEmail && lead.secondaryEmail !== "NA"
                                     ? <a href={`mailto:${lead.secondaryEmail}`} className="text-[#5752FE] hover:underline">{lead.secondaryEmail}</a>
-                                    : "—"
+                                    : "NA"
                             } />
                             <Field label="Phone" value={displayValue(lead.phone)} />
                             <Field label="Mobile" value={displayValue(lead.mobile)} />
@@ -210,13 +210,13 @@ export default function LeadDetailPage() {
                                         className="text-[#5752FE] hover:underline flex items-center gap-1">
                                         <Globe size={11} /> {lead.website}
                                     </a>
-                                    : "—"
+                                    : "NA"
                             } />
                             <Field label="Skype ID" value={displayValue(lead.skypeId)} />
                             <Field label="Twitter" value={
                                 lead.twitter && lead.twitter !== "NA"
                                     ? <span className="flex items-center gap-1"><Twitter size={11} /> {lead.twitter}</span>
-                                    : "—"
+                                    : "NA"
                             } />
                             <Field label="Email Opt Out" value={lead.emailOptOut === "true" ? "Yes" : "No"} />
                         </div>
@@ -276,7 +276,7 @@ export default function LeadDetailPage() {
                             </div>
                             <div>
                                 <p className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wide">Organization ID</p>
-                                <p className="text-[13px] text-[#1e1e2d] font-medium mt-0.5">{lead.organizationId ?? "—"}</p>
+                                <p className="text-[13px] text-[#1e1e2d] font-medium mt-0.5">{lead.organizationId ?? "NA"}</p>
                             </div>
                         </div>
                     </div>
