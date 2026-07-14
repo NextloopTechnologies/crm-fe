@@ -75,3 +75,19 @@ export const replaceNAWithEmpty = <T>(value: T): T => {
 
   return value;
 };
+export const omitEmptyStrings = <T extends Record<string, any>>(obj: T): T => {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== "")
+  ) as T;
+};
+
+export const LEAD_SOURCE_ENUM = [
+  "Web", "Phone", "Email", "Cold Call", "Existing Customer", "Partner", "Other",
+] as const;
+
+export const RATING_ENUM = ["None"] as const;
+
+export const LEAD_TYPE_MAP: Record<string, string> = {
+  upSell: "Up Sell",
+  crossSell: "Cross Sell",
+};
