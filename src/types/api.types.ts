@@ -77,6 +77,7 @@ export interface Lead {
   lastModifiedDate: string
 }
 export interface AddressRequestDto {
+  addressType: string
   country: string
   flatNo: string
   street: string

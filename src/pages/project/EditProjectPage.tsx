@@ -8,6 +8,7 @@ import { getSuccessToast } from '@/components/common/toastMessages';
 import { CreateProjectRequest } from '@/types/api.types';
 import ProjectForm from '@/components/forms/ProjectForm';
 import { getProjectByProjectNumber, updateProject } from '@/api/projects.api';
+import { formatDate , parseDateOnly} from '@/lib/utils';
 
 export default function EditProjectPage() {
   const { id } = useParams();
@@ -37,8 +38,6 @@ export default function EditProjectPage() {
             startDate: project.startDate ?? "",
             endDate: project.endDate ?? "",
             description: project.description ?? "",
-            relatedToType: project.relatedToType ?? "",
-            relatedToId: project.relatedToId ?? "",
         });
       }catch (error) {
         console.error(error);
