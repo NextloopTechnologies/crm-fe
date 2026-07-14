@@ -10,6 +10,7 @@ import StatsCard from '@/components/common/StatsCards';
 import CustomBadge from "@/components/common/CommonBadge";
 import { ROUTES } from '@/lib/route';
 import { getAllUsers } from '@/api/user.api';
+import { toInputDateTime } from '@/lib/utils';
 
 // ── Types ─────────────────────────────────────────────────────
 interface User {
@@ -38,32 +39,54 @@ const roleColors: Record<string, string> = {
     SALES:       "bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-50",
 };
 
-const getStats = (data: User[]) => [
+const getCurrentRole = () => {
+  return localStorage.getItem("roleName")?.toUpperCase() || "";
+};
+
+const getStats = (data: User[]) => {
+  const role = getCurrentRole();
+
+  const allStats = [
     {
-        icon: <UsersIcon />,
-        label: "Total Users",
-        value: data.length,
-        subtitle: "All Users in System",
+      key: "TOTAL",
+      icon: <UsersIcon />,
+      label: "Total Users",
+      value: data.length,
+      subtitle: "All Users in System",
     },
     {
-        icon: <ActiveUsersIcon />,
-        label: "Active",
-        value: data.filter((u) => u.isActive === "Y" || u.isActive === true).length,
-        subtitle: "Currently Active",
+      key: "ADMIN",
+      icon: <TenantsIcon />,
+      label: "Admins",
+      value: data.filter((u) => u.roleName?.toUpperCase() === "ADMIN").length,
+      subtitle: "Admin Users",
     },
     {
-        icon: <InActiveUsersIcon />,
-        label: "Inactive",
-        value: data.filter((u) => u.isActive === "0" || u.isActive === false).length,
-        subtitle: "Currently Inactive",
+      key: "MANAGER",
+      icon: <ActiveUsersIcon />,
+      label: "Managers",
+      value: data.filter((u) => u.roleName?.toUpperCase() === "MANAGER").length,
+      subtitle: "Manager Users",
     },
     {
-        icon: <TenantsIcon />,
-        label: "Admins",
-        value: data.filter((u) => u.roleName?.toUpperCase() === "ADMIN").length,
-        subtitle: "Admin Users",
+      key: "SALES",
+      icon: <InActiveUsersIcon />,
+      label: "Sales",
+      value: data.filter((u) => u.roleName?.toUpperCase() === "SALES").length,
+      subtitle: "Sales Users",
     },
-];
+  ];
+
+  const visibilityMap: Record<string, string[]> = {
+    SUPER_ADMIN: ["TOTAL", "ADMIN", "MANAGER", "SALES"],
+    ADMIN: ["TOTAL", "MANAGER", "SALES"],
+    MANAGER: ["SALES"],
+  };
+
+  const allowedKeys = visibilityMap[role] || [];
+
+  return allStats.filter((stat) => allowedKeys.includes(stat.key));
+};
 
 const FILTERS = [
     {
@@ -176,20 +199,13 @@ export default function UsersList() {
             ),
         },
         {
-            key: "isActive",
-            label: "Status",
+            key: "Organization",
+            label: "Organization",
             width: "120px",
             render: (_, row) => {
-                const active = row.isActive === "Y" || row.isActive === true;
                 return (
-                <CustomBadge
-                    label={active ? "Active" : "Inactive"}
-                    className={
-                            active
-                            ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
-                            : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
-                    }
-                />
+                    //should be fetch from data;
+                <span className="text-sm text-[#6b6b8d]">NextLoop Technologies</span>
             );
             },
         },
@@ -203,13 +219,20 @@ export default function UsersList() {
         {
             key: "creationDate",
             label: "Created At",
-            render: (_, row) => (
-                <span className="text-[#6b6b8d] text-sm">
-                    {new Date(row.creationDate).toLocaleDateString("en-IN", {
-                        day: "2-digit", month: "short", year: "numeric",
-                    })}
-                </span>
-            ),
+            render: (_, row) => {
+                const isoString = toInputDateTime(row.creationDate);
+                const date = new Date(isoString);
+
+                return (
+                    <span className="text-[#6b6b8d] text-sm">
+                        {isNaN(date.getTime())
+                            ? "—"
+                            : date.toLocaleDateString("en-IN", {
+                                day: "2-digit", month: "short", year: "numeric",
+                            })}
+                    </span>
+                );
+            },
         },
     ], []);
 
