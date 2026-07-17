@@ -7,8 +7,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/lib/route";
-import { formatDate, isWithin7Days, LeadAvatar } from "./leads/leadHelper";
-import { COLUMN_CONFIG, LEAD_STATUS_OPTIONS, PIPELINE_COLUMNS, PipelineCol, STATUS_COLOR, STATUS_TO_COLUMN } from "@/constants/LeadStatus";
+import { formatDate, LeadAvatar } from "./leads/leadHelper";
+import { COLUMN_CONFIG, PIPELINE_COLUMNS, PipelineCol, STATUS_TO_COLUMN } from "@/constants/LeadStatus";
 import { CreateLeadRequest } from "@/types/api.types";
 import { LeadStatusDropdown } from "@/components/LeadStatusDropdown";
 
@@ -123,11 +123,6 @@ const KanbanColumn = ({
 }: KanbanColumnProps) => {
   const cfg = COLUMN_CONFIG[col];
   const visibleLeads = Array.isArray(leads) ? leads.slice(0, 5) : [];
-  const totalRevenue = (leads ?? []).reduce(
-    (s, l) => s + parseFloat(l.annualRevenue ?? "0"),
-    0
-  );  
-  const valueLabel = totalRevenue > 0 ? `$${(totalRevenue / 1_000_000).toFixed(1)}M` : "";
 
   return (
     <div className="flex-shrink-0 w-[250px] flex flex-col">

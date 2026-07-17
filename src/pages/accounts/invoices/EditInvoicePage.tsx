@@ -69,7 +69,7 @@ export default function EditInvoicePage({ invoiceId, accountNumber, onSuccess, o
   };
 
   const handleSubmit = useCallback(
-    async (data: CreateInvoiceRequest) => {
+    async () => {
       try {
         setLoading(true);
         showToast(getSuccessToast("Invoice", "updated"));

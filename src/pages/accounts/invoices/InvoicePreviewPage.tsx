@@ -2,9 +2,8 @@
 import { CreateAccountRequest, InvoiceResponseDto } from "@/types/api.types";
 import logo from "@/assets/images/CompanyLogo.svg";
 import { toWords } from "@/lib/utils";
-import { ArrowLeft, Download } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
-import html2pdf from "html2pdf.js";
+import { ArrowLeft } from "lucide-react";
+import { useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 interface Props {
@@ -20,7 +19,7 @@ const fmt = (n: number) =>
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-export default function InvoicePreview({ data, account, onBack, onSave, isLoading }: Props) {
+export default function InvoicePreview({ data, account, onBack }: Props) {
 
     const invoiceRef = useRef<HTMLDivElement>(null);
 

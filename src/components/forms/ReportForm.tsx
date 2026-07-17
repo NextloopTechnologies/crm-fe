@@ -4,7 +4,6 @@ import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import {
   UserIcon,
-  MailIcon,
 } from "@/assets/icons/components/index";
 
 
@@ -67,8 +66,6 @@ export default function ReportForm({
     zipCode: defaultValues.zipCode ?? "",
   });
 
-  const [touched, setTouched] = useState(false);
-
   useEffect(() => {
     if (
       defaultValues &&
@@ -89,7 +86,6 @@ export default function ReportForm({
           [key]: val,
         }));
 
-        setTouched(true);
       };
 
   const handleSubmit = (

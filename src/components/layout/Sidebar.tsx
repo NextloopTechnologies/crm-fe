@@ -7,7 +7,6 @@ import {
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/stores/ui.store'
 import { usePermission } from '@/hooks/usePermission'
-import { PipeLinesIcon } from '@/assets/icons/components/index'
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/leads', label: 'Leads', icon: Users },

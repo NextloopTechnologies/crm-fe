@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 import { ActiveUsersIcon, TenantsIcon, UpArrowIcon, UsersIcon } from "@/assets/icons/components";
-import { ChartLine, ClipboardList, List, Phone } from "lucide-react";
+import { ChartLine, ClipboardList, Phone } from "lucide-react";
 import { getAllAccounts } from "@/api/account.api";
 import { getAllTasks } from "@/api/tasks.api";
 import { getAllLeads } from "@/api/leads.api";
 import { ACCOUNT_COLORS, SOURCE_COLORS } from "@/constants/colors";
-import { CreateLeadRequest, Lead } from "@/types/api.types";
+import type { Lead } from "@/types/api.types";
 
 // ─────────────────────────────────────────────
 // Types
@@ -70,7 +70,7 @@ export const PERIOD_DATA = {
   },
 };
 
-export function buildSourceData(leads: CreateLeadRequest[], period: string): Source[] {
+export function buildSourceData(leads: Lead[], period: string): Source[] {
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -121,13 +121,6 @@ const TaskIcon = () => (
 
 export function mapApiAccount(a: Account, idx: number): Account {
   const accountName = a.accountName ?? "—";
-
-  const words = accountName.trim().split(" ");
-
-  const initials =
-    words.length >= 2
-      ? (words[0][0] + words[1][0]).toUpperCase()
-      : accountName.slice(0, 2).toUpperCase();
 
   return {
     id: a.id ?? idx + 1,
@@ -182,24 +175,24 @@ export function buildStats(
   fmtRevenue : string
 ): StatItem[] {
   if (role === "ADMIN") return [
-  { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,  subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks), subtitle: "last month", trend: upTrendLive() },
+  { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive("+12%") },
+  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive("+8%") },
+  { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,  subtitle: "vs last month", trend: upTrendLive("+5%") },
+  { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks), subtitle: "last month", trend: upTrendLive("+3%") },
 ];
 
   if (role === "MANAGER") return [
-    { icon: <UsersIcon />, label: "Team Accounts", value: String(totalAccounts),  subtitle: "All accounts in team", trend: upTrendLive() },
-    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <TaskIcon />,        label: "Team Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <UsersIcon />, label: "Team Accounts", value: String(totalAccounts),  subtitle: "All accounts in team", trend: upTrendLive("+10%") },
+    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive("+6%") },
+    { icon: <TaskIcon />,        label: "Team Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive("+9%") },
+    { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive("+2%") },
   ];
 
   return [
-  { icon: <UsersIcon />, label: "My Accounts", value: String(totalAccounts),  subtitle: "All my accounts", trend: upTrendLive() },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <TaskIcon />, label: "My Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <TenantsIcon />, label: "My Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive() },
+  { icon: <UsersIcon />, label: "My Accounts", value: String(totalAccounts),  subtitle: "All my accounts", trend: upTrendLive("+7%") },
+  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive("+4%") },
+  { icon: <TaskIcon />, label: "My Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive("+5%") },
+  { icon: <TenantsIcon />, label: "My Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive("+1%") },
   ];
 }
 
@@ -207,20 +200,22 @@ export function buildStats(
 // Single fetch function — used by all 3 pages
 // ─────────────────────────────────────────────
 export async function fetchDashboardData(role: "ADMIN" | "MANAGER" | "SALES") {
-  const [accRes, taskRes , leadRes] = await Promise.all([getAllAccounts(), getAllTasks() , getAllLeads()]);
+  const accountResponse = await getAllAccounts();
+  const taskResponse = await getAllTasks();
+  const leadResponse = await getAllLeads();
 
-  const rawAccounts = accRes?.data  ?? accRes  ?? [];
-  const rawTasks    = taskRes?.data ?? taskRes ?? [];
-  const rawLeads    = leadRes?.data ?? leadRes ?? [];
+  const rawAccounts = Array.isArray(accountResponse) ? accountResponse : [];
+  const rawTasks = Array.isArray(taskResponse) ? taskResponse : [];
+  const rawLeads = Array.isArray(leadResponse) ? leadResponse : [];
 
-  const accounts = rawAccounts.map(mapApiAccount);
-  const tasks    = rawTasks.map(mapApiTask);
+  const accounts = (rawAccounts as Account[]).map(mapApiAccount);
+  const tasks = (rawTasks as Task[]).map(mapApiTask);
 
-  const totalAccounts  = accounts.length;
+  const totalAccounts = accounts.length;
   const activeAccounts = accounts.filter((a: Account) => a.status === "Active").length;
-  const totalTasks     = tasks.length;
+  const totalTasks = tasks.length;
 
-  const totalRevenue = rawLeads.reduce(
+  const totalRevenue = (rawLeads as Lead[]).reduce(
     (sum: number, lead: any) => sum + (parseFloat(lead.annualRevenue) || 0),
     0
   );

@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
-import { CreatedIcon } from '@/assets/icons/components/index';
 import { ROUTES } from '@/lib/route'
-import ProjectForm, { ProjectFormData } from '@/components/forms/ProjectForm';
+import ProjectForm from '@/components/forms/ProjectForm';
 import { getErrorToast, getSuccessToast } from '@/components/common/toastMessages';
 import { ResponseCode } from '@/constants/statusCodes';
-import { CreateAccountRequest, CreateProjectRequest } from '@/types/api.types';
+import { CreateProjectRequest } from '@/types/api.types';
 import { createProject } from '@/api/projects.api';
 
 export default function CreateProjectPage() {

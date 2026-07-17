@@ -150,16 +150,13 @@ export default function LeadsList({
         [navigate]
     )
 
-    const handleDelete = useCallback((row: CreateLeadRequest | CreateLeadRequest[]) => { }, [])
+    const handleDelete = useCallback(() => { }, [])
 
 
     const handleSelection = useCallback(
         (rows: CreateLeadRequest[]) => setSelectedRows(rows),
         []
     )
-
-    const handleDeleteSelected = useCallback(() => { }, [selectedRows])
-
     // ── Header Actions (Filter + Add Lead) ────────────────────────────────────
     const headerActions = (
         <div className="flex items-center gap-2">

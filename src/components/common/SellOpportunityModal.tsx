@@ -10,48 +10,53 @@ import { getAccountByAccountNumber } from "@/api/account.api";
 import { createLead } from "@/api/leads.api";
 import { CreateLeadRequest } from "@/types/api.types";
 import { LEAD_TYPE_MAP, omitEmptyStrings, RATING_ENUM, replaceNAWithEmpty } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface SellOpportunityRow {
-  projectNumber: string;
-  relatedToId: string;
+  projectNumber?: string;
+  relatedToId?: string;
 }
 
-interface SellOpportunityModalProps<T extends SellOpportunityRow> {
+interface SellOpportunityModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  row: T | null;
-  onSubmit?: (row: T, data: { sellType: string; description: string }) => Promise<void> | void;
+  row: SellOpportunityRow | null;
+  onSubmit?: (row: SellOpportunityRow, data: { sellType: string; description: string }) => Promise<void> | void;
 }
 
-export function SellOpportunityModal<T extends SellOpportunityRow>({
+export function SellOpportunityModal({
   open,
   onOpenChange,
   row,
   onSubmit,
-}: SellOpportunityModalProps<T>) {
+}: SellOpportunityModalProps) {
   const [sellType, setSellType] = useState("upSell");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isSellTypeSelected = !!sellType;
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (open) {
       setSellType("upSell");
       setDescription("");
       setSaving(false);
+      if(error){
       setError(null);
     }
+  }
   }, [open]);
 
   const handleSave = async () => {
-    if (!row || !isSellTypeSelected) return;
+    const rowData = row as SellOpportunityRow | null;
+
+    if (!rowData || !isSellTypeSelected) return;
     setSaving(true);
     setError(null);
 
     try {
       // 1. Fetch account details using the account number from the row
-      const accountRes = await getAccountByAccountNumber(row.relatedToId);
+      const accountRes = await getAccountByAccountNumber(rowData.relatedToId || "");
       const account = accountRes?.data;
 
       if (!account) {
@@ -76,7 +81,7 @@ export function SellOpportunityModal<T extends SellOpportunityRow>({
         website: account.website,
         leadSource: "Other",
         leadStatus: "New Lead",
-        projectNo: row.projectNumber,
+        projectNo: rowData.projectNumber || "",
         accountNo: account.accountNumber,
         leadType: LEAD_TYPE_MAP[sellType] ?? sellType,
         leadDescription: description,
@@ -113,7 +118,7 @@ export function SellOpportunityModal<T extends SellOpportunityRow>({
 
       // 5. Optional external callback
       if (onSubmit) {
-        await onSubmit(row, { sellType, description });
+        await onSubmit(rowData, { sellType, description });
       }
 
       onOpenChange(false);
@@ -128,7 +133,7 @@ export function SellOpportunityModal<T extends SellOpportunityRow>({
   };
 
   const handleCancel = async ()=> {
-    navigation.navigate(ROUTES.PROJECT || history.back())
+    navigate(ROUTES.PROJECT || history.back())
   }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

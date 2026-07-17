@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
 import { Clock3, Download, FileText, Trash2 } from 'lucide-react'
-import { usersData, type User } from '../../data/user.data'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
 import CustomBadge from '@/components/common/CommonBadge'
@@ -11,7 +10,7 @@ import { ROUTES } from '@/lib/route'
 import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
 
 // ── Static constants — component ke bahar ────────────────────
-const getStats = (data: User[]) => [
+const getStats = (data: Report[]) => [
     {
         icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A] flex items-center justify-center"><FileText className="w-6 h-6 text-[#5752FE]" /></div>,
         label: "Total Reports",
@@ -69,12 +68,12 @@ const UserCell = ({ name }: { name: string }) => (
 
 // ── Component ─────────────────────────────────────────────────
 export default function ReportListPage() {
-    const [selectedRows, setSelectedRows] = useState<User[]>([])
+    const [selectedRows, setSelectedRows] = useState<Report[]>([])
     const navigate = useNavigate()
 
-    const stats = useMemo(() => getStats(usersData), [])
+    const stats = useMemo(() => getStats(reportData), [])
 
-    const columns = useMemo<ColumnDef<User>[]>(() => [
+    const columns = useMemo<ColumnDef<Report>[]>(() => [
         {
             key: "name",
             label: "Report Name",
@@ -129,16 +128,16 @@ export default function ReportListPage() {
     ], [])
 
     const handleEdit = useCallback(
-        (row: User) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+        (row: Report) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
         [navigate]
     )
 
-    const handleDelete = useCallback((row: User | User[]) => { }, [])
+    const handleDelete = useCallback(() => { }, [])
 
-    const handleRowClick = useCallback((row: User) => { }, [])
+    const handleRowClick = useCallback(() => { }, [])
 
     const handleSelection = useCallback(
-        (rows: User[]) => setSelectedRows(rows),
+        (rows: Report[]) => setSelectedRows(rows),
         []
     )
 

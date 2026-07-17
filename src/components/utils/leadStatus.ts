@@ -1,20 +1,19 @@
-import { LEAD_STATUS_OPTIONS } from "@/constants/LeadStatus";
+import { LEAD_STATUS_OPTIONS_LIST } from "@/constants/LeadStatus";
 
-const STATUS_KEYS = Object.keys(LEAD_STATUS_OPTIONS) as LeadStatusKey[];
+type LeadStatusKey = (typeof LEAD_STATUS_OPTIONS_LIST)[number]["value"];
 
-type LeadStatusKey = keyof typeof LEAD_STATUS_OPTIONS;  // typeof lagao
+const STATUS_VALUES = LEAD_STATUS_OPTIONS_LIST.map((option) => option.value);
 
 const normalizeStatus = (status?: string): LeadStatusKey => {
-  if (!status) return "None";
-  if (status in LEAD_STATUS_OPTIONS) return status as LeadStatusKey;
-  
-  const match = STATUS_KEYS.find(
-    (key) => key.toLowerCase() === status.toLowerCase()
-  );
-  return match ?? "None";
+  if (!status) return "New Lead";
+
+  const normalized = status.trim().toLowerCase();
+  const match = STATUS_VALUES.find((value) => value.toLowerCase() === normalized);
+
+  return (match ?? "New Lead") as LeadStatusKey;
 };
 
 export const getAvailableStatuses = (currentStatus?: string): string[] => {
   const key = normalizeStatus(currentStatus);
-  return [...LEAD_STATUS_OPTIONS[key]]; // readonly fix bhi
+  return STATUS_VALUES.filter((value) => value !== key);
 };

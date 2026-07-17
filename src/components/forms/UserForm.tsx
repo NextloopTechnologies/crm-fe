@@ -76,10 +76,6 @@ export default function UserForm({
     assignToManagerUsername: defaultValues.assignToManagerUsername ?? "",
   });
 
-  const showAssignToManager =
-    ["ADMIN", "SUPER_ADMIN"].includes(callerRole.toUpperCase()) &&
-    (form.roleName ?? "").toUpperCase() === "SALES";
-
   const handleRoleChange = (val: string) => {
     set("roleName")(val);
     if (val.toUpperCase() !== "SALES") {

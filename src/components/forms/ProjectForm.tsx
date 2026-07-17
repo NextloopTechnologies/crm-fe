@@ -8,7 +8,7 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import {
     UserIcon,
 } from "@/assets/icons/components/index";
-import { ArrowLeft, CalendarDays, ChevronDown, Search, UsersIcon, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, ChevronDown, Search, X } from "lucide-react";
 import { CreateProjectRequest } from "@/types/api.types";
 import { formatDate, toInputDateTime } from "@/lib/utils";
 import { ROUTES } from "@/lib/route";
@@ -210,11 +210,6 @@ const projectStatusOptions = [
     { label: "Cancelled", value: "Cancelled" },
 ];
 
-const projectRelatedTypeOptions = [
-    { label: "Account", value: "Account" },
-    { label: "Lead", value: "Lead" },
-];
-
 interface ProjectFormProps {
     mode: "add" | "edit";
     defaultValues?: Partial<CreateProjectRequest>;
@@ -246,8 +241,6 @@ export default function ProjectForm({
         relatedToType: defaultValues.relatedToType ?? ""
     });
 
-    const [touched, setTouched] = useState(false);
-
     useEffect(() => {
         if (
             defaultValues &&
@@ -268,7 +261,6 @@ export default function ProjectForm({
                     [key]: val,
                 }));
 
-                setTouched(true);
             };
 
     const handleSubmit = (

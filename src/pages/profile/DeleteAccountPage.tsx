@@ -1,11 +1,8 @@
-import { useNavigate } from "react-router-dom";
-import { usersData } from "@/data/user.data";
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { Checkbox } from "@/components/common/Checkbox";
 import { Button } from "@/components/common/Button";
 
 export default function DeleteAccountPage() {
-  const navigate = useNavigate();
 
   const option = [
     { label: "Admin", value: "admin" },

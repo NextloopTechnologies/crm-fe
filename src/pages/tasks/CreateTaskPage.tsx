@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
-import { CreatedIcon } from '@/assets/icons/components/index';
 import TaskForm from '@/components/forms/TaskForm';
 import { ROUTES } from '@/lib/route'
 import { CreateTaskRequest } from '@/types/api.types';
