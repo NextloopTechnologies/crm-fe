@@ -41,14 +41,16 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/accounts/edit/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/accounts/detail/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
-  "/tasks": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
+  "/tasks/": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
   "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]},
   "/project/edit/:id" : {title : "Project" , breadcrumb : ["Projects" , "Edit Project"]},
   "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]},
   "/invoice" : {title : "Invoice" , breadcrumb : ["Manage Invoices"]},
   "/pipeline" : {title : "Pipeline" , breadcrumb : ["Manage your projects and related information"]},
-  "/profile/account-info" : {title : "Account Info" , breadcrumb : []}
+  "/profile/account-info" : {title : "Account Info" , breadcrumb : []},
+  "/reports": {title: "Report" , breadcrumb: []},
+  "/reports/:id/edit" : {title : "Report" , breadcrumb : ["Projects" , "Edit Project"]},
 
 }
 

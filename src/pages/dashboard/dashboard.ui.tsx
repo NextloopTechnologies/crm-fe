@@ -16,7 +16,7 @@ import StatsCard from "@/components/common/StatsCards";
 import { ROUTES } from "@/lib/route";
 import { buildGrowthData, buildSourceData, PERIOD_DATA, SOURCES_DATA } from "./dashboard.data";
 import type { Account, StatItem, Task } from "./dashboard.data";
-import { Lead } from "@/types/api.types";
+import { CreateLeadRequest, Lead } from "@/types/api.types";
 
 ChartJS.register(
   CategoryScale,
@@ -136,21 +136,14 @@ export function GrowthChart({ title, leads }: GrowthChartProps) {
 // ─────────────────────────────────────────────
 interface SourceDonutProps {
   title: string;
-  leads: Lead[];
+  leads: CreateLeadRequest[];
 }
 
-export function SourceDonut({ title , leads}: SourceDonutProps) {
+export function SourceDonut({ title, leads }: SourceDonutProps) {
   const [sourcePeriod, setSourcePeriod] = useState<"this_month" | "last_month">("this_month");
 
   const currentSources = buildSourceData(leads, sourcePeriod);
-
-  if (!currentSources.length) {
-    return (
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5 flex items-center justify-center h-[220px]">
-        <span className="text-[12px] text-[#94a3b8]">No data available</span>
-      </div>
-    );
-  }
+  const hasData = currentSources.length > 0;
 
   return (
     <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
@@ -168,6 +161,12 @@ export function SourceDonut({ title , leads}: SourceDonutProps) {
         </select>
       </div>
 
+      {/* Conditional body */}
+      {!hasData ? (
+        <div className="flex items-center justify-center h-[180px]">
+          <span className="text-[12px] text-[#94a3b8]">No data available</span>
+        </div>
+      ) : (
       <div className="flex items-center gap-4">
         {/* Donut */}
         <div
@@ -226,6 +225,7 @@ export function SourceDonut({ title , leads}: SourceDonutProps) {
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }

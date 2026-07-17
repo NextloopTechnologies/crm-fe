@@ -11,6 +11,7 @@ import { ROUTES } from '@/lib/route'
 import { getAllTasks } from '@/api/tasks.api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Task } from '@/types/api.types'
+import { parseDateOnly } from '@/lib/utils'
 
 // ── Static constants  ────────────────────
 const getStats = (data: Task[]) => {
@@ -134,7 +135,7 @@ export default function TaskListPage() {
         try {
           setTasksLoading(true);
           const response = await getAllTasks();
-          setTasks(response.data || response);
+          setTasks(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
           console.error("Error fetching tasks:", error);
         } finally {
@@ -156,7 +157,7 @@ export default function TaskListPage() {
       label: "Due Date",
       render: (_, row) => (
         <span className="text-[#6b6b8d] text-sm">
-          {new Date(String((row as Task).dueDate ?? "-")).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+        {parseDateOnly(String((row as any).dueDate ?? "NA"))}  
         </span>
       ),
     },

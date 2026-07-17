@@ -124,7 +124,7 @@ export default function ProjectListPage() {
       try {
         setProjectsLoading(true)
         const response = await getAllProjects()
-        setProjects(response.data || response)
+        setProjects(Array.isArray(response.data) ? response.data : [])
       } catch (error) {
         console.error("Error fetching projects:", error)
       } finally {
@@ -140,11 +140,14 @@ export default function ProjectListPage() {
       label: "Project Name",
       width: "180px",
       render: (_, row) => (<div className='flex gap-2'>
-         {row.accountType === "Up Sell" && (
-          <span className="flex items-center justify-center h-6 w-6 rounded-md bg-[#0BD901]/10">
+         <span
+            className={`flex h-6 w-6 items-center justify-center rounded-md ${row.accountType === "Up Sell"
+                ? "bg-[#0BD901]/10"
+                : "invisible"
+              }`}
+          >
             <MoveUpRightIcon size={15} className="text-[#0BD901]" />
           </span>
-        )}
         <span className="text-sm font-medium text-[#1a1a2e]">
           {(row as any).projectName ?? "—"}
         </span>

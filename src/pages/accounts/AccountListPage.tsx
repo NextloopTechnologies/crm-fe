@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Trash2 } from 'lucide-react'
+import { MoveUpRightIcon, Trash2 } from 'lucide-react'
 import { PlusIcon } from '@/assets/icons/components/PlusIcon'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
@@ -61,7 +61,7 @@ export default function AccountListPage() {
       try {
         setAccountsLoading(true);
         const response = await getAllAccounts();
-        setAccounts(response.data || response);
+        setAccounts(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Error fetching accounts:", error);
       } finally {
@@ -78,13 +78,18 @@ export default function AccountListPage() {
       width: "180px",
       render: (_, row) => (
         <div className="flex items-center gap-2.5">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.accountName}`} />
-            <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-              {row.accountName?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-sm font-medium text-[#111127]">{row.accountName}</span>
+          <span
+            className={`flex h-6 w-6 items-center justify-center rounded-md ${row.accountType === "Up Sell"
+                ? "bg-[#0BD901]/10"
+                : "invisible"
+              }`}
+          >
+            <MoveUpRightIcon size={15} className="text-[#0BD901]" />
+          </span>
+
+          <span className="text-sm font-medium text-[#111127]">
+            {row.accountName}
+          </span>
         </div>
       ),
     },

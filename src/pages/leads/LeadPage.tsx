@@ -28,7 +28,7 @@ export default function LeadsPage() {
     useEffect(() => {
         setLeadsLoading(true);
         getAllLeads()
-            .then((res) => setLeads(res.data || res))
+            .then((res) => setLeads(Array.isArray(res.data) ? res.data : []))
             .catch(console.error)
             .finally(() => setLeadsLoading(false));
 
@@ -55,7 +55,7 @@ export default function LeadsPage() {
 
     const visibleLeads = useMemo(() => {
     return filteredLeads.filter(
-        (lead) => lead.leadStatus !== "Deal Won"
+        (lead) => lead.leadStatus !== ""
     );
 }, [filteredLeads]);
 
@@ -106,6 +106,9 @@ export default function LeadsPage() {
         leadNumber: string,
         status: string
     ) => {
+        const lead = leads.find(l => l.leadNumber === leadNumber);
+        if(lead?.leadStatus === "Deal Won") return;
+
         setStatusLoadingLeads(prev => new Set(prev).add(leadNumber));
         try {
             await updateLeadStatusbyLeadNumber(leadNumber, status);
