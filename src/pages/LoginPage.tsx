@@ -13,6 +13,7 @@ import user from '../assets/icons/svgs/user.svg'
 import growthIcon from '../assets/icons/svgs/growthIcon.svg'
 import dashboardImg from '../assets/images/dashboardImg.svg'
 import helloIcon from '../assets/icons/svgs/helloIcon.svg'
+import { EyeOff } from 'lucide-react'
 // ─── Zod Schema ───────────────────────────────────────────────────────────────
 const loginSchema = z.object({
   email: z
@@ -168,12 +169,13 @@ export default function LoginPage() {
               error={errors.password?.message}
               rightElement={
                 <button
+                  style={{marginTop : "5px"}}
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="text-[#9898b3] transition-colors hover:text-[#6b6b8a]"
                 >
-                  {showPassword ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                 </button>
               }
               disabled={isLoading}

@@ -134,6 +134,7 @@ export interface CreateAccountRequest {
   accountNumber?: string
   contacts?: ContactRequestDto[]
   addresses?: AccountAddressRequestDto[]
+  createdAt?: string
 }
 
 export interface ContactRequestDto {

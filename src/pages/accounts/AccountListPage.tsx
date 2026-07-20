@@ -14,12 +14,14 @@ import { CreateAccountRequest } from '@/types/api.types'
 // ── Static helpers — component ke bahar ──────────────────────
 const getStats = (data: CreateAccountRequest[]) => [
   { icon: <UsersIcon />, label: "Total Accounts", value: data.length, subtitle: "All accounts in system" },
-  // { icon: <ActiveUsersIcon />, label: "Active Accounts", value: data.filter(u => u.status === "active").length, subtitle: "Currently Active" },
-  // { icon: <InActiveUsersIcon />, label: "Inactive Accounts", value: data.filter(u => u.status === "inactive").length, subtitle: "Currently Inactive" },
-  { icon: <TenantsIcon />, label: "Total Contacts", value: data.reduce(
-    (sum, u) => sum + (u.contacts?.filter(c => c.designation === "Admin").length ?? 0),
-    0
-  ), subtitle: "Across all accounts" },
+  { icon: <ActiveUsersIcon />, label: "New Accounts", value: data.filter(u => u.createdAt === "active").length, subtitle: "Currently Active" },
+  { icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#0bd9011a]/10 flex items-center justify-center">
+            <MoveUpRightIcon className="w-6 h-6 text-[#0BD901]" />
+          </div>, label: "UpSell Accounts", value: data.filter(u => u.accountType === "Up Sell").length, subtitle: "Currently Inactive" },
+  // { icon: <TenantsIcon />, label: "Total Contacts", value: data.reduce(
+  //   (sum, u) => sum + (u.contacts?.filter(c => c.designation === "Admin").length ?? 0),
+  //   0
+  // ), subtitle: "Across all accounts" },
 ]
 
 const FILTERS = [
@@ -143,7 +145,7 @@ export default function AccountListPage() {
 
   return (
     <div className="bg-white min-h-screen rounded-xl">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-14 mb-6">
         {stats.map((stat) => (
           <StatsCard key={stat.label} {...stat} />
         ))}

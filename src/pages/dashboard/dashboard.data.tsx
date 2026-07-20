@@ -5,7 +5,7 @@ import { getAllAccounts } from "@/api/account.api";
 import { getAllTasks } from "@/api/tasks.api";
 import { getAllLeads } from "@/api/leads.api";
 import { ACCOUNT_COLORS, SOURCE_COLORS } from "@/constants/colors";
-import { CreateLeadRequest, Lead } from "@/types/api.types";
+import { CreateAccountRequest, CreateLeadRequest, Lead } from "@/types/api.types";
 
 // ─────────────────────────────────────────────
 // Types
@@ -20,21 +20,6 @@ export interface StatItem {
     text: string;
     color: string;
   };
-}
-
-export interface Account {
-  id: number;
-  accountNumber : string;
-  accountType? : string;
-  accountOwner? : string
-  accountName: string;
-  color: string;
-  name: string;
-  industry: string;
-  owner: string;
-  ownerAvatar: string;
-  accountSite: string;
-  status: "Active" | "Inactive";
 }
 
 export interface Task {
@@ -119,7 +104,7 @@ const TaskIcon = () => (
   </div>
 );
 
-export function mapApiAccount(a: Account, idx: number): Account {
+export function mapApiAccount(a: CreateAccountRequest, idx: number): CreateAccountRequest {
   const accountName = a.accountName ?? "—";
 
   const words = accountName.trim().split(" ");
@@ -130,31 +115,17 @@ export function mapApiAccount(a: Account, idx: number): Account {
       : accountName.slice(0, 2).toUpperCase();
 
   return {
-    id: a.id ?? idx + 1,
 
     accountNumber: a.accountNumber ?? "",
 
-    accountName,
+    accountName: a.accountName ?? "—",
 
-    name: accountName,
+    accountType: a.accountType ?? "—",
 
-    industry: a.accountType ?? "—",
+    accountOwner: a.accountOwner ?? "—",
 
-    owner: a.accountOwner ?? "—",
-
-    ownerAvatar: (a.accountOwner ?? "?")
-      .split(" ")
-      .map((w: string) => w[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase(),
-
-      accountSite: a.accountSite
+    accountSite: a.accountSite
       ?? "—",
-
-    status: "Active",
-
-    color: ACCOUNT_COLORS[idx % ACCOUNT_COLORS.length],
   };
 }
 
@@ -183,23 +154,23 @@ export function buildStats(
 ): StatItem[] {
   if (role === "ADMIN") return [
   { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,  subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks), subtitle: "last month", trend: upTrendLive() },
+  { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(activeAccounts), subtitle:  "All Account in System", trend: upTrendLive() },
+  { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,  subtitle: "total Revenue", trend: upTrendLive() },
+  { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks), subtitle: "All Contact in System", trend: upTrendLive() },
 ];
 
   if (role === "MANAGER") return [
     { icon: <UsersIcon />, label: "Team Accounts", value: String(totalAccounts),  subtitle: "All accounts in team", trend: upTrendLive() },
-    { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <TaskIcon />,        label: "Team Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive() },
-    { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive() },
+    { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(activeAccounts), subtitle: "All Account in System", trend: upTrendLive() },
+    { icon: <TaskIcon />,        label: "Team Tasks", value: String(totalTasks), subtitle: "All Tasks in ", trend: upTrendLive() },
+    { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "All Teams Contacts", trend: upTrendLive() },
   ];
 
   return [
   { icon: <UsersIcon />, label: "My Accounts", value: String(totalAccounts),  subtitle: "All my accounts", trend: upTrendLive() },
-  { icon: <ActiveUsersIcon />, label: "Active Accounts", value: String(activeAccounts), subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <TaskIcon />, label: "My Tasks", value: String(totalTasks), subtitle: "vs last month", trend: upTrendLive() },
-  { icon: <TenantsIcon />, label: "My Contacts", value: "—", subtitle: "vs last month", trend: upTrendLive() },
+  { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(activeAccounts), subtitle: "All Account in System", trend: upTrendLive() },
+  { icon: <TaskIcon />, label: "My Tasks", value: String(totalTasks), subtitle: "Tasks in you y", trend: upTrendLive() },
+  { icon: <TenantsIcon />, label: "My Contacts", value: "—", subtitle: "", trend: upTrendLive() },
   ];
 }
 
@@ -217,7 +188,6 @@ export async function fetchDashboardData(role: "ADMIN" | "MANAGER" | "SALES") {
   const tasks    = rawTasks.map(mapApiTask);
 
   const totalAccounts  = accounts.length;
-  const activeAccounts = accounts.filter((a: Account) => a.status === "Active").length;
   const totalTasks     = tasks.length;
 
   const totalRevenue = rawLeads.reduce(
@@ -231,7 +201,7 @@ export async function fetchDashboardData(role: "ADMIN" | "MANAGER" | "SALES") {
     ? `${(totalRevenue / 1_000).toFixed(1)}K`
     : `${totalRevenue}`;
 
-  const stats = buildStats(role, totalAccounts, activeAccounts, totalTasks , fmtRevenue);
+  const stats = buildStats(role, totalAccounts, accounts, totalTasks , fmtRevenue);
 
   return { accounts, tasks, stats , rawLeads};
 }
