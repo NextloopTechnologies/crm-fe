@@ -11,18 +11,6 @@ export const useTasks = (params?: Parameters<typeof tasksApi.getTasks>[0]) =>
     queryFn: () => tasksApi.getTasks(params),
   })
 
-export const useMyTasks = () =>
-  useQuery({
-    queryKey: [TASKS_KEY, 'my'],
-    queryFn: tasksApi.getMyTasks,
-  })
-
-export const useOverdueTasks = () =>
-  useQuery({
-    queryKey: [TASKS_KEY, 'overdue'],
-    queryFn: tasksApi.getOverdueTasks,
-  })
-
 export const useCreateTask = () => {
   const qc = useQueryClient()
   return useMutation({
@@ -35,13 +23,3 @@ export const useCreateTask = () => {
   })
 }
 
-export const useCompleteTask = () => {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id: number) => tasksApi.completeTask(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [TASKS_KEY] })
-      toast.success('Task marked as complete')
-    },
-  })
-}

@@ -28,12 +28,13 @@ export default function LeadsList({
     statusLoadingLeads = new Set(),
 }: LeadsListProps){
     const [selectedRows, setSelectedRows] = useState<CreateLeadRequest[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const [error] = useState<string | null>(null);
     const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
     const navigate = useNavigate();
 
     useEffect(() => {
         if (initialStatuses.length > 0) {
+            void activeFilters;
             setActiveFilters({ leadStatus: initialStatuses[0] });
         } else {
             setActiveFilters({});

@@ -37,7 +37,6 @@ const EMPTY_FILTERS: Filters = {
 // ─────────────────────────────────────────────────────────────
 const LeadCard = ({
   lead,
-  col,
   onEdit,
   onStatusChange,
   isUpdating,
@@ -195,16 +194,15 @@ type PipelinePageProps = {
 export default function PipelinePage({
   leads,
   onColumnClick,
-  onCardClick,
   onStatusChange,
   statusLoadingLeads = new Set(),
 
 }: PipelinePageProps){
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<Filters>(EMPTY_FILTERS);
   const navigate = useNavigate();
-
+  void filters;
   const activeFilterCount = Object.values(appliedFilters).filter(Boolean).length;
 
 

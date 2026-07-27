@@ -9,7 +9,7 @@ export const LEADS_KEY = 'leads'
 export const useLeads = (filters?: LeadFilters) =>
   useQuery({
     queryKey: [LEADS_KEY, filters],
-    queryFn: () => leadsApi.getLeads(filters),
+    queryFn: () => leadsApi.getAllLeads,
   })
 
 export const useLead = (id: number) =>

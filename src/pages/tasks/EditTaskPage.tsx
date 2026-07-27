@@ -36,8 +36,8 @@ export default function EditTaskPage() {
           priority: task.priority ?? "",
           accountNumber: task.accountNumber ?? "",
           contactId: task.contactId ?? "",
-          isReminder: task.isReminder === true || task.isReminder === ("true" as any),
-          isRepeat: task.isRepeat === true || task.isRepeat === ("true" as any),
+          isReminder: task.isReminder?.toString() ?? "false",
+          isRepeat: task.isRepeat?.toString() ?? "false",
           relatedToType: task.relatedToType ?? "",
           repeatDetails: {
             repeatType: task.repeatDetails?.repeatType ?? "",

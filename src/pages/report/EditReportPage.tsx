@@ -15,10 +15,17 @@ export default function EditReportPage() {
     return () => clearTimeout(timerRef.current)
   }, [])
 
-  const defaultValues = useMemo<Partial<ReportFormData> | undefined>(() => {
-    const found = usersData.find((u) => String(u.id) === id)
-    return found ?? undefined
-  }, [id])
+const defaultValues = useMemo<Partial<ReportFormData> | undefined>(() => {
+  const found = usersData.find((r) => String(r.id) === id);
+
+  return found
+    ? {
+        id: String(found.id),
+        name: found.name,
+        status: found.status,
+      }
+    : undefined;
+}, [id, usersData]);
 
   // ── Submit ───────────────────────────────────────────────
   const handleSubmit = useCallback(() => {

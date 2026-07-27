@@ -147,8 +147,8 @@ export default function TaskListPage() {
         </span>
       ),
     },
-    { key: "status", label: "Status", width: "140px", render: (_, row) => <StatusBadge   val={row.status}   /> },
-    { key: "priority", label: "Priority", width: "140px", render: (_, row) => <PriorityBadge val={row.priority} /> },
+    { key: "status", label: "Status", width: "140px", render: (_, row) => <StatusBadge   val={row.status ?? "—"}   /> },
+    { key: "priority", label: "Priority", width: "140px", render: (_, row) => <PriorityBadge val={row.priority ?? "—"} /> },
     { key: "location", label: "Related To", width: "220px", render: (_,row) => <TextCell val={(row as Task).relatedToType} /> },
     // { key: "contactName", label: "Contact Name", width: "220px", render: (_,row) => <TextCell val={(row as Task).contactName} /> },
     { key: "taskOwner", label: "Task Owner", width: "220px", render: (_, row) => (

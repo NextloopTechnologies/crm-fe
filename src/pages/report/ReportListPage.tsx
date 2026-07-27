@@ -8,9 +8,11 @@ import CustomBadge from '@/components/common/CommonBadge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ROUTES } from '@/lib/route'
 import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
+import { ReportFormData } from '@/components/forms/ReportForm'
+import { reportData } from '@/data/report.data'
 
 // ── Static constants — component ke bahar ────────────────────
-const getStats = (data: Report[]) => [
+const getStats = (data: ReportFormData[]) => [
     {
         icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#5752FE1A] flex items-center justify-center"><FileText className="w-6 h-6 text-[#5752FE]" /></div>,
         label: "Total Reports",
@@ -68,17 +70,17 @@ const UserCell = ({ name }: { name: string }) => (
 
 // ── Component ─────────────────────────────────────────────────
 export default function ReportListPage() {
-    const [selectedRows, setSelectedRows] = useState<Report[]>([])
+    const [selectedRows, setSelectedRows] = useState<ReportFormData[]>([])
     const navigate = useNavigate()
 
     const stats = useMemo(() => getStats(reportData), [])
 
-    const columns = useMemo<ColumnDef<Report>[]>(() => [
+    const columns = useMemo<ColumnDef<ReportFormData>[]>(() => [
         {
             key: "name",
             label: "Report Name",
             width: "180px",
-            render: (_, row) => <UserCell name={row.name} />,
+            render: (_, row) => <UserCell name={row.reportName ?? ""} />,
         },
         {
             key: "status",
@@ -108,7 +110,7 @@ export default function ReportListPage() {
             key: "name",
             label: "Created By",
             width: "180px",
-            render: (_, row) => <UserCell name={row.name} />,
+            render: (_, row) => <UserCell name={row.username ?? ""} />,
         },
         {
             key: "joinedAt",
@@ -128,7 +130,7 @@ export default function ReportListPage() {
     ], [])
 
     const handleEdit = useCallback(
-        (row: Report) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
+        (row: ReportFormData) => navigate(ROUTES.REPORTS_EDIT(String(row.id))),
         [navigate]
     )
 
@@ -137,7 +139,7 @@ export default function ReportListPage() {
     const handleRowClick = useCallback(() => { }, [])
 
     const handleSelection = useCallback(
-        (rows: Report[]) => setSelectedRows(rows),
+        (rows: ReportFormData[]) => setSelectedRows(rows),
         []
     )
 
@@ -165,7 +167,7 @@ export default function ReportListPage() {
             </div>
 
             <DataTable
-                data={usersData}
+                data={reportData}
                 columns={columns}
                 filters={FILTERS}
                 searchable
