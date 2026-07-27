@@ -3,12 +3,13 @@ import { GrowthChart, SourceDonut, AccountsTable, TasksList } from "./dashboard.
 import StatsCard from "@/components/common/StatsCards";
 import { fetchDashboardData } from "./dashboard.data";
 import type { Account, Task, StatItem } from "./dashboard.data";
+import { Lead } from "@/types/api.types";
 
 export default function ManagerDashboardPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [tasks, setTasks]       = useState<Task[]>([]);
   const [stats, setStats]       = useState<StatItem[]>([]);
-  const [rawLeads, setRawLeads]       = useState<[]>([]);  
+  const [rawLeads, setRawLeads]       = useState<Lead[]>([]);  
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {

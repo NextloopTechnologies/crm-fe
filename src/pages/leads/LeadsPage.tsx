@@ -68,7 +68,7 @@ const ratingOptions = [
 export default function LeadsPage() {
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();

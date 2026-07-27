@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import { ROUTES } from '@/lib/route'
@@ -12,7 +12,6 @@ export default function EditProjectPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const timerRef    = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     if (id) {
