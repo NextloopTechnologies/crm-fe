@@ -122,7 +122,6 @@ export default function TaskListPage() {
         try {
           setTasksLoading(true);
           const response = await getAllTasks();
-          console.log(response);
           setTasks(Array.isArray(response) ? response : []);
         } catch (error) {
           console.error("Error fetching tasks:", error);
