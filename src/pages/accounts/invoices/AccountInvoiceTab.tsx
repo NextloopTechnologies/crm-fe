@@ -4,14 +4,12 @@ import { Pencil, PlusIcon, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/common/Checkbox";
 import { Button } from "@/components/common/Button";
 import { STATIC_INVOICES } from "./InvoicesList";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import CreateInvoicePage from "@/pages/accounts/invoices/CreateInvoicePage"; // adjust path
-import { ROUTES } from "@/lib/route";
+import CreateInvoicePage from "@/pages/accounts/invoices/CreateInvoicePage";
 import EditInvoicePage from "@/pages/accounts/invoices/EditInvoicePage";
 import { CreateAccountRequest } from "@/types/api.types";
 
 interface Props {
-    accountNumber: string;  // passed from AccountDetailPage
+    accountNumber?: string;  // passed from AccountDetailPage
     account : CreateAccountRequest;
 }
 

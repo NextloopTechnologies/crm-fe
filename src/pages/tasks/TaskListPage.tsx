@@ -81,19 +81,6 @@ const TextCell = ({ val }: { val: unknown }) => (
   <span className="text-sm text-[#6b6b8d]">{String(val)}</span>
 )
 
-const BadgeCell = ({ val }: { val: unknown }) => {
-  const label = String(val)
-  return (
-    <CustomBadge
-      label={label.charAt(0).toUpperCase() + label.slice(1)}
-      className={
-        label === "active"
-          ? "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50"
-          : "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50"
-      }
-    />
-  )
-}
 const statusColors: Record<string, string> = {
   "Completed":   "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50",
   "In Progress": "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-50",
@@ -134,7 +121,7 @@ export default function TaskListPage() {
         try {
           setTasksLoading(true);
           const response = await getAllTasks();
-          setTasks(response.data || response);
+          setTasks(response|| response);
         } catch (error) {
           console.error("Error fetching tasks:", error);
         } finally {
@@ -160,8 +147,8 @@ export default function TaskListPage() {
         </span>
       ),
     },
-    { key: "status", label: "Status", width: "140px", render: (_, row) => <StatusBadge   val={row.status}   /> },
-    { key: "priority", label: "Priority", width: "140px", render: (_, row) => <PriorityBadge val={row.priority} /> },
+    { key: "status", label: "Status", width: "140px", render: (_, row) => <StatusBadge   val={row.status ?? "—"}   /> },
+    { key: "priority", label: "Priority", width: "140px", render: (_, row) => <PriorityBadge val={row.priority ?? "—"} /> },
     { key: "location", label: "Related To", width: "220px", render: (_,row) => <TextCell val={(row as Task).relatedToType} /> },
     // { key: "contactName", label: "Contact Name", width: "220px", render: (_,row) => <TextCell val={(row as Task).contactName} /> },
     { key: "taskOwner", label: "Task Owner", width: "220px", render: (_, row) => (
@@ -188,9 +175,9 @@ export default function TaskListPage() {
     [navigate]
   );
 
-  const handleDelete = useCallback((row: Task | Task[]) => { }, [])
+  const handleDelete = useCallback(() => { }, [])
 
-  const handleRowClick = useCallback((row: Task) => { }, [])
+  // const handleRowClick = useCallback((row: Task) => { }, [])
 
   const handleSelection = useCallback(
     (rows: Task[]) => setSelectedRows(rows),

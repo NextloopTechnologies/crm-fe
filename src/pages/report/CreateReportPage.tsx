@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { showToast } from '@/components/common/Toast'
 import { CreatedIcon } from '@/assets/icons/components/index'
-import ReportForm, { ReportFormData } from '@/components/forms/ReportForm';
+import ReportForm  from '@/components/forms/ReportForm';
 import { ROUTES } from '@/lib/route'
 
 export default function CreateReportPage() {
@@ -14,7 +14,7 @@ export default function CreateReportPage() {
     return () => clearTimeout(timerRef.current)
   }, [])
 
-  const handleSubmit = useCallback((data: ReportFormData) => {
+  const handleSubmit = useCallback(() => {
     setLoading(true);
     // API call here
     showToast({ title: "Report created!", description: "New Report added successfully.", type: "success", icon: <CreatedIcon /> });

@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
-import { usersData } from '@/data/user.data';
 import TaskForm from '@/components/forms/TaskForm';
 import { ROUTES } from '@/lib/route'
-import { CreateAccountRequest, CreateTaskRequest } from '@/types/api.types';
+import { CreateTaskRequest } from '@/types/api.types';
 import { getTaskByTaskNumber, updateTask } from '@/api/tasks.api';
-import { CreatedIcon } from '@/assets/icons/components/CreatedIcon';
 import { ResponseCode } from '@/constants/statusCodes';
 import { getSuccessToast } from '@/components/common/toastMessages';
 
@@ -14,7 +12,6 @@ export default function EditTaskPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const timerRef    = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     if (id) {
@@ -39,8 +36,8 @@ export default function EditTaskPage() {
           priority: task.priority ?? "",
           accountNumber: task.accountNumber ?? "",
           contactId: task.contactId ?? "",
-          isReminder: task.isReminder === true || task.isReminder === ("true" as any),
-          isRepeat: task.isRepeat === true || task.isRepeat === ("true" as any),
+          isReminder: task.isReminder?.toString() ?? "false",
+          isRepeat: task.isRepeat?.toString() ?? "false",
           relatedToType: task.relatedToType ?? "",
           repeatDetails: {
             repeatType: task.repeatDetails?.repeatType ?? "",

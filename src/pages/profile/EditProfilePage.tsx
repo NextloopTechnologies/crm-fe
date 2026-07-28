@@ -4,7 +4,6 @@ import { updateProfileDetail } from "@/api/profile.api";
 import { useState } from "react";
 import { ResponseCode } from "@/constants/statusCodes";
 import { showToast } from "@/components/common/Toast";
-import { CreatedIcon } from "@/assets/icons/components";
 import { getErrorToast, getSuccessToast } from "@/components/common/toastMessages";
 
 export default function EditProfilePage() {

@@ -1,7 +1,7 @@
 import api from '@/lib/axios'
-import type { CreateTaskRequest, PaginatedResponse } from '@/types/api.types'
+import type { CreateTaskRequest, Task } from '@/types/api.types'
 
-export const createTask = async (data: CreateTaskRequest) => {
+export const createTask = async (data: Partial<CreateTaskRequest>) => {
   const response = await api.post(
     '/task/register',
     data
@@ -10,9 +10,12 @@ export const createTask = async (data: CreateTaskRequest) => {
   return response.data;
 };
 export const getAllTasks = async () => {
+  const response = await api.get<Task[]>('task/getAllTask');
+  return response.data;
+};
 
-  const response = await api.get('task/getAllTask');
-
+export const getTasks = async (params?: { page?: number; size?: number }) => {
+  const response = await api.get<Task[]>('task/getAllTask', { params });
   return response.data;
 };
 export const getTaskByTaskNumber = async (taskNumber: string) => {
@@ -24,7 +27,7 @@ export const getTaskByTaskNumber = async (taskNumber: string) => {
 
  export const updateTask = async (
     taskNumber: string,
-    payload: CreateTaskRequest
+    payload: Partial<CreateTaskRequest>
   ) => {
     const response = await api.patch(
       `task/updateTaskDetails?taskNumber=${taskNumber}`,

@@ -202,7 +202,7 @@ export default function UsersList() {
             key: "Organization",
             label: "Organization",
             width: "120px",
-            render: (_, row) => {
+            render: () => {
                 return (
                     //should be fetch from data;
                 <span className="text-sm text-[#6b6b8d]">NextLoop Technologies</span>
@@ -258,7 +258,7 @@ export default function UsersList() {
     );
 
     const handleDelete    = useCallback((_row: User | User[]) => { }, []);
-    const handleRowClick  = useCallback((_row: User) => { }, []);
+    // const handleRowClick  = useCallback((_row: User) => { }, []);
     const handleSelection = useCallback((rows: User[]) => setSelectedRows(rows), []);
     const handleDeleteSelected = useCallback(() => { }, [selectedRows]);
 

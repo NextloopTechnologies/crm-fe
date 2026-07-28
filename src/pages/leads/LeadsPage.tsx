@@ -2,11 +2,10 @@ import { useState } from 'react';
 import FormPage, { FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
-import { UserIcon, PhoneIcon, MailIcon, LockIcon, LocationIcon, CreatedIcon } from '@/assets/icons/components/index'
+import { UserIcon, PhoneIcon, MailIcon, LocationIcon, CreatedIcon } from '@/assets/icons/components/index'
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
-import { InlineSelectDropdown } from '@/components/common/InlineSelectDropDown';
 import { createLead } from '@/api/leads.api';
 import { CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
@@ -32,24 +31,6 @@ const BuildingIcon = () => (
     <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 );
-
-const AddUserIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-    <line x1="19" y1="8" x2="19" y2="14" />
-    <line x1="16" y1="11" x2="22" y2="11" />
-  </svg>
-);
-
-// flat options
-const roleOptions = [
-  { label: "Admin", value: "admin" },
-  { label: "Manager", value: "manager" },
-  { label: "Developer", value: "developer" },
-  { label: "Viewer", value: "viewer" },
-];
-
 
 const leadSourceOptions = [
   { label: "Web", value: "Web" },
@@ -87,9 +68,8 @@ const ratingOptions = [
 export default function LeadsPage() {
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [role, setRole] = useState("");
 
   const navigate = useNavigate();
   const [formData, setFormData] = useState<CreateLeadRequest>({
@@ -184,18 +164,6 @@ export default function LeadsPage() {
       setLoading(false);
     }
   };
-
-  // Safe nested update helper
-  const updateAddress = (key: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      leadAddressRequestDto: {
-        ...prev.leadAddressRequestDto!,
-        [key]: value,
-      },
-    }));
-  };
-
 
   const sections: FormSection[] = [
     {

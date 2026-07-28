@@ -152,7 +152,7 @@ export default function MyProfilePage({ data, onEditClick }: ProfilePageProps) {
   const initials =
     profile?.firstName
       ?.split(" ")
-      .map((w) => w[0])
+      .map((word: string) => word.charAt(0))
       .join("")
       .slice(0, 2)
       .toUpperCase() || "?";

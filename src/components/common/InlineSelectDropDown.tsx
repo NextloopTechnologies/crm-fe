@@ -15,7 +15,7 @@ interface InlineSelectProps {
 }
 
 export function InlineSelectDropdown({
-    id, label, placeholder, options, value, onChange, required, error, leftIcon
+    label, placeholder, options, value, onChange, required, error, leftIcon
 }: InlineSelectProps) {
     return (
         <div className="flex flex-col">

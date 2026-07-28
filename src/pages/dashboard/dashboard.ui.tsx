@@ -14,9 +14,9 @@ import {
 import CustomBadge from "@/components/common/CommonBadge";
 import StatsCard from "@/components/common/StatsCards";
 import { ROUTES } from "@/lib/route";
-import { buildGrowthData, buildSourceData, PERIOD_DATA, SOURCES_DATA } from "./dashboard.data";
+import { buildGrowthData, buildSourceData } from "./dashboard.data";
 import type { Account, StatItem, Task } from "./dashboard.data";
-import { Lead } from "@/types/api.types";
+import type { Lead } from "@/types/api.types";
 
 ChartJS.register(
   CategoryScale,
@@ -241,8 +241,10 @@ interface AccountsTableProps {
 
 export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps) {
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-  const [search, setSearch] = useState<string>("");
+  const [search] = useState<string>("");
   const navigate = useNavigate();
+
+  const handleViewAll = onViewAll ?? (() => navigate(ROUTES.ACCOUNTS));
 
   const filteredAccounts = accounts.filter(
     (a) =>
@@ -255,7 +257,7 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-[14px] font-bold text-[#0f172a]">{title}</h2>
         <button
-          onClick={() => navigation.navigate(ROUTES.ACCOUNTS)}
+          onClick={handleViewAll}
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] bg-transparent px-2 py-[2px] text-[11px] text-[#64748b]"
         >
           View All
@@ -301,7 +303,7 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
                       color: a.color,
                     }}
                   >
-                    {a.initials}
+                    {a.name.slice(0, 2).toUpperCase()}
                   </div>
                   <span className="text-[12px] font-semibold text-[#0f172a]">
                     {a.name}
@@ -427,12 +429,15 @@ interface TasksListProps {
 }
 
 export function TasksList({ title, tasks, onViewAll }: TasksListProps) {
+  const navigate = useNavigate();
+  const handleViewAll = onViewAll ?? (() => navigate(ROUTES.TASKS));
+
   return (
     <div className="min-w-0 rounded-[14px] border border-[#e2e8f0] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-[14px] font-bold text-[#0f172a]">{title}</h2>
         <button
-          onClick={() => navigation.navigate(ROUTES.TASKS)}
+          onClick={handleViewAll}
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] bg-transparent px-2 py-[2px] text-[11px] text-[#64748b]"
         >
           View all

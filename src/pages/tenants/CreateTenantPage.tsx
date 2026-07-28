@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import { CreatedIcon } from '@/assets/icons/components/index';
 import { ROUTES } from '@/lib/route'
-import TenantForm, { TenantFormData } from '@/components/forms/TenantForm';
+import TenantForm from '@/components/forms/TenantForm';
 
 export default function CreateTenantPage() {
   const [loading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ export default function CreateTenantPage() {
     return () => clearTimeout(timerRef.current)
   }, [])
 
-  const handleSubmit = useCallback((data: TenantFormData) => {
+  const handleSubmit = useCallback(() => {
     setLoading(true);
     // API call here
     showToast({ title: "Tenant created!", description: "New Tenant added successfully.", type: "success", icon: <CreatedIcon /> });

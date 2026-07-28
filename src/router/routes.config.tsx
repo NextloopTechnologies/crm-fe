@@ -4,7 +4,7 @@ import { ROUTES } from "@/lib/route"
 import {
   LayoutDashboard, Users, Briefcase,
   Settings, Building2, CheckSquare,
-  BarChart2, UserCircle, BookUser,
+  BarChart2, UserCircle,
   FolderKanban, KanbanSquare,
 } from "lucide-react"
 

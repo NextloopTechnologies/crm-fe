@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreatedIcon } from "@/assets/icons/components";
 import AccountForm from "@/components/forms/AccountForm";
 import { ROUTES } from "@/lib/route";
 import { CreateAccountRequest } from "@/types/api.types";

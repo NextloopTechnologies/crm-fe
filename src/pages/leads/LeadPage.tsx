@@ -8,7 +8,6 @@ import { UsersIcon, NewLeadsIcon, ActiveUsersIcon, InActiveUsersIcon, UpArrowIco
 import { CreateAccountRequest, CreateLeadRequest } from "@/types/api.types";
 import { isWithin7Days } from "./leadHelper";
 import { createAccount } from "@/api/account.api";
-import { replaceNAWithEmpty } from "@/lib/utils";
 
 const COLUMN_TO_STATUSES: Record<string, string[]> = {
     "New": ["Not Contacted", "Attempted to Contact", "None"],

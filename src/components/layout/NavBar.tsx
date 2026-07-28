@@ -6,9 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon, CheckCircle, Trash2 } from "lucide-react"
@@ -65,10 +62,8 @@ const getRouteMeta = (pathname: string) => {
 export function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [openLogout, setOpenLogout] = useState(false);
   const [showWriteToUs, setShowWriteToUs] = useState(false);
   const [showAccountSub, setShowAccountSub] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
   
   // Form state
   const [subject, setSubject] = useState("");
@@ -76,7 +71,7 @@ export function Navbar() {
   const [attachment, setAttachment] = useState<File | null>(null);
 
   const handleLogout = () => {
-   const response = logout();
+   logout();
     localStorage.clear();
      navigate("/login");
   };
@@ -130,8 +125,6 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             className="h-9 w-9 rounded-lg text-gray-500 hover:bg-gray-100 relative"
-            onClick={() => setShowNotification(true)}
-
           >
             <Bell size={17} />
             <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />

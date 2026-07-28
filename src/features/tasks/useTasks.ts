@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import * as tasksApi from '@/api/tasks.api'
-import type { Task } from '@/types/api.types'
+import type { CreateTaskRequest} from '@/types/api.types'
 
 export const TASKS_KEY = 'tasks'
 
@@ -11,22 +11,10 @@ export const useTasks = (params?: Parameters<typeof tasksApi.getTasks>[0]) =>
     queryFn: () => tasksApi.getTasks(params),
   })
 
-export const useMyTasks = () =>
-  useQuery({
-    queryKey: [TASKS_KEY, 'my'],
-    queryFn: tasksApi.getMyTasks,
-  })
-
-export const useOverdueTasks = () =>
-  useQuery({
-    queryKey: [TASKS_KEY, 'overdue'],
-    queryFn: tasksApi.getOverdueTasks,
-  })
-
 export const useCreateTask = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: Partial<Task>) => tasksApi.createTask(data),
+    mutationFn: (data: Partial<CreateTaskRequest>) => tasksApi.createTask(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [TASKS_KEY] })
       toast.success('Task created')
@@ -35,13 +23,3 @@ export const useCreateTask = () => {
   })
 }
 
-export const useCompleteTask = () => {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: (id: number) => tasksApi.completeTask(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [TASKS_KEY] })
-      toast.success('Task marked as complete')
-    },
-  })
-}

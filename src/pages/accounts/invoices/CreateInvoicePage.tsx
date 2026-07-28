@@ -1,11 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreatedIcon } from "@/assets/icons/components";
-import AccountForm from "@/components/forms/AccountForm";
 import { ROUTES } from "@/lib/route";
-import { CreateAccountRequest, CreateInvoiceRequest } from "@/types/api.types";
-import { createAccount } from "@/api/account.api";
-import { ResponseCode } from "@/constants/statusCodes";
+import { CreateAccountRequest } from "@/types/api.types";
 import { getSuccessToast , getErrorToast } from "@/components/common/toastMessages";
 import { showToast } from "@/components/common/Toast";
 import InvoiceForm from "@/components/forms/InvoiceForm";
@@ -28,7 +24,7 @@ export default function CreateInvoicePage({ accountNumber, account, onSuccess, o
   }, []);
 
   const handleSubmit = useCallback(
-    async (data: CreateInvoiceRequest) => {
+    async () => {
       try {
         //  await createInvoice({ ...data, accountNumber_ref: accountNumber });
         showToast(getSuccessToast("Invoices" , "created"));

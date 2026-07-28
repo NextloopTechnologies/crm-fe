@@ -1,5 +1,5 @@
 import api from '@/lib/axios'
-import type { Project, CreateProjectRequest } from '@/types/api.types'
+import type { CreateProjectRequest } from '@/types/api.types'
 
 export const getAllProjects = async () => {
 
