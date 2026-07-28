@@ -104,28 +104,6 @@ const TaskIcon = () => (
   </div>
 );
 
-// export function mapApiAccount(a: CreateAccountRequest): CreateAccountRequest {
-//   const accountName = a.accountName ?? "—";
-
-//   return {
-//     accountNumber: a.accountNumber ?? "",
-//     accountName,
-//     industry: a.accountType ?? "—",
-//     owner: a.accountOwner ?? "—",
-//     ownerAvatar: (a.accountOwner ?? "?")
-//       .split(" ")
-//       .map((w: string) => w[0])
-//       .join("")
-//       .slice(0, 2)
-//       .toUpperCase(),
-//     accountSite: a.accountSite ?? "—",
-//     status: "Active",
-//     color: ACCOUNT_COLORS[
-//       parseInt(a.accountNumber || "0", 10) % ACCOUNT_COLORS.length
-//     ],
-//   };
-// }
-
 // ─────────────────────────────────────────────
 // Map raw API task → UI Task shape
 // ─────────────────────────────────────────────
