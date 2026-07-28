@@ -26,7 +26,7 @@ import {
   MoreVertical
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FilterIcon, SortingIcon } from "@/assets/icons/components/index";
+import { FilterIcon } from "@/assets/icons/components/index";
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { AlertPopupDialog } from "@/components/common/AlertPopupDialog";
 import { SellOpportunityModal } from "@/components/common/SellOpportunityModal";
@@ -766,7 +766,7 @@ export function DataTable<T extends object>({
         if (!open) setSelectedRow(null);
       }}
       row={selectedRow}
-      onSubmit={async (row, data) => {
+      onSubmit={async () => {
       }}
     />
   ) : null

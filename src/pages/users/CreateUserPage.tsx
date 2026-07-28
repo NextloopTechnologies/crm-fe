@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
-import { CreatedIcon } from '@/assets/icons/components/index';
 import { ROUTES } from '@/lib/route';
 import UserForm from '@/components/forms/UserForm';
 import { CreateUserRequest } from '@/types/api.types';
@@ -34,7 +33,7 @@ export default function CreateUserPage() {
       assignToManagerUsername: data.assignToManagerUsername || "",
     };
 
-    const response = registerUser(payload);
+    registerUser(payload);
     showToast(getSuccessToast("User" , "created"));
 
     timerRef.current = setTimeout(() => {

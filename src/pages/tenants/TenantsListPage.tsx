@@ -168,9 +168,9 @@ export default function TenantsListPage() {
         [navigate]
     )
 
-    const handleDelete = useCallback((row: User | User[]) => { }, [])
+    const handleDelete = useCallback(() => { }, [])
 
-    const handleRowClick = useCallback((row: User) => { }, [])
+    const handleRowClick = useCallback(() => { }, [])
 
     const handleSelection = useCallback(
         (rows: User[]) => setSelectedRows(rows),

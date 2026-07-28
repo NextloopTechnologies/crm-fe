@@ -2,19 +2,20 @@ import { useEffect, useState } from "react";
 import { GrowthChart, SourceDonut, AccountsTable, TasksList } from "./dashboard.ui";
 import StatsCard from "@/components/common/StatsCards";
 import { fetchDashboardData } from "./dashboard.data";
-import type { Account, Task, StatItem } from "./dashboard.data";
+import type { Task, StatItem } from "./dashboard.data";
+import { CreateAccountRequest, CreateLeadRequest } from "@/types/api.types";
 
 export default function ManagerDashboardPage() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<CreateAccountRequest[]>([]);
   const [tasks, setTasks]       = useState<Task[]>([]);
   const [stats, setStats]       = useState<StatItem[]>([]);
-  const [rawLeads, setRawLeads]       = useState<[]>([]);  
+  const [rawLeads, setRawLeads]       = useState<CreateLeadRequest[]>([]);  
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
     fetchDashboardData("MANAGER")
-      .then(({ accounts, tasks, stats , rawLeads }) => {
-        setAccounts(accounts);
+      .then(({ rawAccounts, tasks, stats , rawLeads }) => {
+        setAccounts(rawAccounts);
         setTasks(tasks);
         setStats(stats);
         setRawLeads(rawLeads);
@@ -31,7 +32,7 @@ export default function ManagerDashboardPage() {
             </div>
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
                 <GrowthChart title="Account Growth" leads={rawLeads} />
-                <SourceDonut title="Accounts by Source" leads={rawLeads}/>
+                <SourceDonut title="Leads by Source" leads={rawLeads}/>
             </div>
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
                 <AccountsTable title="Recent Accounts" accounts={accounts} />

@@ -6,17 +6,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon, CheckCircle, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils"
 import { showToast } from "../common/Toast"
 import { logout } from "@/api/auth.api"
+import { myProfile } from "@/api/profile.api"
 
 // ── Route → label map ────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
@@ -54,6 +52,12 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
 
 }
 
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  roleName: string;
+}
+
 // ── Dynamic route matcher ─────────────────────────────────────────────────────
 const getRouteMeta = (pathname: string) => {
   if (routeMeta[pathname]) return routeMeta[pathname];
@@ -67,18 +71,27 @@ const getRouteMeta = (pathname: string) => {
 export function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [openLogout, setOpenLogout] = useState(false);
   const [showWriteToUs, setShowWriteToUs] = useState(false);
   const [showAccountSub, setShowAccountSub] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
   
   // Form state
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
-
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+    const userDetail = async () => {
+      try {
+        const response = await myProfile();
+        setProfile(response.data);
+      } catch (error) {
+        console.error("Failed to fetch profile", error);
+      }
+    };
+    useEffect(() => {
+  userDetail();
+}, [])
   const handleLogout = () => {
-   const response = logout();
+   logout();
     localStorage.clear();
      navigate("/login");
   };
@@ -132,8 +145,6 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             className="h-9 w-9 rounded-lg text-gray-500 hover:bg-gray-100 relative"
-            onClick={() => setShowNotification(true)}
-
           >
             <Bell size={17} />
             <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -152,8 +163,8 @@ export function Navbar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start leading-tight">
-                  <span className="text-[13px] font-semibold text-gray-800">Ishaan S.</span>
-                  <span className="text-[12px] text-gray-400">Super Admin</span>
+                  <span className="text-[13px] font-semibold text-gray-800">{profile?.firstName ?? ""} {profile?.lastName ?? ""}</span>
+                  <span className="text-[12px] text-gray-400">{profile?.roleName ?? ""}</span>
                 </div>
                 <ChevronDown
                   size={14}
@@ -176,8 +187,8 @@ export function Navbar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col leading-tight min-w-0">
-                  <span className="text-[12px] font-semibold text-gray-800 truncate">Ishaan S.</span>
-                  <span className="text-[12px] text-gray-400 truncate">Super Admin</span>
+                  <span className="text-[12px] font-semibold text-gray-800 truncate">{profile?.firstName ?? ""} {profile?.lastName ?? ""}</span>
+                  <span className="text-[12px] text-gray-400 truncate">{profile?.roleName ?? ""}</span>
                 </div>
               </div>
 

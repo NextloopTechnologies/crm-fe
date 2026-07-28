@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react';
 import FormPage, { FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
-import { UserIcon, PhoneIcon, MailIcon, LockIcon, LocationIcon, CreatedIcon } from '@/assets/icons/components/index'
+import { UserIcon, PhoneIcon, MailIcon, LocationIcon, CreatedIcon } from '@/assets/icons/components/index'
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
-import { InlineSelectDropdown } from '@/components/common/InlineSelectDropDown';
-import { createLead, getLeadByLeadNumber, updateLead } from '@/api/leads.api';
+import { getLeadByLeadNumber, updateLead } from '@/api/leads.api';
 import { CreateAccountRequest, CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
@@ -74,7 +73,6 @@ export default function EditLeadPage() {
   const [loading, setLoading] = useState(false);
   const [initialData, setInitialData] = useState<CreateLeadRequest | null>(null);
   const [touched, setTouched] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();
@@ -121,6 +119,7 @@ export default function EditLeadPage() {
         twitter: lead.twitter ?? "",
         leadOwner: lead.leadOwner ?? "",
         leadAddressRequestDto: {
+          addressType: lead.leadAddressResponseDto?.addressType ?? "",
           country: lead.leadAddressResponseDto?.country ?? "",
           flatNo: lead.leadAddressResponseDto?.flatNo ?? "",
           street: lead.leadAddressResponseDto?.street ?? "",
@@ -251,18 +250,6 @@ export default function EditLeadPage() {
     }
   };
 
-  // Safe nested update helper
-  const updateAddress = (key: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      leadAddressRequestDto: {
-        ...prev.leadAddressRequestDto!,
-        [key]: value,
-      },
-    }));
-  };
-
-
   const sections: FormSection[] = [
     {
       icon: <UserIcon className='w-5 h-5' />,
@@ -366,7 +353,7 @@ export default function EditLeadPage() {
               setTouched(true);
             }}
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.leadStatus ? "Lead status is required" : undefined}
+            error={touched && !formData.leadStatus ? "Lead status is required" : undefined}
           />
 
 
@@ -380,7 +367,7 @@ export default function EditLeadPage() {
               setTouched(true);
             }}
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.leadSource ? "Lead source is required" : undefined}
+            error={touched && !formData.leadSource ? "Lead source is required" : undefined}
           />
           <SelectDropdown
             label="Industry"
@@ -392,7 +379,7 @@ export default function EditLeadPage() {
               setTouched(true);
             }}
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.industry ? "Industry is required" : undefined}
+            error={touched && !formData.industry ? "Industry is required" : undefined}
           />
           <Input
             id="Number of Employees"

@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { MailIcon } from '@/assets/icons/components/index'
 import { useLogin } from '@/hooks/useLogin'
 import { Button } from '../components/common/Button'
@@ -30,7 +30,6 @@ const features = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function ForgotPasswordPage() {
-    const navigate = useNavigate()
     const { isLoading } = useLogin()
 
     const {
@@ -41,7 +40,7 @@ export default function ForgotPasswordPage() {
         resolver: zodResolver(forgotSchema),
     })
 
-    const onSubmit = async (data: ForgotFormValues) => {
+    const onSubmit = async () => {
         // TODO: wire up forgot password API
     }
 

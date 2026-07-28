@@ -21,10 +21,14 @@ export interface ApiError {
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export interface AuthUser {
-  fullname: string
-  roleName: string
-  managerId: string
-  orgnizationId: string
+  id?: number
+  name?: string
+  email?: string
+  role?: string
+  fullname?: string
+  roleName?: string
+  managerId?: string
+  orgnizationId?: string
 }
 
 export interface LoginRequest {
@@ -35,10 +39,11 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string
   refreshToken: string
-  roleName: string
-  managerId: string
-  orgnizationId: string
-  fullname: string
+  roleName?: string
+  managerId?: string
+  orgnizationId?: string
+  fullname?: string
+  user?: AuthUser
 }
 
 export interface LoginForm {
@@ -74,7 +79,6 @@ export interface Lead {
     leadSource: string
   leadStatus: string
   creationDate: string
-  lastModifiedDate: string
 }
 export interface AddressRequestDto {
   addressType: string
@@ -162,6 +166,30 @@ export interface AccountAddressRequestDto {
   zipCode?: string
   latitude?: string
   longitude?: string
+}
+
+export interface Task {
+  id?: number;
+  taskNumber?: string;
+  subject?: string;
+  description?: string;
+  dueDate?: string;
+  status?: string;
+  priority?: string;
+  accountNumber?: string;
+  contactId?: string;
+  isReminder?: boolean | string;
+  isRepeat?: boolean | string;
+  relatedToType?: string;
+  taskOwner?: string;
+  repeatDetails?: {
+    repeatType?: string;
+    frequency?: string;
+    everyX?: number;
+    endType?: string;
+    endAfterTimes?: number;
+    endOnDate?: string;
+  };
 }
 
 export interface CreateTaskRequest {

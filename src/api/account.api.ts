@@ -1,5 +1,5 @@
 import api from '@/lib/axios'
-import type { CreateAccountRequest, PaginatedResponse } from '@/types/api.types'
+import type { CreateAccountRequest } from '@/types/api.types'
 
   export const createAccount = async (data: CreateAccountRequest) => {
     const response = await api.post(

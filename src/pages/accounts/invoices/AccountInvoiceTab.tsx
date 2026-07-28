@@ -4,14 +4,12 @@ import { Pencil, PlusIcon, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/common/Checkbox";
 import { Button } from "@/components/common/Button";
 import { STATIC_INVOICES } from "./InvoicesList";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import CreateInvoicePage from "@/pages/accounts/invoices/CreateInvoicePage"; // adjust path
-import { ROUTES } from "@/lib/route";
+import CreateInvoicePage from "@/pages/accounts/invoices/CreateInvoicePage";
 import EditInvoicePage from "@/pages/accounts/invoices/EditInvoicePage";
 import { CreateAccountRequest } from "@/types/api.types";
 
 interface Props {
-    accountNumber: string;  // passed from AccountDetailPage
+    accountNumber?: string;  // passed from AccountDetailPage
     account : CreateAccountRequest;
 }
 
@@ -102,12 +100,15 @@ export default function AccountInvoiceTab({ accountNumber , account }: Props) {
                 <h3 className="text-[15px] font-semibold text-[#1e1e2d]">
                     All Invoices
                 </h3>
-
+          
                 <Button
-                    onClick={() => setIsCreating(true)}>
+                    className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1"
+                    onClick={() => setIsCreating(true)}
+                >
                     <PlusIcon />
-                    Create
+                    Add Invoice
                 </Button>
+                
             </div>
 
             {/* Empty state */}

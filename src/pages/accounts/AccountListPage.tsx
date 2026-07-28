@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { MoveUpRightIcon, Trash2 } from 'lucide-react'
-import { PlusIcon } from '@/assets/icons/components/PlusIcon'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
-import { ActiveUsersIcon, InActiveUsersIcon, TenantsIcon, UsersIcon } from '@/assets/icons/components'
+import { ActiveUsersIcon, UsersIcon } from '@/assets/icons/components'
 import { ROUTES } from '@/lib/route'
 import { getAllAccounts } from '@/api/account.api'
 import { CreateAccountRequest } from '@/types/api.types'
@@ -117,9 +115,7 @@ export default function AccountListPage() {
     [navigate]
   )
 
-  const handleDelete = useCallback((row: CreateAccountRequest | CreateAccountRequest[]) => { }, [])
-
-  const handleRowClick = useCallback((row: CreateAccountRequest) => { }, [])
+  const handleDelete = useCallback(() => { }, [])
 
   const handleSelection = useCallback(
     (rows: CreateAccountRequest[]) => setSelectedRows(rows),

@@ -1,12 +1,12 @@
 import { ReactNode } from "react";
 import { ActiveUsersIcon, TenantsIcon, UpArrowIcon, UsersIcon } from "@/assets/icons/components";
-import { ChartLine, ClipboardList, List, Phone } from "lucide-react";
+import { ChartLine, ClipboardList, Phone } from "lucide-react";
 import { getAllAccounts } from "@/api/account.api";
 import { getAllTasks } from "@/api/tasks.api";
 import { getAllLeads } from "@/api/leads.api";
-import { ACCOUNT_COLORS, SOURCE_COLORS } from "@/constants/colors";
-import { CreateAccountRequest, CreateLeadRequest, Lead } from "@/types/api.types";
-
+import { CreateLeadRequest } from "@/types/api.types";
+import { SOURCE_COLORS } from "@/constants/colors";
+import { getAllUsers } from "@/api/user.api";
 // ─────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────
@@ -104,30 +104,27 @@ const TaskIcon = () => (
   </div>
 );
 
-export function mapApiAccount(a: CreateAccountRequest, idx: number): CreateAccountRequest {
-  const accountName = a.accountName ?? "—";
+// export function mapApiAccount(a: CreateAccountRequest): CreateAccountRequest {
+//   const accountName = a.accountName ?? "—";
 
-  const words = accountName.trim().split(" ");
-
-  const initials =
-    words.length >= 2
-      ? (words[0][0] + words[1][0]).toUpperCase()
-      : accountName.slice(0, 2).toUpperCase();
-
-  return {
-
-    accountNumber: a.accountNumber ?? "",
-
-    accountName: a.accountName ?? "—",
-
-    accountType: a.accountType ?? "—",
-
-    accountOwner: a.accountOwner ?? "—",
-
-    accountSite: a.accountSite
-      ?? "—",
-  };
-}
+//   return {
+//     accountNumber: a.accountNumber ?? "",
+//     accountName,
+//     industry: a.accountType ?? "—",
+//     owner: a.accountOwner ?? "—",
+//     ownerAvatar: (a.accountOwner ?? "?")
+//       .split(" ")
+//       .map((w: string) => w[0])
+//       .join("")
+//       .slice(0, 2)
+//       .toUpperCase(),
+//     accountSite: a.accountSite ?? "—",
+//     status: "Active",
+//     color: ACCOUNT_COLORS[
+//       parseInt(a.accountNumber || "0", 10) % ACCOUNT_COLORS.length
+//     ],
+//   };
+// }
 
 // ─────────────────────────────────────────────
 // Map raw API task → UI Task shape
@@ -147,30 +144,31 @@ export function mapApiTask(t: any): Omit<Task, "icon"> & { icon: ReactNode } {
 
 export function buildStats(
   role: "ADMIN" | "MANAGER" | "SALES",
+  totalUsers:number,
   totalAccounts: number,
-  activeAccounts: number,
   totalTasks: number,
   fmtRevenue : string
 ): StatItem[] {
+
   if (role === "ADMIN") return [
-  { icon: <UsersIcon />, label: "Total Users", value: String(totalAccounts),  subtitle: "All Users in System", trend: upTrendLive() },
-  { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(activeAccounts), subtitle:  "All Account in System", trend: upTrendLive() },
-  { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,  subtitle: "total Revenue", trend: upTrendLive() },
-  { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks), subtitle: "All Contact in System", trend: upTrendLive() },
+  { icon: <UsersIcon />, label: "Total Users", value: String(totalUsers),  subtitle: "All Users in System", trend: upTrendLive("23%") },
+  { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(totalAccounts), subtitle:  "All Account in System", trend: upTrendLive("23%") },
+  { icon: <RevenueIcon/>, label: "Total Revenue", value: fmtRevenue,  subtitle: "total Revenue", trend: upTrendLive("23%") },
+  { icon: <TenantsIcon />, label: "Total Contacts", value: String(totalTasks), subtitle: "All Contact in System", trend: upTrendLive("23%") },
 ];
 
   if (role === "MANAGER") return [
-    { icon: <UsersIcon />, label: "Team Accounts", value: String(totalAccounts),  subtitle: "All accounts in team", trend: upTrendLive() },
-    { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(activeAccounts), subtitle: "All Account in System", trend: upTrendLive() },
-    { icon: <TaskIcon />,        label: "Team Tasks", value: String(totalTasks), subtitle: "All Tasks in ", trend: upTrendLive() },
-    { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "All Teams Contacts", trend: upTrendLive() },
+    { icon: <UsersIcon />, label: "Team Accounts", value: String(totalUsers),  subtitle: "All accounts in team", trend: upTrendLive("23%") },
+    { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(totalAccounts), subtitle: "All Account in System", trend: upTrendLive("23%") },
+    { icon: <TaskIcon />,        label: "Team Tasks", value: String(totalTasks), subtitle: "All Tasks in ", trend: upTrendLive("23%") },
+    { icon: <TenantsIcon />, label: "Team Contacts", value: "—", subtitle: "All Teams Contacts", trend: upTrendLive("23%") },
   ];
 
   return [
-  { icon: <UsersIcon />, label: "My Accounts", value: String(totalAccounts),  subtitle: "All my accounts", trend: upTrendLive() },
-  { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(activeAccounts), subtitle: "All Account in System", trend: upTrendLive() },
-  { icon: <TaskIcon />, label: "My Tasks", value: String(totalTasks), subtitle: "Tasks in you y", trend: upTrendLive() },
-  { icon: <TenantsIcon />, label: "My Contacts", value: "—", subtitle: "", trend: upTrendLive() },
+  { icon: <UsersIcon />, label: "My Accounts", value: String(totalAccounts),  subtitle: "All my accounts", trend: upTrendLive("23%") },
+  { icon: <ActiveUsersIcon />, label: "Total Accounts", value: String(totalAccounts), subtitle: "All Account in System", trend: upTrendLive("23%") },
+  { icon: <TaskIcon />, label: "My Tasks", value: String(totalTasks), subtitle: "Tasks in you y", trend: upTrendLive("23%") },
+  { icon: <TenantsIcon />, label: "My Contacts", value: "—", subtitle: "", trend: upTrendLive("20%") },
   ];
 }
 
@@ -178,19 +176,20 @@ export function buildStats(
 // Single fetch function — used by all 3 pages
 // ─────────────────────────────────────────────
 export async function fetchDashboardData(role: "ADMIN" | "MANAGER" | "SALES") {
-  const [accRes, taskRes , leadRes] = await Promise.all([getAllAccounts(), getAllTasks() , getAllLeads()]);
+  const accountResponse = await getAllAccounts();
+  const userResponse = await getAllUsers();
+  const taskResponse = await getAllTasks();
+  const leadResponse = await getAllLeads();
+  const rawUsers = Array.isArray(userResponse.data) ? userResponse.data : [];
+  const rawAccounts = Array.isArray(accountResponse.data) ? accountResponse.data : [];
+  const rawTasks = Array.isArray(taskResponse) ? taskResponse : [];
+  const rawLeads = Array.isArray(leadResponse.data) ? leadResponse.data : [];
 
-  const rawAccounts = accRes?.data  ?? accRes  ?? [];
-  const rawTasks    = taskRes?.data ?? taskRes ?? [];
-  const rawLeads    = leadRes?.data ?? leadRes ?? [];
-
-  const accounts = rawAccounts.map(mapApiAccount);
+  // const accounts = rawAccounts.map(mapApiAccount);
   const tasks    = rawTasks.map(mapApiTask);
-
-  const totalAccounts  = accounts.length;
   const totalTasks     = tasks.length;
 
-  const totalRevenue = rawLeads.reduce(
+  const totalRevenue = (rawLeads as CreateLeadRequest[]).reduce(
     (sum: number, lead: any) => sum + (parseFloat(lead.annualRevenue) || 0),
     0
   );
@@ -201,12 +200,12 @@ export async function fetchDashboardData(role: "ADMIN" | "MANAGER" | "SALES") {
     ? `${(totalRevenue / 1_000).toFixed(1)}K`
     : `${totalRevenue}`;
 
-  const stats = buildStats(role, totalAccounts, accounts, totalTasks , fmtRevenue);
+    const stats = buildStats(role, rawUsers.length, rawAccounts.length, totalTasks , fmtRevenue);
 
-  return { accounts, tasks, stats , rawLeads};
+  return { rawAccounts, tasks, stats , rawLeads};
 }
 
-export function buildGrowthData(leads: any[], period: string) {
+export function buildGrowthData(leads: CreateLeadRequest[], period: string) {
   const now = new Date();
   const thisYear = now.getFullYear();
   const thisMonth = now.getMonth(); // 0-indexed
@@ -221,14 +220,14 @@ export function buildGrowthData(leads: any[], period: string) {
     labelDays.forEach((d) => (buckets[d] = 0));
 
     leads.forEach((l) => {
-      const d = new Date(l.creationDate);
+      const d = new Date(l.creationDate ?? "");
       if (d.getFullYear() === thisYear && d.getMonth() === thisMonth) {
         const day = d.getDate();
         // assign to nearest label bucket
         const nearest = labelDays.reduce((a, b) =>
           Math.abs(b - day) < Math.abs(a - day) ? b : a
         );
-        buckets[nearest] += parseFloat(l.annualRevenue) || 0;
+        buckets[nearest] += parseFloat(l.annualRevenue ?? "") || 0;
       }
     });
 
@@ -247,13 +246,13 @@ export function buildGrowthData(leads: any[], period: string) {
     labelDays.forEach((d) => (buckets[d] = 0));
 
     leads.forEach((l) => {
-      const d = new Date(l.creationDate);
+      const d = new Date(l.creationDate ?? "");
       if (d.getFullYear() === lastMonthYear && d.getMonth() === lastMonth) {
         const day = d.getDate();
         const nearest = labelDays.reduce((a, b) =>
           Math.abs(b - day) < Math.abs(a - day) ? b : a
         );
-        buckets[nearest] += parseFloat(l.annualRevenue) || 0;
+        buckets[nearest] += parseFloat(l.annualRevenue ?? "") || 0;
       }
     });
 
@@ -281,7 +280,7 @@ export function buildGrowthData(leads: any[], period: string) {
     leads.forEach((l) => {
       const key = l.creationDate?.slice(0, 7);
       if (key && monthBuckets[key] !== undefined) {
-        monthBuckets[key] += parseFloat(l.annualRevenue) || 0;
+        monthBuckets[key] += parseFloat(l.annualRevenue ?? "") || 0;
       }
     });
 

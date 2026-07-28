@@ -9,8 +9,7 @@ import CustomBadge from '@/components/common/CommonBadge'
 import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
 import { ROUTES } from '@/lib/route'
 import { getAllProjects } from '@/api/projects.api'
-import { Label } from 'radix-ui'
-import { formatDate, parseDateOnly } from '@/lib/utils'
+import { parseDateOnly } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 
@@ -91,21 +90,6 @@ const BadgeCell = ({ val }: { val: unknown }) => {
     <CustomBadge
       label={label}
       className={badgeStyles[label] ?? "bg-gray-50 text-gray-500 border border-gray-200"}
-    />
-  )
-}
-
-const PriorityBadge = ({ val }: { val: unknown }) => {
-  const label = String(val)
-  const styles: Record<string, string> = {
-    "High":   "bg-red-50 text-red-500 border border-red-200 hover:bg-red-50",
-    "Medium": "bg-yellow-50 text-yellow-600 border border-yellow-200 hover:bg-yellow-50",
-    "Low":    "bg-green-50 text-green-600 border border-green-200 hover:bg-green-50",
-  }
-  return (
-    <CustomBadge
-      label={label}
-      className={styles[label] ?? "bg-gray-50 text-gray-500 border border-gray-200"}
     />
   )
 }
@@ -217,9 +201,9 @@ export default function ProjectListPage() {
     [navigate]
   );
 
-  const handleDelete = useCallback((row: any | any[]) => { }, [])
+  const handleDelete = useCallback(() => { }, [])
 
-  const handleRowClick = useCallback((row: any) => { }, [])
+  // const handleRowClick = useCallback((row: any) => { }, [])
 
   const handleSelection = useCallback(
     (rows: any[]) => setSelectedRows(rows),

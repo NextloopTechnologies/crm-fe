@@ -13,7 +13,7 @@ export function TopBar() {
     <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-6">
       {/* Page title slot — filled by each page via document.title */}
       <div className="text-sm text-gray-500">
-        Welcome back, <span className="font-medium text-gray-900">{user?.name}</span>
+        Welcome back, <span className="font-medium text-gray-900">{user?.name ?? user?.fullname ?? 'User'}</span>
       </div>
 
       <div className="flex items-center gap-3">
@@ -30,14 +30,14 @@ export function TopBar() {
         {/* User avatar */}
         <div className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-gray-100">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
-            {user?.name?.charAt(0).toUpperCase()}
+            {(user?.name ?? user?.fullname ?? 'U').charAt(0).toUpperCase()}
           </div>
           {/* Role badge */}
           <span className={cn(
             'hidden rounded px-1.5 py-0.5 text-[10px] font-semibold sm:block',
             'bg-brand-light text-brand'
           )}>
-            {user?.role?.replace('_', ' ')}
+            {(user?.role ?? user?.roleName ?? 'USER').replace('_', ' ')}
           </span>
         </div>
 

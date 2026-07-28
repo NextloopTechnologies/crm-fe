@@ -11,7 +11,7 @@ const roleHierarchy: Record<string, number> = {
 
 export function usePermission() {
   const user = useAuthStore((s) => s.user)
-  const role = user?.role ?? ''
+  const role = (user?.role ?? user?.roleName ?? '').toUpperCase()
 
   const hasRole = (required: UserRole | UserRole[]) => {
     const roles = Array.isArray(required) ? required : [required]

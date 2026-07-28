@@ -14,9 +14,10 @@ import {
 import CustomBadge from "@/components/common/CommonBadge";
 import StatsCard from "@/components/common/StatsCards";
 import { ROUTES } from "@/lib/route";
-import { buildGrowthData, buildSourceData, PERIOD_DATA, SOURCES_DATA } from "./dashboard.data";
-import type { Account, StatItem, Task } from "./dashboard.data";
-import { CreateLeadRequest, Lead } from "@/types/api.types";
+import { buildGrowthData, buildSourceData } from "./dashboard.data";
+import type { StatItem, Task } from "./dashboard.data";
+import { CreateAccountRequest, CreateLeadRequest } from "@/types/api.types";
+import { parseDateOnly } from "@/lib/utils";
 
 ChartJS.register(
   CategoryScale,
@@ -57,7 +58,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
 // ─────────────────────────────────────────────
 interface GrowthChartProps {
   title: string;
-  leads: Lead[];
+  leads: CreateLeadRequest[];
 }
 
 export function GrowthChart({ title, leads }: GrowthChartProps) {
@@ -235,19 +236,20 @@ export function SourceDonut({ title, leads }: SourceDonutProps) {
 // ─────────────────────────────────────────────
 interface AccountsTableProps {
   title: string;
-  accounts: Account[];
+  accounts: CreateAccountRequest[];
   onViewAll?: () => void;
 }
 
 export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps) {
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
-  const [search, setSearch] = useState<string>("");
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [search] = useState<string>("");
   const navigate = useNavigate();
+
+  const handleViewAll = onViewAll ?? (() => navigate(ROUTES.ACCOUNTS));
 
   const filteredAccounts = accounts.filter(
     (a) =>
-      a.name.toLowerCase().includes(search.toLowerCase()) ||
-      a.industry.toLowerCase().includes(search.toLowerCase())
+      a.accountName.toLowerCase().includes(search.toLowerCase())
   )  .slice(0, 5);
 
   return (
@@ -255,7 +257,7 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-[14px] font-bold text-[#0f172a]">{title}</h2>
         <button
-          onClick={() => navigation.navigate(ROUTES.ACCOUNTS)}
+          onClick={handleViewAll}
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] bg-transparent px-2 py-[2px] text-[11px] text-[#64748b]"
         >
           View All
@@ -271,10 +273,8 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
             {(
               [
                 "Account Name",
-                "Industry",
+                "Account type",
                 "Owner",
-                "Account Site",
-                "Status",
               ] as const
             ).map((h) => (
               <th
@@ -290,65 +290,61 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
 
         <tbody>
           {filteredAccounts.map((a) => (
-            <tr key={a.id} className="border-b border-[#f8fafc]">
+            <tr key={a.accountNumber} className="border-b border-[#f8fafc]">
               {/* Account Name */}
               <td className="px-[6px] py-[7px]">
                 <div className="flex items-center gap-[7px]">
                   <div
                     className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-[6px] text-[10px] font-bold"
                     style={{
-                      background: a.color + "22",
-                      color: a.color,
-                    }}
+                       background: + "22",
+                       color: "AccentColor",
+                     }}
                   >
-                    {a.initials}
+                    {}
                   </div>
                   <span className="text-[12px] font-semibold text-[#0f172a]">
-                    {a.name}
+                    {a.accountName}
                   </span>
                 </div>
               </td>
 
               {/* Industry */}
               <td className="px-[6px] py-[7px] text-[11px] text-[#64748b]">
-                {a.industry}
+                {a.accountType}
               </td>
 
               {/* Owner */}
               <td className="px-[6px] py-[7px] text-[11px] text-[#374151]">
-                {a.owner}
+                {a.accountOwner}
               </td>
 
               {/* Created At */}
-              <td className="px-[6px] py-[7px] text-[11px] text-[#374151]">
-                {a.owner}
-              </td>
+              {/* <td className="px-[6px] py-[7px] text-[11px] text-[#374151]">
+                {a.accountSite}
+              </td> */}
 
               {/* Status */}
-              <td className="px-[6px] py-[7px]">
+              {/* <td className="px-[6px] py-[7px]">
                 <CustomBadge
-                  label={a.status}
+                  label={a.accountName}
                   size="sm"
-                  className={
-                    a.status === "Active"
-                      ? "border border-green-200 bg-green-50 text-green-600"
-                      : "border border-red-200 bg-red-50 text-red-600"
-                  }
                 />
-              </td>
+              </td> */}
 
               {/* Three dots menu */}
               <td className="relative px-[6px] py-[7px]">
                 <button
                   onClick={() =>
-                    setOpenMenuId(openMenuId === a.id ? null : a.id)
-                  }
+                    setOpenMenuId(
+                      openMenuId === a.accountNumber ? null : (a.accountNumber ?? null)
+                    )}
                   className="flex h-6 w-6 items-center justify-center rounded text-[16px] text-[#94a3b8] hover:bg-[#f1f5f9]"
                 >
                   ⋮
                 </button>
 
-                {openMenuId === a.id && (
+                {openMenuId === a.accountNumber && (
                   <>
                     {/* Backdrop */}
                     <div
@@ -361,7 +357,7 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
                       <button
                         onClick={() => {
                           setOpenMenuId(null);
-                          navigate(ROUTES.ACCOUNTS_EDIT(String('1')));
+                          navigate(ROUTES.ACCOUNTS_EDIT((a.accountNumber || "")));
                         }}
                         className="flex w-full items-center gap-2 px-3 py-[7px] text-left text-[12px] text-[#374151] hover:bg-[#f8fafc]"
                       >
@@ -385,7 +381,7 @@ export function AccountsTable({ title, accounts, onViewAll }: AccountsTableProps
                       <button
                         onClick={() => {
                           setOpenMenuId(null);
-                          navigate(ROUTES.ACCOUNTS_EDIT(String('1')));
+                          navigate(ROUTES.ACCOUNTS_EDIT(a.accountNumber || ""));
                         }}
                         className="flex w-full items-center gap-2 px-3 py-[7px] text-left text-[12px] text-[#374151] hover:bg-[#f8fafc]"
                       >
@@ -427,12 +423,15 @@ interface TasksListProps {
 }
 
 export function TasksList({ title, tasks, onViewAll }: TasksListProps) {
+  const navigate = useNavigate();
+  const handleViewAll = onViewAll ?? (() => navigate(ROUTES.TASKS));
+
   return (
     <div className="min-w-0 rounded-[14px] border border-[#e2e8f0] bg-white p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-[14px] font-bold text-[#0f172a]">{title}</h2>
         <button
-          onClick={() => navigation.navigate(ROUTES.TASKS)}
+          onClick={handleViewAll}
           className="cursor-pointer rounded-[5px] border border-[#E0E0E0] bg-transparent px-2 py-[2px] text-[11px] text-[#64748b]"
         >
           View all
@@ -465,7 +464,7 @@ export function TasksList({ title, tasks, onViewAll }: TasksListProps) {
 
             {/* Date */}
             <div className="w-[95px] flex-shrink-0 text-left text-[11px] text-[#94a3b8]">
-              {t.createdAt}
+              {parseDateOnly(String((t as any).createdAt ?? "NA"))}  
             </div>
 
             {/* Priority Badge */}

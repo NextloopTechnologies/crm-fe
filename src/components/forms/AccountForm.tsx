@@ -11,9 +11,8 @@ import {
   PhoneIcon,
   MailIcon,
   LocationIcon,
-  EyeOffIcon,
 } from "@/assets/icons/components/index";
-import { ArrowLeft, Globe, Printer, Star } from "lucide-react";
+import { ArrowLeft, Globe, Printer } from "lucide-react";
 import { AccountAddressRequestDto, ContactRequestDto, CreateAccountRequest } from "@/types/api.types";
 import { ROUTES } from "@/lib/route";
 import BackButton from "../common/BackButton";
@@ -109,8 +108,6 @@ export default function AccountForm({
     ],
   });
 
-  const [touched, setTouched] = useState(false);
-
   const setAddress =
     (key: keyof AccountAddressRequestDto) =>
       (val: string) => {
@@ -123,7 +120,6 @@ export default function AccountForm({
             },
           ],
         }));
-        setTouched(true);
       };
 
   const setContact =
@@ -138,7 +134,6 @@ export default function AccountForm({
             },
           ],
         }));
-        setTouched(true);
       };
 
   useEffect(() => {
@@ -157,7 +152,6 @@ export default function AccountForm({
           ...prev,
           [key]: val,
         }));
-        setTouched(true);
       };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -243,7 +237,6 @@ export default function AccountForm({
             value={formData.rating}
             onChange={(val) => {
               setFormData({ ...formData, rating: val });
-              setTouched(true);
             }}
             required
             leftIcon={<ShieldIcon />}
@@ -256,7 +249,6 @@ export default function AccountForm({
             value={formData.ownership}
             onChange={(val) => {
               setFormData({ ...formData, ownership: val });
-              setTouched(true);
             }}
             required
             leftIcon={<ShieldIcon />}

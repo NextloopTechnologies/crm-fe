@@ -1,20 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import { ROUTES } from '@/lib/route'
-import { getTaskByTaskNumber, updateTask } from '@/api/tasks.api';
 import { ResponseCode } from '@/constants/statusCodes';
 import { getSuccessToast } from '@/components/common/toastMessages';
 import { CreateProjectRequest } from '@/types/api.types';
 import ProjectForm from '@/components/forms/ProjectForm';
 import { getProjectByProjectNumber, updateProject } from '@/api/projects.api';
-import { formatDate , parseDateOnly} from '@/lib/utils';
 
 export default function EditProjectPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const timerRef    = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     if (id) {

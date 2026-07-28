@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Mail, Phone, MapPin, UserRound } from "lucide-react";
-import { ROUTES } from "@/lib/route";
 import { getAccountByAccountNumber } from "@/api/account.api";
 import AccountInvoiceTab from "./invoices/AccountInvoiceTab"; // ← NEW import
 import { CreateAccountRequest } from "@/types/api.types";
@@ -229,7 +228,7 @@ export default function AccountDetailPage() {
 
                 {/* ── Invoice Tab ── passes accountNumber so it can fetch filtered invoices */}
                 {activeTab === "invoice" && (
-                    <AccountInvoiceTab accountNumber={account.accountNumber} account={account} />
+                    <AccountInvoiceTab accountNumber={account.accountNumber ?? ""} account={account} />
                 )}
 
             </div>

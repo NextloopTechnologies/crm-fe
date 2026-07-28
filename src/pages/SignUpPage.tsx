@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { EyeIcon, EyeOffIcon, MailIcon, LockIcon, } from '@/assets/icons/components/index'
 import { Button } from '../components/common/Button'
 import { Input } from '@/components/common/Input'
@@ -51,10 +51,9 @@ const features = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function SignUpPage() {
-    const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
 
-    const { onSubmit: signUpSubmit , isLoading } = useSignup()
+    const { isLoading } = useSignup()
 
     const {
         register,
@@ -67,9 +66,7 @@ export default function SignUpPage() {
         defaultValues: { consent: false },
     })
 
-    const consent = watch('consent')
-
-    const onSubmit = async (data: any) => {
+    const onSubmit = async () => {
         try {
           // API call here
         } catch (err) {

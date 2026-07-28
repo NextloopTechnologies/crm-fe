@@ -152,7 +152,7 @@ export default function MyProfilePage({ data, onEditClick }: ProfilePageProps) {
   const initials =
     profile?.firstName
       ?.split(" ")
-      .map((w) => w[0])
+      .map((word: string) => word.charAt(0))
       .join("")
       .slice(0, 2)
       .toUpperCase() || "?";
@@ -179,7 +179,6 @@ export default function MyProfilePage({ data, onEditClick }: ProfilePageProps) {
             Personal Information
           </h1>
           <Button
-            type="button"
             size="sm"
             onClick={handleEdit}
             className="flex items-center gap-1.5 !border !border-[#5752FE] !text-[#5752FE] !bg-transparent hover:!bg-[#5752FE0D] rounded-lg text-sm font-medium"

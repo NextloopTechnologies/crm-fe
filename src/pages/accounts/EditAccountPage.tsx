@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { showToast } from '@/components/common/Toast'
 import AccountForm from '@/components/forms/AccountForm'
@@ -11,7 +11,6 @@ import { getSuccessToast } from '@/components/common/toastMessages'
 export default function EditAccountPage() {
   const navigate    = useNavigate()
   const [loading, setLoading] = useState(false)
-  const timerRef    = useRef<ReturnType<typeof setTimeout>>(undefined)
  const { id } = useParams();
   const [formData, setFormData] = useState<CreateAccountRequest>({} as CreateAccountRequest);
 

@@ -4,21 +4,16 @@ import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
 import {
-  PlusCircle,
   Trash2,
   Building2,
   FileText,
   ReceiptText,
   ArrowLeft,
-  Plus,
   CirclePlus,
 } from "lucide-react";
 import { CreateInvoiceRequest, InvoiceResponseDto , InvoiceItemDto, InvoiceStatus, CreateAccountRequest } from "@/types/api.types";
-import { ROUTES } from "@/lib/route";
-import BackButton from "../common/BackButton";
 import { BANK_DETAILS, BANK_OPTIONS } from "@/constants/BankDetailOption";
 import { InlineSelectDropdown } from "../common/InlineSelectDropDown";
-import { InlineInput } from "../common/InlineInput";
 import InvoicePreview from "@/pages/accounts/invoices/InvoicePreviewPage";
 // ─────────────────────────────────────────────────────────────
 // Options

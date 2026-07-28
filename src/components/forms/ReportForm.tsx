@@ -4,7 +4,6 @@ import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import {
   UserIcon,
-  MailIcon,
 } from "@/assets/icons/components/index";
 
 
@@ -13,21 +12,24 @@ import {
 // ─────────────────────────────────────────────────────────────
 
 export interface ReportFormData {
-  firstName: string;
-  lastName: string;
-  industry: string;
-  email: string;
-  username: string;
-  password: string;
-  website: string;
-  phone: string;
+  id: string;
+  reportName?:string;
+  status?: string;
+  firstName?: string;
+  lastName?: string;
+  industry?: string;
+  email?: string;
+  username?: string;
+  password?: string;
+  website?: string;
+  phone?: string;
 
-  country: string;
-  street: string;
-  state: string;
-  flatNo: string;
-  city: string;
-  zipCode: string;
+  country?: string;
+  street?: string;
+  state?: string;
+  flatNo?: string;
+  city?: string;
+  zipCode?: string;
 }
 
 interface ClientFormProps {
@@ -50,6 +52,9 @@ export default function ReportForm({
   onCancel,
 }: ClientFormProps) {
   const [form, setForm] = useState<ReportFormData>({
+    id: defaultValues.id ?? "",
+    reportName: defaultValues.reportName ?? "",
+    status: defaultValues.status ?? "",
     firstName: defaultValues.firstName ?? "",
     lastName: defaultValues.lastName ?? "",
     industry: defaultValues.industry ?? "",
@@ -66,8 +71,6 @@ export default function ReportForm({
     city: defaultValues.city ?? "",
     zipCode: defaultValues.zipCode ?? "",
   });
-
-  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     if (
@@ -89,7 +92,6 @@ export default function ReportForm({
           [key]: val,
         }));
 
-        setTouched(true);
       };
 
   const handleSubmit = (
