@@ -1,6 +1,11 @@
 import api from '@/lib/axios'
 import type { CreateTaskRequest, Task } from '@/types/api.types'
 
+interface ApiResponse<T> {
+  code: string;
+  data: T;
+  status: string;
+}
 export const createTask = async (data: Partial<CreateTaskRequest>) => {
   const response = await api.post(
     '/task/register',
@@ -9,9 +14,10 @@ export const createTask = async (data: Partial<CreateTaskRequest>) => {
 
   return response.data;
 };
+
 export const getAllTasks = async () => {
-  const response = await api.get<Task[]>('task/getAllTask');
-  return response.data;
+  const response = await api.get<ApiResponse<Task[]>>('task/getAllTask');
+  return response.data.data;
 };
 
 export const getTasks = async (params?: { page?: number; size?: number }) => {

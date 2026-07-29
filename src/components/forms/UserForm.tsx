@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import FormPage, { FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
@@ -55,6 +55,7 @@ export default function UserForm({
   onCancel,
 }: UserFormProps) {
 
+  const isManagerCaller = callerRole.toUpperCase() === "MANAGER";
 
   const initialShowAssignToManager =
     ["ADMIN", "SUPER_ADMIN"].includes(callerRole.toUpperCase()) &&
@@ -72,9 +73,15 @@ export default function UserForm({
     firstName: defaultValues.firstName ?? "",
     lastName: defaultValues.lastName ?? "",
     phone: defaultValues.phone ?? "",
-    roleName: defaultValues.roleName ?? "",
+    roleName: defaultValues.roleName ?? (isManagerCaller ? "SALES" : ""), //
     assignToManagerUsername: defaultValues.assignToManagerUsername ?? "",
   });
+
+  useEffect(() => {
+    if (isManagerCaller && form.roleName?.toUpperCase() !== "SALES") {
+      set("roleName")("SALES");
+    }
+  }, [isManagerCaller]);
 
   const handleRoleChange = (val: string) => {
     set("roleName")(val);
@@ -117,9 +124,24 @@ export default function UserForm({
       iconColor: "text-green-500",
       children: (
         <div className="-mx-7 px-6 pt-5  col-span-full grid grid-cols-1 md:grid-cols-2 gap-10">
-          {/* Role Dropdown */}
-          {mode === "add" ? (
-            // Add mode — normal dropdown
+          {/* Role field: locked whenever caller can't choose (edit mode OR manager caller) */}
+          {mode === "edit" || isManagerCaller ? (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-[#111127]">
+                Role Name
+                <span className="ml-1 text-xs text-[#6b6b8d] font-normal">
+                  {mode === "edit" ? "(cannot be changed)" : "(auto-assigned)"}
+                </span>
+              </label>
+              <div className="flex items-center gap-2 h-10 px-3 rounded-lg border border-[#e4e4f0] bg-[#f8f8fc] cursor-not-allowed">
+                <ShieldIcon />
+                <span className="text-sm text-[#6b6b8d]">
+                  {isManagerCaller ? "Sales" : (form.roleName || "—")}
+                </span>
+                <span className="ml-auto text-xs text-[#6b6b8d]">🔒</span>
+              </div>
+            </div>
+          ) : (
             <SelectDropdown
               label="Role Name"
               placeholder="Select a role"
@@ -130,20 +152,6 @@ export default function UserForm({
               leftIcon={<ShieldIcon />}
               error={fieldError("roleName")}
             />
-          ) : (
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-[#111127]">
-                Role Name
-                <span className="ml-1 text-xs text-[#6b6b8d] font-normal">(cannot be changed)</span>
-              </label>
-              <div className="flex items-center gap-2 h-10 px-3 rounded-lg border border-[#e4e4f0] bg-[#f8f8fc] cursor-not-allowed">
-                <ShieldIcon />
-                <span className="text-sm text-[#6b6b8d]">
-                  {form.roleName || "—"}
-                </span>
-                <span className="ml-auto text-xs text-[#6b6b8d]">🔒</span>
-              </div>
-            </div>
           )}
         </div>
       ),

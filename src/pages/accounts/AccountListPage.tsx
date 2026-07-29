@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, ColumnDef } from '@/components/common/Table'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Trash2 } from 'lucide-react'
+import { MoveUpRightIcon, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import StatsCard from '@/components/common/StatsCards'
-import { TenantsIcon, UsersIcon } from '@/assets/icons/components'
+import { ActiveUsersIcon, UsersIcon } from '@/assets/icons/components'
 import { ROUTES } from '@/lib/route'
 import { getAllAccounts } from '@/api/account.api'
 import { CreateAccountRequest } from '@/types/api.types'
@@ -13,12 +12,14 @@ import { CreateAccountRequest } from '@/types/api.types'
 // ── Static helpers — component ke bahar ──────────────────────
 const getStats = (data: CreateAccountRequest[]) => [
   { icon: <UsersIcon />, label: "Total Accounts", value: data.length, subtitle: "All accounts in system" },
-  // { icon: <ActiveUsersIcon />, label: "Active Accounts", value: data.filter(u => u.status === "active").length, subtitle: "Currently Active" },
-  // { icon: <InActiveUsersIcon />, label: "Inactive Accounts", value: data.filter(u => u.status === "inactive").length, subtitle: "Currently Inactive" },
-  { icon: <TenantsIcon />, label: "Total Contacts", value: data.reduce(
-    (sum, u) => sum + (u.contacts?.filter(c => c.designation === "Admin").length ?? 0),
-    0
-  ), subtitle: "Across all accounts" },
+  { icon: <ActiveUsersIcon />, label: "New Accounts", value: data.filter(u => u.createdAt === "active").length, subtitle: "Currently Active" },
+  { icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#0bd9011a]/10 flex items-center justify-center">
+            <MoveUpRightIcon className="w-6 h-6 text-[#0BD901]" />
+          </div>, label: "UpSell Accounts", value: data.filter(u => u.accountType === "Up Sell").length, subtitle: "Currently Inactive" },
+  // { icon: <TenantsIcon />, label: "Total Contacts", value: data.reduce(
+  //   (sum, u) => sum + (u.contacts?.filter(c => c.designation === "Admin").length ?? 0),
+  //   0
+  // ), subtitle: "Across all accounts" },
 ]
 
 const FILTERS = [
@@ -60,7 +61,7 @@ export default function AccountListPage() {
       try {
         setAccountsLoading(true);
         const response = await getAllAccounts();
-        setAccounts(response.data || response);
+        setAccounts(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Error fetching accounts:", error);
       } finally {
@@ -77,13 +78,18 @@ export default function AccountListPage() {
       width: "180px",
       render: (_, row) => (
         <div className="flex items-center gap-2.5">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${row.accountName}`} />
-            <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
-              {row.accountName?.split(" ").map((n: string) => n[0]).join("").slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-sm font-medium text-[#111127]">{row.accountName}</span>
+          <span
+            className={`flex h-6 w-6 items-center justify-center rounded-md ${row.accountType === "Up Sell"
+                ? "bg-[#0BD901]/10"
+                : "invisible"
+              }`}
+          >
+            <MoveUpRightIcon size={15} className="text-[#0BD901]" />
+          </span>
+
+          <span className="text-sm font-medium text-[#111127]">
+            {row.accountName}
+          </span>
         </div>
       ),
     },
@@ -135,7 +141,7 @@ export default function AccountListPage() {
 
   return (
     <div className="bg-white min-h-screen rounded-xl">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-14 mb-6">
         {stats.map((stat) => (
           <StatsCard key={stat.label} {...stat} />
         ))}

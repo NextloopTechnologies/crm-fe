@@ -79,7 +79,6 @@ export interface Lead {
     leadSource: string
   leadStatus: string
   creationDate: string
-  lastModifiedDate: string
 }
 export interface AddressRequestDto {
   addressType: string
@@ -139,6 +138,7 @@ export interface CreateAccountRequest {
   accountNumber?: string
   contacts?: ContactRequestDto[]
   addresses?: AccountAddressRequestDto[]
+  createdAt?: string
 }
 
 export interface ContactRequestDto {

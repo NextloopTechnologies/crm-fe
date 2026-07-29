@@ -88,7 +88,19 @@ export default function LeadsList({
                     const currentStatus = row.leadStatus ?? "None";
                     const isUpdating = statusLoadingLeads.has(row.leadNumber);
                     const cfg = STATUS_COLOR[currentStatus] ?? { bg: "bg-slate-100", text: "text-slate-600" };
+                    const isLocked = currentStatus === "Deal Won";
 
+                if (isLocked) {
+                    return (
+                        <div
+                            className={`w-[160px] max-w-[160px] rounded-lg pl-2 pr-2 py-1 text-sm font-semibold
+                    text-center truncate cursor-not-allowed select-none
+                    ${cfg.bg} ${cfg.text}`}
+                        >
+                            {currentStatus}
+                        </div>
+                    );
+                }
                     return (
                         <div className="relative" onClick={(e) => e.stopPropagation()}>
                             <select
