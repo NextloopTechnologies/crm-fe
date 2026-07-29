@@ -100,12 +100,15 @@ export default function AccountInvoiceTab({ accountNumber , account }: Props) {
                 <h3 className="text-[15px] font-semibold text-[#1e1e2d]">
                     All Invoices
                 </h3>
-
+          
                 <Button
-                    onClick={() => setIsCreating(true)}>
+                    className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1"
+                    onClick={() => setIsCreating(true)}
+                >
                     <PlusIcon />
-                    Create
+                    Add Invoice
                 </Button>
+                
             </div>
 
             {/* Empty state */}

@@ -16,11 +16,22 @@ export const LeadStatusDropdown = ({
 }: LeadStatusDropdownProps) => {
     const status = currentStatus ?? "None";
     const cfg = STATUS_COLOR[status] ?? { bg: "bg-slate-100", text: "text-slate-600" };
-
+    const isLocked = status === "Deal Won";
     const sizeClass = size === "sm"
         ? "w-full text-[11px] pl-2 pr-6 py-1"
         : "text-sm pl-2 pr-6 py-1 w-[160px] max-w-[160px] text-center";
 
+        if (isLocked) {
+        return (
+            <div
+                className={`rounded-lg font-semibold truncate text-center cursor-not-allowed select-none
+                ${sizeClass} ${cfg.bg} ${cfg.text}`}
+                title="Deal Won leads ka status change nahi ho sakta"
+            >
+                Deal Won
+            </div>
+        );
+    }
     return (
         <div className="relative" onClick={(e) => e.stopPropagation()}>
             <select

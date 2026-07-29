@@ -6,7 +6,7 @@ export const login = (data: LoginRequest) =>
 
 export const logout = () => {
   const refreshToken = localStorage.getItem('refreshToken');
-  const response = api.post('auth/logout', { refreshToken });
+  const response = api.post('/auth/logout', { refreshToken });
   return response;
 }
 export const refreshToken = (token: string) =>

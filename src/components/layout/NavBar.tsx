@@ -10,10 +10,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon, CheckCircle, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils"
 import { showToast } from "../common/Toast"
 import { logout } from "@/api/auth.api"
+import { myProfile } from "@/api/profile.api"
 
 // ── Route → label map ────────────────────────────────────────────────────────
 const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
@@ -38,15 +39,23 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/accounts/edit/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/accounts/detail/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
-  "/tasks": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
+  "/tasks/": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
   "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
   "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]},
   "/project/edit/:id" : {title : "Project" , breadcrumb : ["Projects" , "Edit Project"]},
   "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]},
   "/invoice" : {title : "Invoice" , breadcrumb : ["Manage Invoices"]},
   "/pipeline" : {title : "Pipeline" , breadcrumb : ["Manage your projects and related information"]},
-  "/profile/account-info" : {title : "Account Info" , breadcrumb : []}
+  "/profile/account-info" : {title : "Account Info" , breadcrumb : []},
+  "/reports": {title: "Report" , breadcrumb: []},
+  "/reports/:id/edit" : {title : "Report" , breadcrumb : ["Projects" , "Edit Project"]},
 
+}
+
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  roleName: string;
 }
 
 // ── Dynamic route matcher ─────────────────────────────────────────────────────
@@ -69,7 +78,18 @@ export function Navbar() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
-
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+    const userDetail = async () => {
+      try {
+        const response = await myProfile();
+        setProfile(response.data);
+      } catch (error) {
+        console.error("Failed to fetch profile", error);
+      }
+    };
+    useEffect(() => {
+  userDetail();
+}, [])
   const handleLogout = () => {
    logout();
     localStorage.clear();
@@ -143,8 +163,8 @@ export function Navbar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start leading-tight">
-                  <span className="text-[13px] font-semibold text-gray-800">Ishaan S.</span>
-                  <span className="text-[12px] text-gray-400">Super Admin</span>
+                  <span className="text-[13px] font-semibold text-gray-800">{profile?.firstName ?? ""} {profile?.lastName ?? ""}</span>
+                  <span className="text-[12px] text-gray-400">{profile?.roleName ?? ""}</span>
                 </div>
                 <ChevronDown
                   size={14}
@@ -167,8 +187,8 @@ export function Navbar() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col leading-tight min-w-0">
-                  <span className="text-[12px] font-semibold text-gray-800 truncate">Ishaan S.</span>
-                  <span className="text-[12px] text-gray-400 truncate">Super Admin</span>
+                  <span className="text-[12px] font-semibold text-gray-800 truncate">{profile?.firstName ?? ""} {profile?.lastName ?? ""}</span>
+                  <span className="text-[12px] text-gray-400 truncate">{profile?.roleName ?? ""}</span>
                 </div>
               </div>
 

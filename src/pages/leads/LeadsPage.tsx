@@ -67,8 +67,7 @@ const ratingOptions = [
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function LeadsPage() {
   const [loading, setLoading] = useState(false);
-  const [touched, setTouched] = useState(false);
-  const [isSubmitted] = useState(false);
+  const [, setTouched] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();
@@ -83,10 +82,10 @@ export default function LeadsPage() {
     mobile: "",
     website: "",
     leadSource: "",
-    leadStatus: "",
+    leadStatus: "New Lead",
     projectNo: "",
     accountNo: "",
-    leadType: "New Business",
+    leadType: "None",
     leadDescription: "",
     industry: "",
     noOfEmployees: "",
@@ -188,6 +187,7 @@ export default function LeadsPage() {
             id="firstName"
             label="First Name"
             placeholder="Enter first name"
+            required
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
@@ -315,7 +315,6 @@ export default function LeadsPage() {
               setTouched(true);
             }}
             leftIcon={<ShieldIcon />}
-            error={(touched || isSubmitted) && !formData.rating ? "Rating is required" : undefined}
           />
                          <Input
             id="description"
@@ -398,13 +397,14 @@ export default function LeadsPage() {
             id="country"
             label="Country"
             placeholder="Select country"
+            required
             value={formData.leadAddressRequestDto?.country || ''}
             onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, country: e.target.value } })}
           />
-          <InlineInput id="street" label="Street" placeholder="Enter street address" value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} />
-          <InlineInput id="state" label="State" placeholder="Enter state / province" value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} />
+          <InlineInput id="street" label="Street" placeholder="Enter street address" required value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} />
+          <InlineInput id="state" label="State" placeholder="Enter state / province" required value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} />
           <InlineInput id="flatNo" label="Flat No." placeholder="Enter flat number" value={formData.leadAddressRequestDto?.flatNo || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, flatNo: e.target.value } })} />
-          <InlineInput id="city" label="City" placeholder="Enter city" value={formData.leadAddressRequestDto?.city || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, city: e.target.value } })} />
+          <InlineInput id="city" label="City" placeholder="Enter city" required value={formData.leadAddressRequestDto?.city || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, city: e.target.value } })} />
           <InlineInput id="zipCode" label="Zip Code" placeholder="Enter zip / postal code" value={formData.leadAddressRequestDto?.zipCode || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, zipCode: e.target.value } })} />
         </div>
       ),
