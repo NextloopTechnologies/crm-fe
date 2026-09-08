@@ -49,7 +49,7 @@ export type RowAction<T> = {
   destructive?: boolean;
 };
 
-interface FilterConfig {
+export interface FilterConfig {
   key: string;
   label: string;
   type: "select" | "date";
@@ -80,7 +80,7 @@ interface DataTableProps<T> {
 }
 
 type SortDir = "asc" | "desc" | null;
-type FilterValues = Record<string, string>;
+export type FilterValues = Record<string, string>;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getNestedValue<T>(obj: T, key: string): unknown {
@@ -97,7 +97,7 @@ function safeString(val: unknown): string {
 }
 
 // ── Filter Dropdown ───────────────────────────────────────────────────────────
-function FilterDropdown({
+export function FilterDropdown({
   filters,
   initialValues,
   onApply,

@@ -1,5 +1,5 @@
 // pages/Pipeline/PipelinePage.tsx
-import { useCallback,  useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Users,
@@ -11,6 +11,8 @@ import { formatDate, LeadAvatar } from "./leads/leadHelper";
 import { COLUMN_CONFIG, PIPELINE_COLUMNS, type PipelineCol, STATUS_TO_COLUMN, getStatusLabel } from "@/constants/LeadStatus";
 import { type CreateLeadRequest } from "@/types/api.types";
 import { LeadStatusDropdown } from "@/components/LeadStatusDropdown";
+import { FilterDropdown, type FilterConfig } from "@/components/common/Table";
+import { FilterIcon } from "@/assets/icons/components/FilterIcon";
 
 const resolveColumn = (lead: CreateLeadRequest): PipelineCol | null => {
   const mapped = STATUS_TO_COLUMN[lead.leadStatus ?? ""];
@@ -26,6 +28,8 @@ interface Filters {
   industry: string;
   dateFrom: string;
   dateTo: string;
+  // Index signature so this satisfies FilterDropdown's FilterValues.
+  [key: string]: string;
 }
 
 const EMPTY_FILTERS: Filters = {
@@ -199,10 +203,44 @@ export default function PipelinePage({
 
 }: PipelinePageProps){
   const [loading] = useState(false);
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState<Filters>(EMPTY_FILTERS);
   const navigate = useNavigate();
-  void filters;
+  const [showFilters, setShowFilters] = useState(false);
+  const filterBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Status is deliberately absent: the board's columns already are the status.
+  // Owners come from the data rather than a hardcoded list, which goes stale.
+  const filterConfig: FilterConfig[] = useMemo(() => {
+    const owners = Array.from(
+      new Set(leads.map((l) => l.leadOwner).filter((o): o is string => Boolean(o)))
+    ).sort();
+
+    return [
+      {
+        key: "leadSource",
+        label: "Lead Source",
+        type: "select",
+        options: ["Web", "Phone", "Email", "Cold Call", "Existing Customer", "Partner", "Other"]
+          .map((v) => ({ label: v, value: v })),
+      },
+      {
+        key: "industry",
+        label: "Industry",
+        type: "select",
+        options: ["Technology", "Finance", "Healthcare", "Education", "Retail", "Manufacturing", "Other"]
+          .map((v) => ({ label: v, value: v })),
+      },
+      {
+        key: "leadOwner",
+        label: "Lead Owner",
+        type: "select",
+        options: owners.map((o) => ({ label: o, value: o })),
+      },
+      { key: "dateFrom", label: "Created From", type: "date" },
+      { key: "dateTo", label: "Created To", type: "date" },
+    ];
+  }, [leads]);
+
   const activeFilterCount = Object.values(appliedFilters).filter(Boolean).length;
 
 
@@ -254,7 +292,38 @@ export default function PipelinePage({
         {/* Toolbar */}
         <div className="flex items-center justify-between gap-3 mb-4 flex-wrap px-1">
           <div className="flex items-center gap-2 flex-wrap">
-           
+
+            {/* Filter trigger — the board previously had filter state and
+                matching logic but no control able to set it, so no filter
+                could ever be applied. */}
+            <div className="relative">
+              <button
+                ref={filterBtnRef}
+                onClick={() => setShowFilters((v) => !v)}
+                className="flex items-center gap-1.5 h-9 px-3 rounded-[10px] border border-[#E0E0E0] text-sm text-[#111127] hover:bg-[#f8f8fc]"
+              >
+                <FilterIcon />
+                Filter
+                {activeFilterCount > 0 && (
+                  <span className="ml-1 bg-[#5752FE] text-white text-[10px] font-semibold rounded-full px-1.5 py-0.5">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+              {showFilters && (
+                <FilterDropdown
+                  filters={filterConfig}
+                  initialValues={appliedFilters}
+                  triggerRef={filterBtnRef}
+                  onClose={() => setShowFilters(false)}
+                  onApply={(values) => {
+                    setAppliedFilters({ ...EMPTY_FILTERS, ...values } as Filters);
+                    setShowFilters(false);
+                  }}
+                />
+              )}
+            </div>
+
             {/* Active filter chips */}
             {activeFilterCount > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -267,9 +336,7 @@ export default function PipelinePage({
                       {val}
                       <button
                         onClick={() => {
-                          const next = { ...appliedFilters, [key]: "" };
-                          setAppliedFilters(next);
-                          setFilters(next);
+                          setAppliedFilters({ ...appliedFilters, [key]: "" });
                         }}
                       >
                         <X size={10} />

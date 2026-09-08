@@ -4,16 +4,10 @@ import LeadsList from "./LeadsListPage";
 import PipelinePage from "@/pages/PipelinePage";
 import StatsCard from "@/components/common/StatsCards";
 import { getAllLeads, updateLeadStatusbyLeadNumber } from "@/api/leads.api";
-import { UsersIcon, NewLeadsIcon, ActiveUsersIcon, InActiveUsersIcon, UpArrowIcon, DownArrowIcon } from "@/assets/icons/components/index";
+import { UsersIcon, NewLeadsIcon, ActiveUsersIcon, InActiveUsersIcon } from "@/assets/icons/components/index";
 import { type CreateLeadRequest } from "@/types/api.types";
 import { isWithin7Days } from "./leadHelper";
-
-const COLUMN_TO_STATUSES: Record<string, string[]> = {
-    "New": ["Not Contacted", "Attempted to Contact", "None"],
-    "Qualified": ["Pre-Qualified", "Contact in Future"],
-    "Contacted": ["Contacted"],
-    "Lost Lead": ["Lost Lead", "Junk Lead", "Not Qualified"],
-};
+import { LEAD_STAGES } from "@/constants/LeadStatus";
 
 export default function LeadsPage() {
     const [view, setView] = useState<"board" | "list">("board");
@@ -96,39 +90,44 @@ export default function LeadsPage() {
                 label: "Total Leads",
                 value: visibleLeads.length,
                 subtitle: "All leads in pipeline",
-                trend: { icon: <UpArrowIcon />, text: "24%", color: "text-[#22c55e]" },
             },
             {
                 icon: <NewLeadsIcon />,
                 label: "New (7 days)",
                 value: visibleLeads.filter(l => isWithin7Days(l.creationDate)).length,
                 subtitle: "Created this week",
-                trend: { icon: <UpArrowIcon />, text: "12%", color: "text-[#22c55e]" },
             },
             {
                 icon: <ActiveUsersIcon />,
-                label: "Intrested",
-                value: visibleLeads.filter(l => l.leadStatus === "Attempted to Contact").length,
-                subtitle: "Reached out successfully",
-                trend: { icon: <UpArrowIcon />, text: "8%", color: "text-[#22c55e]" },
+                label: "Qualified",
+                value: visibleLeads.filter(l => l.leadStatus === "Sales Qualified Lead").length,
+                subtitle: "Sales qualified leads",
             },
             {
                 icon: <InActiveUsersIcon />,
-                label: "Lost / Junk",
-                value: visibleLeads.filter(l => ["Lost Lead", "Junk Lead", "Not Qualified"].includes(l.leadStatus ?? "")).length,
+                label: "Won",
+                value: visibleLeads.filter(l => l.leadStatus === "Deal Won").length,
+                subtitle: "Converted to accounts",
+            },
+            {
+                icon: <InActiveUsersIcon />,
+                label: "Lost",
+                value: visibleLeads.filter(l => l.leadStatus === "Lost").length,
                 subtitle: "Closed without conversion",
-                trend: { icon: <DownArrowIcon />, text: "5%", color: "text-[#EB4335]" },
             },
         ];
-    }, [leads]);
+    }, [visibleLeads]);
 
     const handleCardClick = (lead: CreateLeadRequest) => {
         setInitialStatuses([lead.leadStatus ?? ""]);
         setView("list");
     };
 
+    // Board columns are stage values, so a column maps to itself. The previous
+    // lookup table keyed off pre-rename column names and retired statuses, so
+    // every click resolved to [] and silently applied no filter.
     const handleColumnClick = (col: string) => {
-        setInitialStatuses(COLUMN_TO_STATUSES[col] ?? []);
+        setInitialStatuses(LEAD_STAGES.some((st) => st.value === col) ? [col] : []);
         setView("list");
     };
 
