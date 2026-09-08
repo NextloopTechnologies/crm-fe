@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { DataTable, ColumnDef } from '@/components/common/Table';
+import { DataTable, type ColumnDef } from '@/components/common/Table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {  Trash2, } from 'lucide-react';
 import { PlusIcon } from '@/assets/icons/components/PlusIcon';
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from '@/lib/route';
-import { CreateLeadRequest } from '@/types/api.types';
-import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR } from '@/constants/LeadStatus';
+import { AVATAR_URL } from '@/lib/env';
+import { type CreateLeadRequest } from '@/types/api.types';
+import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR, getStatusLabel } from '@/constants/LeadStatus';
 
 type LeadsListProps = {
     leads: CreateLeadRequest[];
@@ -97,7 +98,7 @@ export default function LeadsList({
                     text-center truncate cursor-not-allowed select-none
                     ${cfg.bg} ${cfg.text}`}
                         >
-                            {currentStatus}
+                            {getStatusLabel(currentStatus)}
                         </div>
                     );
                 }
@@ -137,7 +138,7 @@ export default function LeadsList({
             render: (_, row) => (
                 <div className="flex items-center gap-2.5">
                     <Avatar className="h-8 w-8">
-                        <AvatarImage src={`${import.meta.env.VITE_AVATAR_URL}&seed=${row.leadOwner}`} />
+                        <AvatarImage src={`${AVATAR_URL}&seed=${row.leadOwner}`} />
                         <AvatarFallback className="text-xs bg-[#5752FE1A] text-[#5752FE] font-semibold">
                             {row.leadOwner
                                 ? row.leadOwner

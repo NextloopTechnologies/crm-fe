@@ -8,8 +8,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/lib/route";
 import { formatDate, LeadAvatar } from "./leads/leadHelper";
-import { COLUMN_CONFIG, PIPELINE_COLUMNS, PipelineCol, STATUS_TO_COLUMN } from "@/constants/LeadStatus";
-import { CreateLeadRequest } from "@/types/api.types";
+import { COLUMN_CONFIG, PIPELINE_COLUMNS, type PipelineCol, STATUS_TO_COLUMN, getStatusLabel } from "@/constants/LeadStatus";
+import { type CreateLeadRequest } from "@/types/api.types";
 import { LeadStatusDropdown } from "@/components/LeadStatusDropdown";
 
 const resolveColumn = (lead: CreateLeadRequest): PipelineCol | null => {
@@ -136,7 +136,7 @@ const KanbanColumn = ({
         <div className="px-4 pt-3 pb-2 cursor-pointer hover:opacity-80 transition-opacity"
         onClick={() => onColumnClick?.(col)}>
           <div className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold text-[#1e1e2d]">{col}</span>
+            <span className="text-[13px] font-semibold text-[#1e1e2d]">{getStatusLabel(col)}</span>
             <span
               className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
               style={{ background: cfg.color }}
@@ -206,7 +206,7 @@ export default function PipelinePage({
   const activeFilterCount = Object.values(appliedFilters).filter(Boolean).length;
 
 
-  // Group into 4 columns with search + filters applied
+  // Group into pipeline columns with search + filters applied
   const grouped = useMemo<Record<PipelineCol, CreateLeadRequest[]>>(() => {
     const af = appliedFilters;
 
@@ -227,13 +227,11 @@ export default function PipelinePage({
       return matchSource && matchOwner && matchIndustry && matchDate;
     });
 
-    const map: Record<PipelineCol, CreateLeadRequest[]> = {
-      "New Lead": [],
-      Interested: [],
-      Proposal: [],
-      Won: [],
-      Lost: [],
-    };
+    // Derived from PIPELINE_COLUMNS so adding or renaming a stage can never
+    // leave an unhandled column here.
+    const map = Object.fromEntries(
+      PIPELINE_COLUMNS.map((col) => [col, [] as CreateLeadRequest[]])
+    ) as Record<PipelineCol, CreateLeadRequest[]>;
   filtered.forEach(l => {
     const col = resolveColumn(l);
     if (col) map[col].push(l); 
