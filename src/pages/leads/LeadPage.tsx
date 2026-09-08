@@ -3,11 +3,10 @@ import { LayoutGrid, List } from "lucide-react";
 import LeadsList from "./LeadsListPage";
 import PipelinePage from "@/pages/PipelinePage";
 import StatsCard from "@/components/common/StatsCards";
-import { getAllLeads, getLeadByLeadNumber, updateLeadStatusbyLeadNumber } from "@/api/leads.api";
+import { getAllLeads, updateLeadStatusbyLeadNumber } from "@/api/leads.api";
 import { UsersIcon, NewLeadsIcon, ActiveUsersIcon, InActiveUsersIcon, UpArrowIcon, DownArrowIcon } from "@/assets/icons/components/index";
-import { CreateAccountRequest, CreateLeadRequest } from "@/types/api.types";
+import { type CreateLeadRequest } from "@/types/api.types";
 import { isWithin7Days } from "./leadHelper";
-import { createAccount } from "@/api/account.api";
 
 const COLUMN_TO_STATUSES: Record<string, string[]> = {
     "New": ["Not Contacted", "Attempted to Contact", "None"],
@@ -58,48 +57,6 @@ export default function LeadsPage() {
     );
 }, [filteredLeads]);
 
-   const createAccountFromLead = async (leadNumber: string) => {
-    const leadResponse = await getLeadByLeadNumber(leadNumber);
-    const lead = leadResponse.data;
-
-    const accountPayload: CreateAccountRequest = {
-        accountName: lead.company ?? "",
-        accountType: lead.leadType ?? "New Business",
-        rating: lead.rating === "NA" ? "" : lead.rating ?? "",
-        website: lead.website === "NA" ? "" : lead.website ?? "",
-        employees: String(lead.noOfEmployees ?? "").replace("NA", ""),
-        annualRevenue: String(lead.annualRevenue ?? "").replace("NA", ""),
-        parentAccount: lead.leadNumber,
-        contacts: [
-            {
-                title: lead.title === "NA" ? "" : lead.title ?? "",
-                firstName: lead.firstName === "NA" ? "" : lead.firstName ?? "",
-                lastName: lead.lastName === "NA" ? "" : lead.lastName ?? "",
-                email: lead.email === "NA" ? "" : lead.email ?? "",
-                secondaryEmail: lead.secondaryEmail === "NA" ? "" : lead.secondaryEmail ?? "",
-                phone: lead.phone === "NA" ? "" : lead.phone ?? "",
-                mobile: lead.mobile === "NA" ? "" : lead.mobile ?? "",
-                skypeId: lead.skypeId === "NA" ? "" : lead.skypeId ?? "",
-                fax: lead.fax === "NA" ? "" : lead.fax ?? "",
-            }
-        ],
-
-        addresses: [
-            {
-                country: lead.leadAddressResponseDto?.country === "NA" ? "" : lead.leadAddressResponseDto?.country ?? "",
-                flatNo: lead.leadAddressResponseDto?.flatNo === "NA" ? "" : lead.leadAddressResponseDto?.flatNo ?? "",
-                street: lead.leadAddressResponseDto?.street === "NA" ? "" : lead.leadAddressResponseDto?.street ?? "",
-                city: lead.leadAddressResponseDto?.city === "NA" ? "" : lead.leadAddressResponseDto?.city ?? "",
-                state: lead.leadAddressResponseDto?.state === "NA" ? "" : lead.leadAddressResponseDto?.state ?? "",
-                zipCode: lead.leadAddressResponseDto?.zipCode === "NA" ? "" : lead.leadAddressResponseDto?.zipCode ?? "",
-                latitude: String(lead.leadAddressResponseDto?.latitude ?? ""),
-                longitude: String(lead.leadAddressResponseDto?.longitude ?? ""),
-            }
-        ],
-    };
-
-    await createAccount(accountPayload);
-};
 
     const handleStatusChange = async (
         leadNumber: string,
@@ -112,9 +69,9 @@ export default function LeadsPage() {
         try {
             await updateLeadStatusbyLeadNumber(leadNumber, status);
 
-        if (status === "Deal Won") {
-            await createAccountFromLead(leadNumber);
-        }
+        // NOTE: do NOT create an account here. LeadServiceImpl already creates
+        // one automatically when the status transitions to "Deal Won", so
+        // calling it from the client produced two identical accounts per win.
 
             setLeads(prev => prev.map(lead =>
                 lead.leadNumber === leadNumber
