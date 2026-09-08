@@ -6,29 +6,6 @@ import {
   SalesDashboardPage,
 } from "./index";
 
-// ── Normalize backend roleName → UI role ──
-const getRole = (): "ADMIN" | "MANAGER" | "SALES" => {
-  const role = localStorage.getItem("roleName"); 
-
-  switch (role) {
-    case "SUPER_ADMIN":
-    case "ADMIN":
-    case "ADMIN":
-      return "ADMIN";
-
-    case "MANAGER":
-    case "manager":
-      return "MANAGER";
-
-    case "SALES":
-    case "sales":
-      return "SALES";
-
-    default:
-      return "ADMIN";
-  }
-};
-
 // ── Role Map ──
 const ROLE_MAP = {
   ADMIN: AdminDashboardPage,
@@ -38,10 +15,37 @@ const ROLE_MAP = {
 
 type Role = keyof typeof ROLE_MAP;
 
-export default function DashboardRouter() {
-  const role = getRole(); 
+/**
+ * Least-privileged dashboard. Used whenever the stored role is missing or
+ * unrecognised — falling back to ADMIN would show the admin view to anyone
+ * with an empty or corrupted localStorage.
+ */
+const FALLBACK_ROLE: Role = "SALES";
 
-  const Dashboard = ROLE_MAP[role as Role] ?? AdminDashboardPage;
+// ── Normalize backend roleName → UI role ──
+// The backend's RoleName enum is ADMIN | MANAGER | SALES | SUPER_ADMIN and
+// compares case-insensitively, so normalise before matching.
+const getRole = (): Role => {
+  const role = localStorage.getItem("roleName")?.trim().toUpperCase();
+
+  switch (role) {
+    case "SUPER_ADMIN":
+    case "ADMIN":
+      return "ADMIN";
+
+    case "MANAGER":
+      return "MANAGER";
+
+    case "SALES":
+      return "SALES";
+
+    default:
+      return FALLBACK_ROLE;
+  }
+};
+
+export default function DashboardRouter() {
+  const Dashboard = ROLE_MAP[getRole()];
 
   return <Dashboard />;
 }
