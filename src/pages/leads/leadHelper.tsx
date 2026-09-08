@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { STATUS_COLOR } from "@/constants/LeadStatus";
+import { STATUS_COLOR, getStatusLabel } from "@/constants/LeadStatus";
+import { AVATAR_URL } from "@/lib/env";
 
 // ================================
 // Utils
@@ -91,7 +92,7 @@ export const LeadAvatar = ({
 }) => (
   <Avatar className={size}>
     <AvatarImage
-      src={`${import.meta.env.VITE_AVATAR_URL}&seed=${email}`}
+      src={`${AVATAR_URL}&seed=${email}`}
     />
     <AvatarFallback className="bg-[#5752FE1A] text-[#5752FE] font-semibold">
       {getInitials(firstName, lastName)}
@@ -117,7 +118,7 @@ export const LeadStatusBadge = ({
       <span
         className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`}
       />
-      {status ?? "None"}
+      {getStatusLabel(status)}
     </span>
   );
 };

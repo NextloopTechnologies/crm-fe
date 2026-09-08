@@ -4,7 +4,7 @@ import { showToast } from '@/components/common/Toast';
 import { ROUTES } from '@/lib/route';
 import UserForm from '@/components/forms/UserForm';
 import { getUserByEmail, updateUser } from '@/api/user.api';
-import { UserFormData } from '@/schemas';
+import { type UserFormData } from '@/schemas';
 import { getErrorToast, getSuccessToast } from '@/components/common/toastMessages';
 
 export default function EditUserPage() {

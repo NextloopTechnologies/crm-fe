@@ -8,7 +8,7 @@ import { Button } from "./Button";
 import { ROUTES } from "@/lib/route";
 import { getAccountByAccountNumber } from "@/api/account.api";
 import { createLead } from "@/api/leads.api";
-import { CreateLeadRequest } from "@/types/api.types";
+import { type CreateLeadRequest } from "@/types/api.types";
 import { LEAD_TYPE_MAP, omitEmptyStrings, RATING_ENUM, replaceNAWithEmpty } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 

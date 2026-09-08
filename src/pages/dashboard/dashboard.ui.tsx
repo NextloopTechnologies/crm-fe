@@ -16,7 +16,7 @@ import StatsCard from "@/components/common/StatsCards";
 import { ROUTES } from "@/lib/route";
 import { buildGrowthData, buildSourceData } from "./dashboard.data";
 import type { StatItem, Task } from "./dashboard.data";
-import { CreateAccountRequest, CreateLeadRequest } from "@/types/api.types";
+import { type CreateAccountRequest, type CreateLeadRequest } from "@/types/api.types";
 import { parseDateOnly } from "@/lib/utils";
 
 ChartJS.register(

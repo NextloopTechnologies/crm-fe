@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountForm from "@/components/forms/AccountForm";
 import { ROUTES } from "@/lib/route";
-import { CreateAccountRequest } from "@/types/api.types";
+import { type CreateAccountRequest } from "@/types/api.types";
 import { createAccount } from "@/api/account.api";
 import { ResponseCode } from "@/constants/statusCodes";
 import { getSuccessToast , getErrorToast } from "@/components/common/toastMessages";

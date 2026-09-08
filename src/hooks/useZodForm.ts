@@ -1,6 +1,6 @@
 // src/hooks/useZodForm.ts
 import { useState } from "react";
-import { ZodSchema } from "zod";
+import { type ZodSchema } from "zod";
 
 export function useZodForm<T extends Record<string, any>>(
   schema: ZodSchema<T>,

@@ -397,7 +397,11 @@ export function DataTable<T extends object>({
   };
   const toggleRow = (absIdx: number) => {
     const next = new Set(selected);
-    next.has(absIdx) ? next.delete(absIdx) : next.add(absIdx);
+    if (next.has(absIdx)) {
+      next.delete(absIdx);
+    } else {
+      next.add(absIdx);
+    }
     setSelected(next);
     onSelectionChange?.(sorted.filter((_, i) => next.has(i)));
   };

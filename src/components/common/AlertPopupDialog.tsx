@@ -10,7 +10,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type AlertVariant = "danger" | "warning" | "success" | "info";

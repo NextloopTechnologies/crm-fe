@@ -66,7 +66,6 @@ interface CustomButtonProps extends Omit<BaseButtonProps, 'variant' | 'size'> {
   loading?: boolean
   fullWidth?: boolean
   action?: ActionType
-  showIcon?: boolean
 }
 
 // ─── Component ───────────────────────────────────────────────
@@ -78,7 +77,6 @@ const Button = forwardRef<HTMLButtonElement, CustomButtonProps>(
       loading = false,
       fullWidth = false,
        action,
-      showIcon = true,
       disabled,
       children,
       className,

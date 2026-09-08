@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormPage, { FormSection } from "@/components/common/Form";
+import FormPage, { type FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
@@ -9,7 +9,7 @@ import {
     UserIcon,
 } from "@/assets/icons/components/index";
 import { ArrowLeft, CalendarDays, ChevronDown, Search, X } from "lucide-react";
-import { CreateProjectRequest } from "@/types/api.types";
+import { type CreateProjectRequest } from "@/types/api.types";
 import { formatDate, toInputDateTime } from "@/lib/utils";
 import { ROUTES } from "@/lib/route";
 import BackButton from "../common/BackButton";

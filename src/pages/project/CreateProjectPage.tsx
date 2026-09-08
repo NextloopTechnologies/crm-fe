@@ -5,7 +5,7 @@ import { ROUTES } from '@/lib/route'
 import ProjectForm from '@/components/forms/ProjectForm';
 import { getErrorToast, getSuccessToast } from '@/components/common/toastMessages';
 import { ResponseCode } from '@/constants/statusCodes';
-import { CreateProjectRequest } from '@/types/api.types';
+import { type CreateProjectRequest } from '@/types/api.types';
 import { createProject } from '@/api/projects.api';
 
 export default function CreateProjectPage() {

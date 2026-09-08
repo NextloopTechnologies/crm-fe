@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { ActiveUsersIcon, TenantsIcon, UpArrowIcon, UsersIcon } from "@/assets/icons/components";
 import { ChartLine, ClipboardList, Phone } from "lucide-react";
 import { getAllAccounts } from "@/api/account.api";
 import { getAllTasks } from "@/api/tasks.api";
 import { getAllLeads } from "@/api/leads.api";
-import { CreateLeadRequest } from "@/types/api.types";
+import { type CreateLeadRequest } from "@/types/api.types";
 import { SOURCE_COLORS } from "@/constants/colors";
 import { getAllUsers } from "@/api/user.api";
 // ─────────────────────────────────────────────

@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint:fix": "eslint src --ext ts,tsx --fix",
     "format": "prettier --write src/",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc -b",
     "prepare": "husky install"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import FormPage, { FormSection } from '@/components/common/Form';
+import FormPage, { type FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { UserIcon, PhoneIcon, MailIcon, LocationIcon, CreatedIcon } from '@/assets/icons/components/index'
@@ -7,7 +7,7 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
 import { createLead } from '@/api/leads.api';
-import { CreateLeadRequest } from '@/types/api.types';
+import { type CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate } from 'react-router-dom';
@@ -112,18 +112,56 @@ export default function LeadsPage() {
     },
   });
 
+  // Formats mirror the backend regexes in LeadValidator, so anything accepted
+  // here is accepted server-side too.
+  const NAME_RE = /^[a-zA-Z\s]{2,50}$/;
+  const PHONE_RE = /^[0-9+\-\s()]{7,15}$/;
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.company?.trim())
-      newErrors.company = "Company name is required.";
-    else if ((formData.company?.length ?? 0) > 100)
-      newErrors.company = "Company name must be under 100 characters.";
+    const requireText = (key: string, value: string | undefined, label: string) => {
+      if (!value?.trim()) newErrors[key] = `${label} is required.`;
+      return !newErrors[key];
+    };
 
-    if (!formData.lastName?.trim())
-      newErrors.lastName = "Last name is required.";
-    else if (!/^[a-zA-Z\s]{2,50}$/.test(formData.lastName ?? ""))
-      newErrors.lastName = "Last name must be 2–50 letters only.";
+    // ── Lead information ────────────────────────────────────────
+    if (requireText("company", formData.company, "Company name")) {
+      if ((formData.company?.length ?? 0) > 100)
+        newErrors.company = "Company name must be under 100 characters.";
+    }
+
+    if (requireText("firstName", formData.firstName, "First name")) {
+      if (!NAME_RE.test(formData.firstName ?? ""))
+        newErrors.firstName = "First name must be 2–50 letters only.";
+    }
+
+    if (requireText("lastName", formData.lastName, "Last name")) {
+      if (!NAME_RE.test(formData.lastName ?? ""))
+        newErrors.lastName = "Last name must be 2–50 letters only.";
+    }
+
+    if (requireText("email", formData.email, "Email")) {
+      if (!EMAIL_RE.test(formData.email ?? ""))
+        newErrors.email = "Enter a valid email address.";
+    }
+
+    if (requireText("mobile", formData.mobile, "Mobile")) {
+      if (!PHONE_RE.test(formData.mobile ?? ""))
+        newErrors.mobile = "Mobile must be 7–15 digits.";
+    }
+
+    // Phone is optional, but must be well formed when supplied.
+    if (formData.phone?.trim() && !PHONE_RE.test(formData.phone))
+      newErrors.phone = "Phone must be 7–15 digits.";
+
+    // ── Address ────────────────────────────────────────────────
+    const addr = formData.leadAddressRequestDto;
+    requireText("country", addr?.country, "Country");
+    requireText("street", addr?.street, "Street");
+    requireText("state", addr?.state, "State");
+    requireText("city", addr?.city, "City");
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -191,6 +229,7 @@ export default function LeadsPage() {
             value={formData.firstName}
             onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             leftIcon={<UserIcon className='w-5 h-5' />}
+            error={errors.firstName}
           />
           <Input
             id="lastName"
@@ -212,6 +251,7 @@ export default function LeadsPage() {
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             leftIcon={<MailIcon className='w-5 h-5' />}
+            error={errors.email}
           />
 
           <Input
@@ -222,6 +262,7 @@ export default function LeadsPage() {
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
+            error={errors.phone}
           />
 
           <Input
@@ -233,6 +274,7 @@ export default function LeadsPage() {
             value={formData.mobile}
             onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
             leftIcon={<PhoneIcon className='w-5 h-5' />}
+            error={errors.mobile}
           />
 
           <Input
@@ -400,11 +442,12 @@ export default function LeadsPage() {
             required
             value={formData.leadAddressRequestDto?.country || ''}
             onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, country: e.target.value } })}
+            error={errors.country}
           />
-          <InlineInput id="street" label="Street" placeholder="Enter street address" required value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} />
-          <InlineInput id="state" label="State" placeholder="Enter state / province" required value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} />
+          <InlineInput id="street" label="Street" placeholder="Enter street address" required value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} error={errors.street} />
+          <InlineInput id="state" label="State" placeholder="Enter state / province" required value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} error={errors.state} />
           <InlineInput id="flatNo" label="Flat No." placeholder="Enter flat number" value={formData.leadAddressRequestDto?.flatNo || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, flatNo: e.target.value } })} />
-          <InlineInput id="city" label="City" placeholder="Enter city" required value={formData.leadAddressRequestDto?.city || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, city: e.target.value } })} />
+          <InlineInput id="city" label="City" placeholder="Enter city" required value={formData.leadAddressRequestDto?.city || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, city: e.target.value } })} error={errors.city} />
           <InlineInput id="zipCode" label="Zip Code" placeholder="Enter zip / postal code" value={formData.leadAddressRequestDto?.zipCode || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, zipCode: e.target.value } })} />
         </div>
       ),

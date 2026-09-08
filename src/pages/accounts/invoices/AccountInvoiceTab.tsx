@@ -6,7 +6,7 @@ import { Button } from "@/components/common/Button";
 import { STATIC_INVOICES } from "./InvoicesList";
 import CreateInvoicePage from "@/pages/accounts/invoices/CreateInvoicePage";
 import EditInvoicePage from "@/pages/accounts/invoices/EditInvoicePage";
-import { CreateAccountRequest } from "@/types/api.types";
+import { type CreateAccountRequest } from "@/types/api.types";
 
 interface Props {
     accountNumber?: string;  // passed from AccountDetailPage

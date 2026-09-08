@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import { ROUTES } from '@/lib/route';
 import UserForm from '@/components/forms/UserForm';
-import { CreateUserRequest } from '@/types/api.types';
+import { type CreateUserRequest } from '@/types/api.types';
 import { registerUser } from '@/api/user.api';
-import { UserFormData } from '@/schemas';
+import { type UserFormData } from '@/schemas';
 import { getSuccessToast } from '@/components/common/toastMessages';
 
 export default function CreateUserPage() {

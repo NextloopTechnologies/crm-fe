@@ -1,6 +1,6 @@
 // pages/Users/UsersList.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { DataTable, ColumnDef } from '@/components/common/Table';
+import { DataTable, type ColumnDef } from '@/components/common/Table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { PlusIcon, Trash2 } from 'lucide-react';

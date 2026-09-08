@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/lib/route";
-import { CreateAccountRequest } from "@/types/api.types";
+import { type CreateAccountRequest } from "@/types/api.types";
 import { getSuccessToast , getErrorToast } from "@/components/common/toastMessages";
 import { showToast } from "@/components/common/Toast";
 import InvoiceForm from "@/components/forms/InvoiceForm";

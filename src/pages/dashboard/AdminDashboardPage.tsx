@@ -3,7 +3,7 @@ import { GrowthChart, SourceDonut, AccountsTable, TasksList } from "./dashboard.
 import StatsCard from "@/components/common/StatsCards";
 import { fetchDashboardData } from "./dashboard.data";
 import type { Task, StatItem } from "./dashboard.data";
-import { CreateAccountRequest } from "@/types/api.types";
+import { type CreateAccountRequest } from "@/types/api.types";
 
 export default function AdminDashboardPage() {
   const [accounts, setAccounts] = useState<CreateAccountRequest[]>([]);
