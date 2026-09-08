@@ -10,6 +10,13 @@ import { AVATAR_URL } from '@/lib/env';
 import { type CreateLeadRequest } from '@/types/api.types';
 import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR, getStatusLabel } from '@/constants/LeadStatus';
 
+// Mirror LeadValidator.LEAD_SOURCE_REGEX / INDUSTRY_REGEX in crm-be.
+const LEAD_SOURCE_OPTIONS = ['Web', 'Phone', 'Email', 'Cold Call', 'Existing Customer', 'Partner', 'Other']
+    .map((v) => ({ label: v, value: v }));
+
+const INDUSTRY_OPTIONS = ['Technology', 'Finance', 'Healthcare', 'Education', 'Retail', 'Manufacturing', 'Other']
+    .map((v) => ({ label: v, value: v }));
+
 type LeadsListProps = {
     leads: CreateLeadRequest[];
     loading?: boolean,
@@ -47,6 +54,46 @@ export default function LeadsList({
         return leads.filter(l => initialStatuses.includes(l.leadStatus ?? ""));
     }, [leads, initialStatuses]);
     
+    // ── Filters ───────────────────────────────────────────────────────────────────
+    // DataTable resolves each filter by `key` against the row via getNestedValue,
+    // so a key that is not a real lead field matches nothing and blanks the table.
+    // Previously: "Company" used key "role" with user-role options, "Lead Source"
+    // was misspelled "leadSoure", and "Lead Owner" listed lead statuses.
+    const filterConfig = useMemo(() => {
+        // Owners come from the data — there is no endpoint listing them, and a
+        // hardcoded list goes stale the moment a user is added.
+        const owners = Array.from(
+            new Set(leads.map((l) => l.leadOwner).filter((o): o is string => Boolean(o)))
+        ).sort();
+
+        return [
+            {
+                key: "leadStatus",
+                label: "Status",
+                type: "select" as const,
+                options: LEAD_STATUS_OPTIONS_LIST,
+            },
+            {
+                key: "leadSource",
+                label: "Lead Source",
+                type: "select" as const,
+                options: LEAD_SOURCE_OPTIONS,
+            },
+            {
+                key: "industry",
+                label: "Industry",
+                type: "select" as const,
+                options: INDUSTRY_OPTIONS,
+            },
+            {
+                key: "leadOwner",
+                label: "Lead Owner",
+                type: "select" as const,
+                options: owners.map((o) => ({ label: o, value: o })),
+            },
+        ];
+    }, [leads]);
+
     // ── Columns ───────────────────────────────────────────────────────────────────
     const columns: ColumnDef<CreateLeadRequest>[] = useMemo(() => {
         return [
@@ -221,50 +268,7 @@ export default function LeadsList({
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onView={handleView}
-                filters={[
-                    {
-                        key: "role",
-                        label: "Company",
-                        type: "select",
-                        options: [
-                            { label: "Admin", value: "Admin" },
-                            { label: "Manager", value: "Manager" },
-                            { label: "Developer", value: "Developer" },
-                            { label: "Viewer", value: "Viewer" },
-                        ],
-                    },
-                    {
-                        key: "leadSoure",
-                        label: "Lead Source",
-                        type: "select",
-                        options: [
-                            { label: "Web", value: "Web" },
-                            { label: "Phone", value: "Phone" },
-                            { label: "Email", value: "Email" },
-                            { label: "Cold Call", value: "Cold Call" },
-                            { label: "Existing Customer", value: "Existing Customer" },
-                            { label: "Partner", value: "Partner" },
-                            { label: "Other", value: "Other" },
-
-                        ],
-                    },
-                    {
-                        key: "leadOwner",
-                        label: "Lead Owner",
-                        type: "select",
-                        options: [
-                            { label: "None", value: "None" },
-                            { label: "Attempted to Contact", value: "Attempted to Contact" },
-                            { label: "Contact in Future", value: "Contact in Future" },
-                            { label: "Contacted", value: "Contacted" },
-                            { label: "Junk Lead", value: "Junk Lead" },
-                            { label: "Lost Lead", value: "Lost Lead" },
-                            { label: "Not Contacted", value: "Not Contacted" },
-                            { label: "Pre-Qualified", value: "Pre-Qualified" },
-                            { label: "Not Qualified", value: "Not Qualified" },
-                        ],
-                    },
-                ]}
+                filters={filterConfig}
             />
         </div>
     );
