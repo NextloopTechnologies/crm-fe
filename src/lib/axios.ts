@@ -1,8 +1,8 @@
-/// <reference types="vite/client" />
 import axios from 'axios'
+import { API_BASE_URL } from '@/lib/env'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api/v1',
+  baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' ,
     'ngrok-skip-browser-warning': 'true',
   },

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { API_BASE_URL } from '@/lib/env'
 
 interface LoginPayload {
   email: string
@@ -30,7 +31,7 @@ export const useLogin = () => {
     setError(null)
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/login`,
+        `${API_BASE_URL}/auth/login`,
         {
           method: 'POST',
           headers: {
@@ -62,8 +63,8 @@ export const useLogin = () => {
 
       return data
 
-    } catch (err: any) {
-      setError(err.message ?? 'Something went wrong')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
       return null
     } finally {
       setIsLoading(false)
