@@ -1,11 +1,13 @@
-import { useEffect, useMemo } from 'react';
-import FormPage, { FormSection } from '@/components/common/Form';
+import { useEffect, useMemo, useState } from 'react';
+import FormPage, { type FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { UserIcon, PhoneIcon, MailIcon, LockIcon } from '@/assets/icons/components/index';
-import SelectDropdown from "@/components/common/SelectDropdown";
+import SelectDropdown, { type SelectOption } from "@/components/common/SelectDropdown";
+import { getAllUsers } from '@/api/user.api';
+import { useQuery } from '@tanstack/react-query';
 import { useZodForm } from '@/hooks/useZodForm';
-import { createUserFormSchema, UserFormData } from '@/schemas/user/UserFormSchema';
+import { createUserFormSchema, type UserFormData } from '@/schemas/user/UserFormSchema';
 import { ROUTES } from '@/lib/route';
 import BackButton from '../common/BackButton';
 import { ArrowLeft } from 'lucide-react';
@@ -57,13 +59,26 @@ export default function UserForm({
 
   const isManagerCaller = callerRole.toUpperCase() === "MANAGER";
 
-  const initialShowAssignToManager =
-    ["ADMIN", "SUPER_ADMIN"].includes(callerRole.toUpperCase()) &&
-    (defaultValues.roleName ?? "").toUpperCase() === "SALES";
+  // Only ADMIN/SUPER_ADMIN choose a manager. When a MANAGER registers someone
+  // the backend auto-assigns itself, so the field must stay hidden for them.
+  const callerCanAssignManager = ["ADMIN", "SUPER_ADMIN"].includes(
+    callerRole.toUpperCase()
+  );
+
+  // Mirrors the role currently selected in the form. This was previously read
+  // from `defaultValues.roleName`, which is always empty in "add" mode — so the
+  // manager field was never required by the schema and never rendered, and the
+  // backend rejected every Admin-created SALES user with
+  // "assignToManagerUsername is required when Admin registers a Sales person."
+  const [selectedRole, setSelectedRole] = useState(
+    (defaultValues.roleName ?? (isManagerCaller ? "SALES" : "")).toUpperCase()
+  );
+
+  const showAssignToManager = callerCanAssignManager && selectedRole === "SALES";
 
   const schema = useMemo(
-    () => createUserFormSchema(mode, initialShowAssignToManager),
-    [mode, initialShowAssignToManager]
+    () => createUserFormSchema(mode, showAssignToManager),
+    [mode, showAssignToManager]
   );
 
   const { form, set, fieldError } = useZodForm(schema, {
@@ -85,6 +100,7 @@ export default function UserForm({
 
   const handleRoleChange = (val: string) => {
     set("roleName")(val);
+    setSelectedRole(val.toUpperCase());
     if (val.toUpperCase() !== "SALES") {
       set("assignToManagerUsername")("");
     }
@@ -94,6 +110,37 @@ export default function UserForm({
     e.preventDefault();
     onSubmit(form);
   };
+
+  // Managers are only fetched once the field is actually shown.
+  const {
+    data: managersResponse,
+    isLoading: managersLoading,
+    isError: managersFailed,
+  } = useQuery({
+    queryKey: ["employees", "managers"],
+    queryFn: getAllUsers,
+    enabled: showAssignToManager,
+  });
+
+  const managerOptions: SelectOption[] = useMemo(() => {
+    const rows: Array<Record<string, string | null>> = Array.isArray(
+      managersResponse?.data
+    )
+      ? managersResponse.data
+      : [];
+
+    return rows
+      .filter((u) => (u.roleName ?? "").toUpperCase() === "MANAGER")
+      .filter((u) => Boolean(u.username))
+      .map((u) => ({
+        value: String(u.username),
+        label:
+          [u.firstName, u.lastName].filter(Boolean).join(" ").trim() ||
+          String(u.username),
+      }));
+  }, [managersResponse]);
+
+  const managersError = managersFailed ? "Could not load managers." : null;
 
   const roleOptions = getRoleOptions(callerRole);
 
@@ -151,6 +198,33 @@ export default function UserForm({
               required
               leftIcon={<ShieldIcon />}
               error={fieldError("roleName")}
+            />
+          )}
+
+          {/* The backend requires assignToManagerUsername whenever an Admin
+              registers a SALES user, so surface the choice only in that case. */}
+          {showAssignToManager && (
+            <SelectDropdown
+              label="Assign To Manager"
+              placeholder={
+                managersLoading
+                  ? "Loading managers..."
+                  : managerOptions.length === 0
+                    ? "No managers available"
+                    : "Select a manager"
+              }
+              options={managerOptions}
+              value={form.assignToManagerUsername ?? ""}
+              onChange={set("assignToManagerUsername")}
+              required
+              disabled={managersLoading || managerOptions.length === 0}
+              leftIcon={<UserIcon className="w-5 h-5" />}
+              error={managersError ?? fieldError("assignToManagerUsername")}
+              hint={
+                !managersLoading && managerOptions.length === 0 && !managersError
+                  ? "Create a Manager first — a Sales user must report to one."
+                  : undefined
+              }
             />
           )}
         </div>
