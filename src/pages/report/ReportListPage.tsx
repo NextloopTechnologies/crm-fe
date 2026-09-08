@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { DataTable, ColumnDef } from '@/components/common/Table'
+import { DataTable, type ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
 import { Clock3, Download, FileText, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -8,7 +8,7 @@ import CustomBadge from '@/components/common/CommonBadge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ROUTES } from '@/lib/route'
 import activeUserIcon from '@/assets/icons/svgs/ActiveUsericon.svg'
-import { ReportFormData } from '@/components/forms/ReportForm'
+import { type ReportFormData } from '@/components/forms/ReportForm'
 import { reportData } from '@/data/report.data'
 
 // ── Static constants — component ke bahar ────────────────────

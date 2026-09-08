@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import { usersData, type User } from '@/data/user.data';
 import { ROUTES } from '@/lib/route'
-import TenantForm, { TenantFormData } from '@/components/forms/TenantForm';
+import TenantForm, { type TenantFormData } from '@/components/forms/TenantForm';
 
 export default function EditTenantPage() {
   const { id } = useParams();

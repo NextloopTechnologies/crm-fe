@@ -1,5 +1,5 @@
 // components/forms/InvoicePreview.tsx
-import { CreateAccountRequest, InvoiceResponseDto } from "@/types/api.types";
+import { type CreateAccountRequest, type InvoiceResponseDto } from "@/types/api.types";
 import logo from "@/assets/images/CompanyLogo.svg";
 import { toWords } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";

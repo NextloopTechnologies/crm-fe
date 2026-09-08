@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import FormPage, { FormSection } from "@/components/common/Form";
+import FormPage, { type FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
 import { Bell, BellRing, CalendarDays, ClipboardList, Link, Repeat, Search, ChevronDown, X, ArrowLeft } from "lucide-react";
-import { CreateTaskRequest } from "@/types/api.types";
+import { type CreateTaskRequest } from "@/types/api.types";
 import { getAllAccounts } from "@/api/account.api"; // adjust path if needed
 import { ROUTES } from "@/lib/route";
 import BackButton from "../common/BackButton";
@@ -24,7 +24,7 @@ const ShieldIcon = () => (
 // Options
 // ─────────────────────────────────────────────────────────────
 
-export const STATUS_OPTIONS = [
+const STATUS_OPTIONS = [
   { label: "Not Started", value: "Not Started" },
   { label: "In Progress", value: "In Progress" },
   { label: "Completed", value: "Completed" },
@@ -32,13 +32,13 @@ export const STATUS_OPTIONS = [
   { label: "Deferred", value: "Deferred" },
 ];
 
-export const PRIORITY_OPTIONS = [
+const PRIORITY_OPTIONS = [
   { label: "High", value: "High" },
   { label: "Medium", value: "Medium" },
   { label: "Low", value: "Low" },
 ];
 
-export const RELATED_TO_OPTIONS = [
+const RELATED_TO_OPTIONS = [
   { label: "Account", value: "Account" },
   { label: "Contact", value: "Contact" },
   { label: "Lead", value: "Lead" },

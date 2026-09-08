@@ -5,7 +5,7 @@ import {
   PhoneIcon,
 } from "@/assets/icons/components";
 import { Button } from "@/components/common/Button";
-import { User, usersData } from "@/data/user.data";
+import { type User, usersData } from "@/data/user.data";
 import  goggleLogo from "@/assets/icons/svgs/Google-icon.svg";
 import  microSoftLogo from "@/assets/icons/svgs/MicroSoft-icon.svg";
 import  linkedInLogo from "@/assets/icons/svgs/LinkedIn-icon.svg";

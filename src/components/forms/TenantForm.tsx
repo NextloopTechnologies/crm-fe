@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormPage, { FormSection } from "@/components/common/Form";
+import FormPage, { type FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";

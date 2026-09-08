@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Mail, Phone, MapPin, UserRound } from "lucide-react";
 import { getAccountByAccountNumber } from "@/api/account.api";
 import AccountInvoiceTab from "./invoices/AccountInvoiceTab"; // ← NEW import
-import { CreateAccountRequest } from "@/types/api.types";
+import { type CreateAccountRequest } from "@/types/api.types";
 
 // ─────────────────────────────────────────────────────────────
 // Helpers

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { showToast } from '@/components/common/Toast';
 import TaskForm from '@/components/forms/TaskForm';
 import { ROUTES } from '@/lib/route'
-import { CreateTaskRequest } from '@/types/api.types';
+import { type CreateTaskRequest } from '@/types/api.types';
 import { getTaskByTaskNumber, updateTask } from '@/api/tasks.api';
 import { ResponseCode } from '@/constants/statusCodes';
 import { getSuccessToast } from '@/components/common/toastMessages';

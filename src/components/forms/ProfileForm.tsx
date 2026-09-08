@@ -1,7 +1,7 @@
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { useRef, useState } from "react";
-import { Profile, UpdateProfileDto } from "@/types/api.types";
+import { type Profile, type UpdateProfileDto } from "@/types/api.types";
 
 // ─────────────────────────────────────────────────────────────
 // Icons

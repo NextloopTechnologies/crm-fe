@@ -4,7 +4,7 @@ import { showToast } from '@/components/common/Toast';
 import { ROUTES } from '@/lib/route'
 import { ResponseCode } from '@/constants/statusCodes';
 import { getSuccessToast } from '@/components/common/toastMessages';
-import { CreateProjectRequest } from '@/types/api.types';
+import { type CreateProjectRequest } from '@/types/api.types';
 import ProjectForm from '@/components/forms/ProjectForm';
 import { getProjectByProjectNumber, updateProject } from '@/api/projects.api';
 

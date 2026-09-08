@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { DataTable, ColumnDef } from '@/components/common/Table'
+import { DataTable, type ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
 import { Calendar, ClipboardList, Clock3, MoveUpRightIcon, Trash2 } from 'lucide-react'
 import { PlusIcon } from '@/assets/icons/components/PlusIcon'

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { showToast } from '@/components/common/Toast'
-import { CreateInvoiceRequest } from '@/types/api.types'
+import { type CreateInvoiceRequest } from '@/types/api.types'
 import { getSuccessToast, getErrorToast } from '@/components/common/toastMessages'
 import InvoiceForm from '@/components/forms/InvoiceForm'
 import { STATIC_INVOICES } from './InvoicesList'

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import FormPage, { FormSection } from '@/components/common/Form';
+import FormPage, { type FormSection } from '@/components/common/Form';
 import { Input } from '@/components/common/Input';
 import { Button } from '@/components/common/Button';
 import { UserIcon, PhoneIcon, MailIcon, LocationIcon, CreatedIcon } from '@/assets/icons/components/index'
@@ -7,7 +7,7 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
 import { getLeadByLeadNumber, updateLead } from '@/api/leads.api';
-import { CreateAccountRequest, CreateLeadRequest } from '@/types/api.types';
+import { type CreateAccountRequest, type CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate, useParams } from "react-router-dom";

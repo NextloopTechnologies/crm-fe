@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import FormPage, { FormSection } from "@/components/common/Form";
+import FormPage, { type FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
@@ -11,7 +11,7 @@ import {
   ArrowLeft,
   CirclePlus,
 } from "lucide-react";
-import { CreateInvoiceRequest, InvoiceResponseDto , InvoiceItemDto, InvoiceStatus, CreateAccountRequest } from "@/types/api.types";
+import { type CreateInvoiceRequest, type InvoiceResponseDto , type InvoiceItemDto, type InvoiceStatus, type CreateAccountRequest } from "@/types/api.types";
 import { BANK_DETAILS, BANK_OPTIONS } from "@/constants/BankDetailOption";
 import { InlineSelectDropdown } from "../common/InlineSelectDropDown";
 import InvoicePreview from "@/pages/accounts/invoices/InvoicePreviewPage";

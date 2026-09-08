@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { DataTable, ColumnDef } from '@/components/common/Table'
+import { DataTable, type ColumnDef } from '@/components/common/Table'
 import { Button } from '@/components/ui/button'
 import { MoveUpRightIcon, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -7,7 +7,7 @@ import StatsCard from '@/components/common/StatsCards'
 import { ActiveUsersIcon, UsersIcon } from '@/assets/icons/components'
 import { ROUTES } from '@/lib/route'
 import { getAllAccounts } from '@/api/account.api'
-import { CreateAccountRequest } from '@/types/api.types'
+import { type CreateAccountRequest } from '@/types/api.types'
 
 // ── Static helpers — component ke bahar ──────────────────────
 const getStats = (data: CreateAccountRequest[]) => [

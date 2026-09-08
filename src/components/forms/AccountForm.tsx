@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormPage, { FormSection } from "@/components/common/Form";
+import FormPage, { type FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import SelectDropdown from "@/components/common/SelectDropdown";
@@ -13,7 +13,7 @@ import {
   LocationIcon,
 } from "@/assets/icons/components/index";
 import { ArrowLeft, Globe, Printer } from "lucide-react";
-import { AccountAddressRequestDto, ContactRequestDto, CreateAccountRequest } from "@/types/api.types";
+import { type AccountAddressRequestDto, type ContactRequestDto, type CreateAccountRequest } from "@/types/api.types";
 import { ROUTES } from "@/lib/route";
 import BackButton from "../common/BackButton";
 

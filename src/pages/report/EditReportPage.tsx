@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { showToast } from '@/components/common/Toast'
 import { usersData } from '@/data/user.data'
 import { ROUTES } from '@/lib/route'
-import ReportForm, { ReportFormData } from '@/components/forms/ReportForm'
+import ReportForm, { type ReportFormData } from '@/components/forms/ReportForm'
 
 export default function EditReportPage() {
   const { id }      = useParams()
