@@ -102,23 +102,30 @@ const FormPage: React.FC<FormPageProps> = ({
               Cancel
             </button>
           )}
-          <button
-            type="submit"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <svg
-                className="animate-spin w-4 h-4"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-              </svg>
-            ) : null}
-            {submitLabel}
-          </button>
+          {/* Every caller passes its own <Button type="submit"> as submitLabel.
+              Wrapping that in another <button type="submit"> nested one
+              interactive control inside another — invalid HTML that React warns
+              causes hydration errors, and it made clicks land on the outer
+              element. Render a supplied element as-is; only wrap a plain label
+              (the "Submit" default) in a button of our own. */}
+          {React.isValidElement(submitLabel) ? (
+            submitLabel
+          ) : (
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <svg
+                  className="animate-spin w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+              ) : null}
+              {submitLabel}
+            </button>
+          )}
         </div>
       </form>
     </div>

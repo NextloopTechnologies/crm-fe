@@ -7,7 +7,7 @@ import SelectDropdown from "@/components/common/SelectDropdown";
 import { InlineInput } from '@/components/common/InlineInput';
 import { Checkbox } from '@/components/common/Checkbox';
 import { getLeadByLeadNumber, updateLead } from '@/api/leads.api';
-import { type CreateAccountRequest, type CreateLeadRequest } from '@/types/api.types';
+import { type CreateLeadRequest } from '@/types/api.types';
 import { showToast } from '@/components/common/Toast';
 import { ResponseCode } from '@/constants/statusCodes';
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,8 +16,6 @@ import { LEAD_STATUS_OPTIONS_LIST } from '@/constants/LeadStatus';
 import BackButton from '@/components/common/BackButton';
 import { ArrowLeft } from 'lucide-react';
 import { getChangedFields } from '@/lib/objectDiff';
-import { createAccount } from '@/api/account.api';
-import { replaceNAWithEmpty } from '@/lib/utils';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -168,54 +166,10 @@ export default function EditLeadPage() {
       const response = await updateLead(id!, payload);
       if (response.code === ResponseCode.SUCCESS) {
 
-// TODO: Temporary implementation.
-// Currently, the frontend manually creates an Account when the lead status changes.
-// This logic will be moved to the backend in the future so account creation happens automatically.
-        const statusChanged =
-          initialData.leadStatus !== formData.leadStatus;
-
-        if (
-          statusChanged &&
-          formData.leadStatus === "Deal Won"
-        ) {
-
-          const accountPayload: CreateAccountRequest = {
-            accountName: formData.company ?? "",
-            rating: formData.rating,
-            website: formData.website,
-            employees: formData.noOfEmployees,
-            annualRevenue: formData.annualRevenue,
-
-            contacts: [
-              {
-                title: "Mr",
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                email: formData.email,
-                secondaryEmail: formData.secondaryEmail,
-                phone: formData.phone,
-                mobile: formData.mobile,
-                skypeId: formData.skypeId,
-                fax: formData.fax,
-              },
-            ],
-
-            addresses: [
-              {
-                country: formData.leadAddressRequestDto?.country,
-                flatNo: formData.leadAddressRequestDto?.flatNo,
-                street: formData.leadAddressRequestDto?.street,
-                city: formData.leadAddressRequestDto?.city,
-                state: formData.leadAddressRequestDto?.state,
-                zipCode: formData.leadAddressRequestDto?.zipCode,
-                latitude: formData.leadAddressRequestDto?.latitude,
-                longitude: formData.leadAddressRequestDto?.longitude,
-              },
-            ],
-          };
-
-          await createAccount(replaceNAWithEmpty(accountPayload));
-        }
+        // NOTE: no account creation here. LeadServiceImpl creates one
+        // automatically when the status transitions to "Deal Won", so doing it
+        // from the client produced two identical accounts per win — the same
+        // bug already removed from the list/board path in LeadPage.
 
         showToast({
           title: "Lead updated!",
