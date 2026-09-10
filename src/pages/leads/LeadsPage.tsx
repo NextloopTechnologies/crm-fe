@@ -156,12 +156,10 @@ export default function LeadsPage() {
     if (formData.phone?.trim() && !PHONE_RE.test(formData.phone))
       newErrors.phone = "Phone must be 7–15 digits.";
 
-    // ── Address ────────────────────────────────────────────────
-    const addr = formData.leadAddressRequestDto;
-    requireText("country", addr?.country, "Country");
-    requireText("street", addr?.street, "Street");
-    requireText("state", addr?.state, "State");
-    requireText("city", addr?.city, "City");
+    // Address is optional — the backend has never required it
+    // (LeadCreateRequestDto marks only company and lastName @NotBlank, and
+    // validateLeadAddress returns early when the address is absent), so
+    // requiring it here only slowed lead capture down.
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -439,15 +437,14 @@ export default function LeadsPage() {
             id="country"
             label="Country"
             placeholder="Select country"
-            required
             value={formData.leadAddressRequestDto?.country || ''}
             onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, country: e.target.value } })}
             error={errors.country}
           />
-          <InlineInput id="street" label="Street" placeholder="Enter street address" required value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} error={errors.street} />
-          <InlineInput id="state" label="State" placeholder="Enter state / province" required value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} error={errors.state} />
+          <InlineInput id="street" label="Street" placeholder="Enter street address" value={formData.leadAddressRequestDto?.street || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, street: e.target.value } })} error={errors.street} />
+          <InlineInput id="state" label="State" placeholder="Enter state / province" value={formData.leadAddressRequestDto?.state || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, state: e.target.value } })} error={errors.state} />
           <InlineInput id="flatNo" label="Flat No." placeholder="Enter flat number" value={formData.leadAddressRequestDto?.flatNo || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, flatNo: e.target.value } })} />
-          <InlineInput id="city" label="City" placeholder="Enter city" required value={formData.leadAddressRequestDto?.city || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, city: e.target.value } })} error={errors.city} />
+          <InlineInput id="city" label="City" placeholder="Enter city" value={formData.leadAddressRequestDto?.city || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, city: e.target.value } })} error={errors.city} />
           <InlineInput id="zipCode" label="Zip Code" placeholder="Enter zip / postal code" value={formData.leadAddressRequestDto?.zipCode || ''} onChange={(e) => setFormData({ ...formData, leadAddressRequestDto: { ...formData.leadAddressRequestDto, zipCode: e.target.value } })} />
         </div>
       ),
