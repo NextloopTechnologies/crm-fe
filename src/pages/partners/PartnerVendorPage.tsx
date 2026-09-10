@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { Handshake, Plus } from 'lucide-react'
 import { DataTable, type ColumnDef } from '@/components/common/Table'
@@ -22,20 +23,23 @@ import {
 export default function PartnerVendorPage() {
   const navigate = useNavigate()
   const [type, setType] = useState<PartnerType>('PARTNER')
-  const [rows, setRows] = useState<PartnerVendor[]>([])
-  const [loading, setLoading] = useState(false)
+  const queryClient = useQueryClient()
 
-  const load = useCallback((forType: PartnerType) => {
-    setLoading(true)
-    getPartnerVendors(forType)
-      .then((res) => setRows(Array.isArray(res?.data) ? res.data : []))
-      .catch(() => setRows([]))
-      .finally(() => setLoading(false))
-  }, [])
+  // Keyed by type, so flipping the toggle refetches and each side stays cached.
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ['partner-vendor', type],
+    queryFn: () => getPartnerVendors(type),
+  })
 
-  useEffect(() => {
-    load(type)
-  }, [type, load])
+  const rows: PartnerVendor[] = useMemo(
+    () => (Array.isArray(data?.data) ? data.data : []),
+    [data],
+  )
+
+  const reload = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ['partner-vendor'] }),
+    [queryClient],
+  )
 
   const noun = type === 'PARTNER' ? 'Partner' : 'Vendor'
 
@@ -76,12 +80,12 @@ export default function PartnerVendorPage() {
       try {
         await deletePartnerVendor(target.partnerNumber)
         showToast({ title: `${noun} deleted`, description: `${target.companyName} was removed.`, type: 'success' })
-        load(type)
+        reload()
       } catch {
         showToast({ title: 'Delete failed', description: 'Please try again.', type: 'error' })
       }
     },
-    [noun, load, type],
+    [noun, reload],
   )
 
   const columns: ColumnDef<PartnerVendor>[] = useMemo(
