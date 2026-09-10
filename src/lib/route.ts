@@ -25,6 +25,10 @@ export const ROUTES = {
   TENANTS_EDIT: (id: string) => `/tenants/${id}/edit`,
 
   // Accounts
+  PARTNERS: "/partners",
+  PARTNERS_CREATE: "/partners/create",
+  PARTNERS_EDIT: (id: string) => `/partners/edit/${id}`,
+
   ACCOUNTS: "/accounts",
   ACCOUNTS_CREATE: "/accounts/create",
   ACCOUNTS_EDIT: (id: string) => `/accounts/edit/${id}`,
