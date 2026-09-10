@@ -1,4 +1,4 @@
-import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR } from "@/constants/LeadStatus";
+import { LEAD_STATUS_OPTIONS_LIST, STATUS_COLOR, getStatusLabel } from "@/constants/LeadStatus";
 interface LeadStatusDropdownProps {
     leadNumber: string;
     currentStatus: string;
@@ -26,9 +26,9 @@ export const LeadStatusDropdown = ({
             <div
                 className={`rounded-lg font-semibold truncate text-center cursor-not-allowed select-none
                 ${sizeClass} ${cfg.bg} ${cfg.text}`}
-                title="Deal Won leads ka status change nahi ho sakta"
+                title="A won lead's status cannot be changed"
             >
-                Deal Won
+                {getStatusLabel(status)}
             </div>
         );
     }
