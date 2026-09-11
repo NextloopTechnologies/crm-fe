@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import FormPage, { type FormSection } from '@/components/common/Form'
 import { Input } from '@/components/common/Input'
@@ -10,21 +10,12 @@ import SelectDropdown from '@/components/common/SelectDropdown'
 import BackButton from '@/components/common/BackButton'
 import { showToast } from '@/components/common/Toast'
 import { ROUTES } from '@/lib/route'
-import {
-  createPartnerVendor,
-  getPartnerVendor,
-  updatePartnerVendor,
-} from '@/api/partnerVendor.api'
-import {
-  PARTNER_PRIORITY_OPTIONS,
-  PARTNER_STATUS_OPTIONS,
-  PARTNER_TYPE_OPTIONS,
-} from '@/constants/PartnerVendor'
-import type { PartnerType, PartnerVendorRequest } from '@/types/partnerVendor.types'
+import { createVendor, getVendor, updateVendor } from '@/api/vendor.api'
+import { VENDOR_PRIORITY_OPTIONS, VENDOR_STATUS_OPTIONS } from '@/constants/Vendor'
+import type { VendorRequest } from '@/types/vendor.types'
 
-const EMPTY: PartnerVendorRequest = {
+const EMPTY: VendorRequest = {
   companyName: '',
-  partnerType: 'PARTNER',
   website: '',
   contactPerson: '',
   email: '',
@@ -45,24 +36,18 @@ const PHONE_RE = /^[0-9+\-\s()]{7,15}$/
 const GSTIN_RE = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
 const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]$/
 
-export default function PartnerVendorFormPage() {
+export default function VendorFormPage() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { id } = useParams<{ id: string }>()
   const mode: 'add' | 'edit' = id ? 'edit' : 'add'
 
-  const presetType = (location.state as { partnerType?: PartnerType } | null)?.partnerType
-
-  const [form, setForm] = useState<PartnerVendorRequest>({
-    ...EMPTY,
-    partnerType: presetType ?? 'PARTNER',
-  })
+  const [form, setForm] = useState<VendorRequest>({ ...EMPTY })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!id) return
-    getPartnerVendor(id)
+    getVendor(id)
       .then((res) => {
         const d = res?.data
         if (d) setForm({ ...EMPTY, ...d, address: { ...EMPTY.address, ...(d.address ?? {}) } })
@@ -72,9 +57,8 @@ export default function PartnerVendorFormPage() {
       )
   }, [id])
 
-  const noun = form.partnerType === 'VENDOR' ? 'Vendor' : 'Partner'
 
-  const set = <K extends keyof PartnerVendorRequest>(key: K, value: PartnerVendorRequest[K]) =>
+  const set = <K extends keyof VendorRequest>(key: K, value: VendorRequest[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }))
 
   const setAddress = (key: string, value: string) =>
@@ -106,22 +90,22 @@ export default function PartnerVendorFormPage() {
 
     setLoading(true)
     try {
-      const payload: PartnerVendorRequest = {
+      const payload: VendorRequest = {
         ...form,
         msaValidUntil: form.msaValidUntil?.trim() ? form.msaValidUntil : undefined,
       }
       const res =
         mode === 'edit' && id
-          ? await updatePartnerVendor(id, payload)
-          : await createPartnerVendor(payload)
+          ? await updateVendor(id, payload)
+          : await createVendor(payload)
 
       if (res?.status === 'Success') {
         showToast({
-          title: mode === 'edit' ? `${noun} updated!` : `${noun} created!`,
+          title: mode === 'edit' ? `Vendor updated!` : `Vendor created!`,
           description: `${form.companyName} saved successfully.`,
           type: 'success',
         })
-        navigate(ROUTES.PARTNERS)
+        navigate(ROUTES.VENDORS)
         return
       }
 
@@ -143,21 +127,12 @@ export default function PartnerVendorFormPage() {
     () => [
       {
         icon: <span>🏢</span>,
-        title: `${noun} Information`,
+        title: 'Vendor Information',
         subtitle: 'Company and primary contact details.',
         iconBg: 'bg-blue-50',
         iconColor: 'text-blue-500',
         children: (
           <>
-            <SelectDropdown
-              label="Type"
-              placeholder="Select type"
-              options={PARTNER_TYPE_OPTIONS}
-              value={form.partnerType}
-              onChange={(v) => set('partnerType', v as PartnerType)}
-              required
-              disabled={mode === 'edit'}
-            />
             <Input
               id="companyName"
               label="Company Name"
@@ -221,16 +196,16 @@ export default function PartnerVendorFormPage() {
             <SelectDropdown
               label="Status"
               placeholder="Select status"
-              options={PARTNER_STATUS_OPTIONS}
+              options={VENDOR_STATUS_OPTIONS}
               value={form.status ?? ''}
-              onChange={(v) => set('status', v as PartnerVendorRequest['status'])}
+              onChange={(v) => set('status', v as VendorRequest['status'])}
             />
             <SelectDropdown
               label="Priority"
               placeholder="Select priority"
-              options={PARTNER_PRIORITY_OPTIONS}
+              options={VENDOR_PRIORITY_OPTIONS}
               value={form.priority ?? ''}
-              onChange={(v) => set('priority', v as PartnerVendorRequest['priority'])}
+              onChange={(v) => set('priority', v as VendorRequest['priority'])}
             />
             <Input
               id="gstin"
@@ -285,25 +260,19 @@ export default function PartnerVendorFormPage() {
         ),
       },
     ],
-    [form, errors, noun, mode],
+    [form, errors],
   )
 
   return (
     <div className="bg-white min-h-screen rounded-lx">
-      <BackButton path={ROUTES.PARTNERS} label="Back To List" icon={<ArrowLeft size={16} />} />
+      <BackButton path={ROUTES.VENDORS} label="Back To List" icon={<ArrowLeft size={16} />} />
       <div className="mt-6">
         <FormPage
-          heading={mode === 'add' ? `Create ${noun}` : `Edit ${noun}`}
-          subheading={
-            mode === 'add'
-              ? form.partnerType === 'PARTNER'
-                ? 'Partners share hiring requirements.'
-                : 'Vendors share candidate profiles.'
-              : `Update ${noun.toLowerCase()} details.`
-          }
+          heading={mode === 'add' ? `Create Vendor` : `Edit Vendor`}
+          subheading={mode === 'add' ? 'Vendors share candidate profiles.' : 'Update vendor details.'}
           sections={sections}
           onSubmit={handleSubmit}
-          onCancel={() => navigate(ROUTES.PARTNERS)}
+          onCancel={() => navigate(ROUTES.VENDORS)}
           submitLabel={
             <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1" disabled={loading}>
               {loading ? 'Saving...' : mode === 'add' ? 'Save' : 'Update'}

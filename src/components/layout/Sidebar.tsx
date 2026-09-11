@@ -14,7 +14,7 @@ const NAV = [
   { to: '/tenants', label: 'Tenants', icon: Users },
   { to: '/tasks/', label: 'Tasks', icon: ClipboardList },
   { to: '/accounts', label: 'Accounts', icon: Building2 },
-  { to: '/partners', label: 'Partners', icon: Handshake },
+  { to: '/vendors', label: 'Vendors', icon: Handshake },
   { to: '/projects', label: 'Projects', icon: BriefcaseBusiness },
   { to: '/reports', label: 'Reports', icon: ChartNoAxesColumnIncreasing },
 ]
