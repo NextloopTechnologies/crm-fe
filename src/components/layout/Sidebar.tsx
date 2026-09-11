@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, Building2,
    PieChart, Settings, FileUser,
-  ChevronLeft, ChevronRight, BriefcaseBusiness, ClipboardList , ChartNoAxesColumnIncreasing
+  ChevronLeft, ChevronRight, BriefcaseBusiness, ClipboardList , ChartNoAxesColumnIncreasing, Handshake
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/stores/ui.store'
@@ -14,6 +14,7 @@ const NAV = [
   { to: '/tenants', label: 'Tenants', icon: Users },
   { to: '/tasks/', label: 'Tasks', icon: ClipboardList },
   { to: '/accounts', label: 'Accounts', icon: Building2 },
+  { to: '/partners', label: 'Partners', icon: Handshake },
   { to: '/projects', label: 'Projects', icon: BriefcaseBusiness },
   { to: '/reports', label: 'Reports', icon: ChartNoAxesColumnIncreasing },
 ]

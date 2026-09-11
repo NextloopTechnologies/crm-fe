@@ -6,6 +6,7 @@ import {
   Settings, Building2, CheckSquare,
   BarChart2, UserCircle,
   FolderKanban, KanbanSquare,
+  Handshake,
 } from "lucide-react"
 
 // ─── Lazy Imports ────────────────────────────────────────────
@@ -18,6 +19,8 @@ const CreateProjectPage      = lazy(() => import('@/pages/project/CreateProjectP
 const ProjectsPage      = lazy(() => import('@/pages/project/ProjectListPage'))
 const EditProjectPage      = lazy(() => import('@/pages/project/EditProjectPage'))
 const PipelinePage      = lazy(() => import('@/pages/PipelinePage'))
+const PartnerVendorPage     = lazy(() => import('@/pages/partners/PartnerVendorPage'))
+const PartnerVendorFormPage = lazy(() => import('@/pages/partners/PartnerVendorFormPage'))
 const UserListPage      = lazy(() => import('@/pages/users/UserList'))
 const CreateUsersPage   = lazy(() => import('@/pages/users/CreateUserPage'))
 const EditUsersPage     = lazy(() => import('@/pages/users/EditUserPage'))
@@ -124,6 +127,14 @@ export const protectedRoutes: RouteConfig[] = [
     element: AccountListPage,
     sidebar: { label: "Accounts", icon: UserCircle, group: "management" },
   },
+  {
+    path: ROUTES.PARTNERS,
+    element: PartnerVendorPage,
+    sidebar: { label: "Partners", icon: Handshake, group: "management" },
+  },
+  { path: ROUTES.PARTNERS_CREATE,  element: PartnerVendorFormPage },
+  { path: 'partners/edit/:id',     element: PartnerVendorFormPage },
+
   { path: ROUTES.ACCOUNTS_CREATE, element: CreateAccountPage },
   { path: 'accounts/edit/:id',    element: EditAccountPage },
   { path: 'accounts/detail/:id',    element: AccountDetailPage },
