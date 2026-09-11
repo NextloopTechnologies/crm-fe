@@ -1,19 +1,14 @@
-/** Mirrors PartnerStatus / PartnerPriority / PartnerType in crm-be. */
+/** Mirrors VendorStatus / VendorPriority in crm-be. */
 
-export const PARTNER_STATUS_OPTIONS = [
+export const VENDOR_STATUS_OPTIONS = [
   { label: 'Active', value: 'ACTIVE' },
   { label: 'Inactive', value: 'INACTIVE' },
 ]
 
-export const PARTNER_PRIORITY_OPTIONS = [
+export const VENDOR_PRIORITY_OPTIONS = [
   { label: 'High', value: 'HIGH' },
   { label: 'Medium', value: 'MEDIUM' },
   { label: 'Low', value: 'LOW' },
-]
-
-export const PARTNER_TYPE_OPTIONS = [
-  { label: 'Partner', value: 'PARTNER' },
-  { label: 'Vendor', value: 'VENDOR' },
 ]
 
 type Swatch = { bg: string; text: string }

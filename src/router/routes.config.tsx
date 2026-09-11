@@ -19,8 +19,8 @@ const CreateProjectPage      = lazy(() => import('@/pages/project/CreateProjectP
 const ProjectsPage      = lazy(() => import('@/pages/project/ProjectListPage'))
 const EditProjectPage      = lazy(() => import('@/pages/project/EditProjectPage'))
 const PipelinePage      = lazy(() => import('@/pages/PipelinePage'))
-const PartnerVendorPage     = lazy(() => import('@/pages/partners/PartnerVendorPage'))
-const PartnerVendorFormPage = lazy(() => import('@/pages/partners/PartnerVendorFormPage'))
+const VendorListPage    = lazy(() => import('@/pages/vendors/VendorListPage'))
+const VendorFormPage    = lazy(() => import('@/pages/vendors/VendorFormPage'))
 const UserListPage      = lazy(() => import('@/pages/users/UserList'))
 const CreateUsersPage   = lazy(() => import('@/pages/users/CreateUserPage'))
 const EditUsersPage     = lazy(() => import('@/pages/users/EditUserPage'))
@@ -128,12 +128,12 @@ export const protectedRoutes: RouteConfig[] = [
     sidebar: { label: "Accounts", icon: UserCircle, group: "management" },
   },
   {
-    path: ROUTES.PARTNERS,
-    element: PartnerVendorPage,
-    sidebar: { label: "Partners", icon: Handshake, group: "management" },
+    path: ROUTES.VENDORS,
+    element: VendorListPage,
+    sidebar: { label: "Vendors", icon: Handshake, group: "management" },
   },
-  { path: ROUTES.PARTNERS_CREATE,  element: PartnerVendorFormPage },
-  { path: 'partners/edit/:id',     element: PartnerVendorFormPage },
+  { path: ROUTES.VENDORS_CREATE, element: VendorFormPage },
+  { path: 'vendors/edit/:id',    element: VendorFormPage },
 
   { path: ROUTES.ACCOUNTS_CREATE, element: CreateAccountPage },
   { path: 'accounts/edit/:id',    element: EditAccountPage },
