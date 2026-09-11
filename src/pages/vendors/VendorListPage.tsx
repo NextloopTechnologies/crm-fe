@@ -1,55 +1,45 @@
-import { useCallback, useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Handshake, Plus } from 'lucide-react'
 import { DataTable, type ColumnDef } from '@/components/common/Table'
 import StatsCard from '@/components/common/StatsCards'
 import { Button } from '@/components/ui/button'
 import { showToast } from '@/components/common/Toast'
 import { ROUTES } from '@/lib/route'
-import { deletePartnerVendor, getPartnerVendors } from '@/api/partnerVendor.api'
-import type { PartnerVendor, PartnerType } from '@/types/partnerVendor.types'
+import { deleteVendor, getVendors } from '@/api/vendor.api'
+import type { Vendor } from '@/types/vendor.types'
 import {
-  PARTNER_PRIORITY_OPTIONS,
-  PARTNER_STATUS_OPTIONS,
   PRIORITY_COLOR,
   STATUS_COLOR,
-} from '@/constants/PartnerVendor'
+  VENDOR_PRIORITY_OPTIONS,
+  VENDOR_STATUS_OPTIONS,
+} from '@/constants/Vendor'
 
-/**
- * Partners and vendors live on one screen because they are the same shape of
- * record — the toggle just changes which `partnerType` the API is asked for.
- */
-export default function PartnerVendorPage() {
+/** Vendors share candidate profiles. Hiring partners are accounts with accountType "Partner". */
+export default function VendorListPage() {
   const navigate = useNavigate()
-  const [type, setType] = useState<PartnerType>('PARTNER')
   const queryClient = useQueryClient()
 
-  // Keyed by type, so flipping the toggle refetches and each side stays cached.
   const { data, isLoading: loading } = useQuery({
-    queryKey: ['partner-vendor', type],
-    queryFn: () => getPartnerVendors(type),
+    queryKey: ['vendor'],
+    queryFn: getVendors,
   })
 
-  const rows: PartnerVendor[] = useMemo(
-    () => (Array.isArray(data?.data) ? data.data : []),
-    [data],
-  )
+  const rows: Vendor[] = useMemo(() => (Array.isArray(data?.data) ? data.data : []), [data])
 
   const reload = useCallback(
-    () => queryClient.invalidateQueries({ queryKey: ['partner-vendor'] }),
+    () => queryClient.invalidateQueries({ queryKey: ['vendor'] }),
     [queryClient],
   )
-
-  const noun = type === 'PARTNER' ? 'Partner' : 'Vendor'
 
   const stats = useMemo(
     () => [
       {
         icon: <Handshake className="w-5 h-5" />,
-        label: `Total ${noun}s`,
+        label: 'Total Vendors',
         value: rows.length,
-        subtitle: type === 'PARTNER' ? 'Sharing requirements' : 'Sharing candidate profiles',
+        subtitle: 'Sharing candidate profiles',
       },
       {
         icon: <Handshake className="w-5 h-5" />,
@@ -70,25 +60,25 @@ export default function PartnerVendorPage() {
         subtitle: 'Agreement in place',
       },
     ],
-    [rows, noun, type],
+    [rows],
   )
 
   const handleDelete = useCallback(
-    async (row: PartnerVendor | PartnerVendor[]) => {
+    async (row: Vendor | Vendor[]) => {
       const target = Array.isArray(row) ? row[0] : row
-      if (!target?.partnerNumber) return
+      if (!target?.vendorNumber) return
       try {
-        await deletePartnerVendor(target.partnerNumber)
-        showToast({ title: `${noun} deleted`, description: `${target.companyName} was removed.`, type: 'success' })
+        await deleteVendor(target.vendorNumber)
+        showToast({ title: 'Vendor deleted', description: `${target.companyName} was removed.`, type: 'success' })
         reload()
       } catch {
         showToast({ title: 'Delete failed', description: 'Please try again.', type: 'error' })
       }
     },
-    [noun, reload],
+    [reload],
   )
 
-  const columns: ColumnDef<PartnerVendor>[] = useMemo(
+  const columns: ColumnDef<Vendor>[] = useMemo(
     () => [
       {
         key: 'companyName',
@@ -96,7 +86,7 @@ export default function PartnerVendorPage() {
         width: '220px',
         render: (_, row) => <span className="font-medium">{row.companyName ?? '—'}</span>,
       },
-      { key: 'partnerNumber', label: `${noun} No.`, width: '150px' },
+      { key: 'vendorNumber', label: 'Vendor No.', width: '150px' },
       { key: 'contactPerson', label: 'Contact', width: '160px' },
       { key: 'email', label: 'Email', width: '220px' },
       { key: 'mobile', label: 'Mobile', width: '140px' },
@@ -137,13 +127,13 @@ export default function PartnerVendorPage() {
         ),
       },
     ],
-    [noun],
+    [],
   )
 
   const filters = useMemo(
     () => [
-      { key: 'status', label: 'Status', type: 'select' as const, options: PARTNER_STATUS_OPTIONS },
-      { key: 'priority', label: 'Priority', type: 'select' as const, options: PARTNER_PRIORITY_OPTIONS },
+      { key: 'status', label: 'Status', type: 'select' as const, options: VENDOR_STATUS_OPTIONS },
+      { key: 'priority', label: 'Priority', type: 'select' as const, options: VENDOR_PRIORITY_OPTIONS },
     ],
     [],
   )
@@ -157,44 +147,25 @@ export default function PartnerVendorPage() {
       </div>
 
       <div className="border border-[#E0E0E0] p-4 rounded-lg">
-        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap px-1">
-          {/* Partner / Vendor toggle — mirrors the Leads board/list switch */}
-          <div className="flex items-center gap-2">
-            {(['PARTNER', 'VENDOR'] as PartnerType[]).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setType(t)}
-                aria-pressed={type === t}
-                className={`h-9 px-4 rounded-[10px] text-sm font-medium transition ${
-                  type === t
-                    ? 'bg-[#5752FE] text-white'
-                    : 'border border-[#E0E0E0] text-[#111127] hover:bg-[#f8f8fc]'
-                }`}
-              >
-                {t === 'PARTNER' ? 'Partners' : 'Vendors'}
-              </button>
-            ))}
-          </div>
-
+        <div className="flex items-center justify-end gap-3 mb-4 flex-wrap px-1">
           <Button
             className="bg-[#5752FE] hover:bg-[#4a45e0] text-white rounded-[10px] px-4 text-sm gap-1"
-            onClick={() => navigate(ROUTES.PARTNERS_CREATE, { state: { partnerType: type } })}
+            onClick={() => navigate(ROUTES.VENDORS_CREATE)}
           >
-            <Plus size={14} /> Add {noun}
+            <Plus size={14} /> Add Vendor
           </Button>
         </div>
 
-        <DataTable<PartnerVendor>
+        <DataTable<Vendor>
           data={rows}
           columns={columns}
           loading={loading}
           searchable
-          searchPlaceholder={`Search ${noun.toLowerCase()}s...`}
-          emptyMessage={`No ${noun.toLowerCase()}s yet.`}
+          searchPlaceholder="Search vendors..."
+          emptyMessage="No vendors yet."
           filters={filters}
-          onRowClick={(row) => navigate(ROUTES.PARTNERS_EDIT(row.partnerNumber))}
-          onEdit={(row) => navigate(ROUTES.PARTNERS_EDIT(row.partnerNumber))}
+          onRowClick={(row) => navigate(ROUTES.VENDORS_EDIT(row.vendorNumber))}
+          onEdit={(row) => navigate(ROUTES.VENDORS_EDIT(row.vendorNumber))}
           onDelete={handleDelete}
         />
       </div>

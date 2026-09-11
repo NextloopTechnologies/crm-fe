@@ -25,9 +25,9 @@ export const ROUTES = {
   TENANTS_EDIT: (id: string) => `/tenants/${id}/edit`,
 
   // Accounts
-  PARTNERS: "/partners",
-  PARTNERS_CREATE: "/partners/create",
-  PARTNERS_EDIT: (id: string) => `/partners/edit/${id}`,
+  VENDORS: "/vendors",
+  VENDORS_CREATE: "/vendors/create",
+  VENDORS_EDIT: (id: string) => `/vendors/edit/${id}`,
 
   ACCOUNTS: "/accounts",
   ACCOUNTS_CREATE: "/accounts/create",
