@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Advisory only — `--no-verify` skips this, and that is fine. The copy that
+# matters runs in CI (.github/workflows/repo-hygiene.yml). This one is here to
+# tell you now rather than after you have pushed.
+node scripts/guard/repo-hygiene.mjs --staged
