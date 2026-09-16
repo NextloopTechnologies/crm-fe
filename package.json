@@ -11,7 +11,9 @@
     "lint:fix": "eslint src --ext ts,tsx --fix",
     "format": "prettier --write src/",
     "type-check": "tsc -b",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "guard": "node scripts/guard/repo-hygiene.mjs && node scripts/guard/merge-injection.mjs --all",
+    "guard:verify": "node scripts/guard/verify.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.8",
