@@ -1,0 +1,169 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { DataTable, type ColumnDef } from '@/components/common/Table'
+import { Button } from '@/components/ui/button'
+import { MoveUpRightIcon, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import StatsCard from '@/components/common/StatsCards'
+import { ActiveUsersIcon, UsersIcon } from '@/assets/icons/components'
+import { ROUTES } from '@/lib/route'
+import { getAllAccounts } from '@/api/account.api'
+import { type CreateAccountRequest } from '@/types/api.types'
+
+// ── Static helpers — component ke bahar ──────────────────────
+const getStats = (data: CreateAccountRequest[]) => [
+  { icon: <UsersIcon />, label: "Total Accounts", value: data.length, subtitle: "All accounts in system" },
+  { icon: <ActiveUsersIcon />, label: "New Accounts", value: data.filter(u => u.createdAt === "active").length, subtitle: "Currently Active" },
+  { icon: <div className="w-[55px] h-[55px] rounded-[8px] bg-[#0bd9011a]/10 flex items-center justify-center">
+            <MoveUpRightIcon className="w-6 h-6 text-[#0BD901]" />
+          </div>, label: "UpSell Accounts", value: data.filter(u => u.accountType === "Up Sell").length, subtitle: "Currently Inactive" },
+  // { icon: <TenantsIcon />, label: "Total Contacts", value: data.reduce(
+  //   (sum, u) => sum + (u.contacts?.filter(c => c.designation === "Admin").length ?? 0),
+  //   0
+  // ), subtitle: "Across all accounts" },
+]
+
+const FILTERS = [
+  {
+    key: "status",
+    label: "Status",
+    type: "select" as const,
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Inactive", value: "inactive" },
+    ],
+  },
+  {
+    key: "role",
+    label: "Industry",
+    type: "select" as const,
+    options: [
+      { label: "Admin", value: "Admin" },
+      { label: "Manager", value: "Manager" },
+      { label: "Developer", value: "Developer" },
+      { label: "Viewer", value: "Viewer" },
+    ],
+  },
+  { key: "createdFrom", label: "Created From", type: "date" as const },
+  { key: "createdTo", label: "Created To", type: "date" as const },
+]
+
+// ── Component ─────────────────────────────────────────────────
+export default function AccountListPage() {
+  const [selectedRows, setSelectedRows] = useState<CreateAccountRequest[]>([]);
+  const [accounts, setAccounts] = useState<CreateAccountRequest[]>([]);
+  const [accountsLoading, setAccountsLoading] = useState(true);
+
+  const navigate = useNavigate()
+
+  const stats = useMemo(() => getStats(accounts), [accounts])
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        setAccountsLoading(true);
+        const response = await getAllAccounts();
+        setAccounts(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+      } finally {
+        setAccountsLoading(false);
+      }
+    };
+    fetchAccounts();
+  }, []);
+
+  const columns = useMemo<ColumnDef<CreateAccountRequest>[]>(() => [
+    {
+      key: "accountName",
+      label: "Account Name",
+      width: "180px",
+      render: (_, row) => (
+        <div className="flex items-center gap-2.5">
+          <span
+            className={`flex h-6 w-6 items-center justify-center rounded-md ${row.accountType === "Up Sell"
+                ? "bg-[#0BD901]/10"
+                : "invisible"
+              }`}
+          >
+            <MoveUpRightIcon size={15} className="text-[#0BD901]" />
+          </span>
+
+          <span className="text-sm font-medium text-[#111127]">
+            {row.accountName}
+          </span>
+        </div>
+      ),
+    },
+    { key: "accountOwner", label: "Account Owner", width: "220px", render: (_, row) => <span>{(row as CreateAccountRequest).accountOwner ?? "—"}</span>, },
+    { key: "mobile", label: "Mobile", width: "220px", render: (_, row) => {
+      return (row as CreateAccountRequest).contacts?.[0]?.mobile ?? "—";
+    },},
+    { key: "website", label: "Website", width: "220px", render: (_, row) => <span>{(row as CreateAccountRequest).website ?? "—"}</span>, },
+    {
+      key: "email",
+      label: "Email",
+      render: (_, row) => <span>{(row as CreateAccountRequest).contacts?.[0].email ?? "—"}</span>,
+    },
+  ], [])
+
+  const handleView = useCallback(
+    (row: CreateAccountRequest) => navigate(ROUTES.ACCOUNTS_DETAIL(String(row.accountNumber))),
+    [navigate]
+  );
+
+  const handleEdit = useCallback(
+    (row: CreateAccountRequest) => navigate(ROUTES.ACCOUNTS_EDIT(String(row.accountNumber))),
+    [navigate]
+  )
+
+  const handleDelete = useCallback(() => { }, [])
+
+  const handleSelection = useCallback(
+    (rows: CreateAccountRequest[]) => setSelectedRows(rows),
+    []
+  )
+
+  const handleDeleteSelected = useCallback(() => { }, [selectedRows])
+
+  const headerActions = useMemo(() => (
+    <div className="flex items-center gap-2">
+      {selectedRows.length > 0 && (
+        <Button
+          variant="outline"
+          className="h-9 px-4 text-sm rounded-[10px] border-red-200 text-red-500 hover:bg-red-50 gap-2"
+          onClick={handleDeleteSelected}
+        >
+          <Trash2 size={14} />
+          Delete ({selectedRows.length})
+        </Button>
+      )}
+    </div>
+  ), [selectedRows.length, handleDeleteSelected, navigate])
+
+  return (
+    <div className="bg-white min-h-screen rounded-xl">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-14 mb-6">
+        {stats.map((stat) => (
+          <StatsCard key={stat.label} {...stat} />
+        ))}
+      </div>
+
+      <DataTable
+        data={accounts}
+        columns={columns}
+        filters={FILTERS}
+        searchable
+        searchPlaceholder="Search by name, email, location..."
+        selectable
+        pageSize={8}
+        emptyMessage="No account found."
+        headerActions={headerActions}
+        loading={accountsLoading}
+        onRowClick={handleView}
+        onSelectionChange={handleSelection}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onView={handleView}
+      />
+    </div>
+  )
+}

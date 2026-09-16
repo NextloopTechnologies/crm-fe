@@ -1,0 +1,42 @@
+export const STATIC_INVOICES = [
+  {
+    id: "1",
+    date: "2026-06-19",
+    invoiceNumber: "INV-1001",
+    customerName: "NextLoop Technologies",
+    status: "Paid",
+    amount: 25000,
+  },
+  {
+    id: "2",
+    date: "2026-06-20",
+    invoiceNumber: "INV-1002",
+    customerName: "GreytHR",
+    status: "Due in 5 days",
+    amount: 18500,
+  },
+  {
+    id: "3",
+    date: "2026-06-21",
+    invoiceNumber: "INV-1003",
+    customerName: "Infosys",
+    status: "Overdue",
+    amount: 42000,
+  },
+  {
+    id: "4",
+    date: "2026-06-22",
+    invoiceNumber: "INV-1004",
+    customerName: "TCS",
+    status: "Paid",
+    amount: 31000,
+  },
+  {
+    id: "5",
+    date: "2026-06-23",
+    invoiceNumber: "INV-1005",
+    customerName: "Wipro",
+    status: "Due in 2 days",
+    amount: 12000,
+  },
+];
