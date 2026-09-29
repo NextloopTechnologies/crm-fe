@@ -1,0 +1,40 @@
+# Line endings are normalised to LF in the repository, always.
+#
+# This repository had no .gitattributes until now, and the result is visible in
+# the history: 201 of 216 tracked files on `dev` were stored as CRLF. Once that
+# has happened, any commit from a machine configured the other way rewrites
+# every line of every file, and a one-line change to .gitignore travels inside
+# a diff of several hundred lines where no reviewer will find it. That is not a
+# hypothetical here — `config.bat` was added to .gitignore four times.
+#
+# `text=auto` lets git decide what is text; `eol=lf` fixes what goes into the
+# repository. Working copies still get native endings on checkout, so nobody
+# has to reconfigure their editor.
+* text=auto eol=lf
+
+# Binary: never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.mp4 binary
+*.webm binary
+
+# SVG is text, and is normalised — but see scripts/guard/repo-hygiene.mjs: these
+# files legitimately carry very long lines (path data), so the long-line rule
+# skips them. The obfuscation-signature rules do not.
+*.svg text eol=lf
+
+# Generated — collapsed by default in GitHub's review UI so lockfile churn does
+# not drown a real change. Deliberately NOT marked `-diff`: that would make git
+# itself treat the file as binary, and `git show` would print "Bin 482073 ->
+# 469061 bytes" instead of a diff. A file this guard cannot read is a file a
+# payload can sit in. Collapsed-but-expandable, never opaque.
+package-lock.json linguist-generated=true

@@ -2,7 +2,8 @@ import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, Building2,
    PieChart, Settings, FileUser,
-  ChevronLeft, ChevronRight, BriefcaseBusiness, ClipboardList , ChartNoAxesColumnIncreasing, Handshake
+  ChevronLeft, ChevronRight, BriefcaseBusiness, ClipboardList , ChartNoAxesColumnIncreasing, Handshake,
+  Gauge, UserSearch, Armchair
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/stores/ui.store'
@@ -17,6 +18,15 @@ const NAV = [
   { to: '/vendors', label: 'Vendors', icon: Handshake },
   { to: '/projects', label: 'Projects', icon: BriefcaseBusiness },
   { to: '/reports', label: 'Reports', icon: ChartNoAxesColumnIncreasing },
+]
+
+// Staffing augmentation. Kept as its own list so the HR side reads as one
+// group rather than being scattered through the sales navigation.
+const STAFFING_NAV = [
+  { to: '/staffing/dashboard', label: 'Staffing', icon: Gauge },
+  { to: '/staffing/requirements', label: 'Requirements', icon: ClipboardList },
+  { to: '/staffing/candidates', label: 'Candidates', icon: UserSearch },
+  { to: '/staffing/bench', label: 'Bench', icon: Armchair },
 ]
 
 const ADMIN_NAV = [
@@ -67,6 +77,23 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto  scrollbar-thin">
         <ul className="space-y-1 px-2">
           {NAV.map(({ to, label, icon: Icon }) => (
+            <li key={to}>
+              <NavLink to={to} className={navItemClass}>
+                <Icon size={18} className="flex-shrink-0" />
+                {!sidebarCollapsed && <span>{label}</span>}
+              </NavLink>
+            </li>
+          ))}
+
+          {!sidebarCollapsed && (
+            <li className="px-3 pt-4 pb-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-black-400">
+                Staffing
+              </span>
+            </li>
+          )}
+
+          {STAFFING_NAV.map(({ to, label, icon: Icon }) => (
             <li key={to}>
               <NavLink to={to} className={navItemClass}>
                 <Icon size={18} className="flex-shrink-0" />

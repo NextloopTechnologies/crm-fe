@@ -16,7 +16,6 @@ export default function EditTenantPage() {
   }, [])
 
 
-  const [tenant, setTenant] = useState<TenantFormData | undefined>(undefined);
 
   const mapUserToTenantFormData = (user: User | undefined): TenantFormData | undefined => {
     if (!user) return undefined;
@@ -42,12 +41,13 @@ export default function EditTenantPage() {
     };
   };
 
-  useEffect(() => {
-    const found = usersData.find((u) => String(u.id) === id);
-    setTenant(mapUserToTenantFormData(found));
-  }, [id]);
-
-  const defaultValues = useMemo<Partial<TenantFormData> | undefined>(() => tenant, [tenant])
+  // A lookup in static data is derived state, not a side effect: storing it
+  // meant an extra render on every id change and a frame showing the previous
+  // tenant's details.
+  const defaultValues = useMemo<Partial<TenantFormData> | undefined>(
+    () => mapUserToTenantFormData(usersData.find((u) => String(u.id) === id)),
+    [id],
+  )
 
   const handleSubmit = useCallback(() => {
     setLoading(true);

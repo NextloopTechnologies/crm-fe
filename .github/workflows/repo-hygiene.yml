@@ -1,0 +1,48 @@
+# Runs on every push and every pull request.
+#
+# The pre-commit hook is advisory: `git commit --no-verify` skips it, and it
+# does not run at all for anyone who has not run `npm install`. This workflow is
+# the copy that cannot be bypassed from a developer machine — which is the whole
+# point, because the payload this guards against reached the remote 31 times.
+#
+# A workflow file cannot grant itself authority. Until the ruleset in
+# .github/rulesets/ is applied, this reports a failure nobody is obliged to act
+# on. Apply the ruleset.
+name: repo hygiene
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # merge-injection.mjs needs parents, not a shallow clone
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: No hidden executables, obfuscation, or line-ending rewrites
+        run: node scripts/guard/repo-hygiene.mjs
+
+      # The check that would have caught the actual attack. Content in a merge
+      # commit that is in neither parent was hand-written into the merge — it is
+      # invisible to `git log -S` and to GitHub's Files-changed tab, which is how
+      # an obfuscated payload reached `dev` on 2026-07-29 and stayed 36 days.
+      - name: No code injected into merge commits
+        run: |
+          git fetch origin dev --quiet || true
+          BASE="${{ github.event.pull_request.base.sha }}"
+          if [ -n "$BASE" ]; then
+            node scripts/guard/merge-injection.mjs "$BASE..HEAD"
+          else
+            node scripts/guard/merge-injection.mjs --all
+          fi

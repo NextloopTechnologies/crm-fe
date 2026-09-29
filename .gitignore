@@ -79,4 +79,3 @@ coverage/
 *.local
 *.orig
 .npmrc.local
-config.bat
