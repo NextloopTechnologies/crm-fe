@@ -266,20 +266,25 @@ export default function TaskForm({
     },
   });
 
-  useEffect(() => {
-    if (defaultValues && Object.keys(defaultValues).length > 0) {
-      setForm((prev) => ({
-        ...prev,
-        ...defaultValues,
-        isReminder: defaultValues.isReminder === "true" || defaultValues.isReminder === "true",
-        isRepeat: defaultValues.isRepeat === "true" || defaultValues.isRepeat === "true",
-        repeatDetails: {
-          ...prev.repeatDetails,
-          ...(defaultValues.repeatDetails ?? {}),
-        },
-      }));
-    }
-  }, [defaultValues]);
+  // Re-seeds from defaultValues when the prop identity changes, which is what
+  // the previous useEffect([defaultValues]) did. Done during render so the
+  // inputs never paint a frame of stale content, and so the lint rule against
+  // setState-in-effect is satisfied rather than suppressed.
+  const [seededFrom, setSeededFrom] = useState<unknown>(null);
+
+  if (defaultValues && Object.keys(defaultValues).length > 0 && seededFrom !== defaultValues) {
+    setSeededFrom(defaultValues);
+    setForm((prev) => ({
+      ...prev,
+      ...defaultValues,
+      isReminder: defaultValues.isReminder === "true",
+      isRepeat: defaultValues.isRepeat === "true",
+      repeatDetails: {
+        ...prev.repeatDetails,
+        ...(defaultValues.repeatDetails ?? {}),
+      },
+    }));
+  }
 
   // ── Setters ──────────────────────────────────────────────────
 
@@ -591,7 +596,6 @@ export default function TaskForm({
             type="submit"
             variant="primary"
             size="lg"
-            fullWidth
             className="mt-1"
           >
             {isLoading ? (

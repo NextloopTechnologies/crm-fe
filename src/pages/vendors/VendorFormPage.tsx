@@ -312,7 +312,7 @@ export default function VendorFormPage() {
           onSubmit={handleSubmit}
           onCancel={() => navigate(ROUTES.VENDORS)}
           submitLabel={
-            <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1" disabled={loading}>
+            <Button type="submit" variant="primary" size="lg" className="mt-1" disabled={loading}>
               {loading ? 'Saving...' : mode === 'add' ? 'Save' : 'Update'}
             </Button>
           }

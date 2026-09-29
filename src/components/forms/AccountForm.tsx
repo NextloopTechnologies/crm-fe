@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import FormPage, { type FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
@@ -136,14 +136,19 @@ export default function AccountForm({
         }));
       };
 
-  useEffect(() => {
-    if (defaultValues && Object.keys(defaultValues).length > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        ...defaultValues,
-      }));
-    }
-  }, [defaultValues]);
+  // Re-seeds from defaultValues when the prop identity changes, which is what
+  // the previous useEffect([defaultValues]) did. Done during render so the
+  // inputs never paint a frame of stale content, and so the lint rule against
+  // setState-in-effect is satisfied rather than suppressed.
+  const [seededFrom, setSeededFrom] = useState<unknown>(null);
+
+  if (defaultValues && Object.keys(defaultValues).length > 0 && seededFrom !== defaultValues) {
+    setSeededFrom(defaultValues);
+    setFormData((prev) => ({
+      ...prev,
+      ...defaultValues,
+    }));
+  }
 
   const set =
     (key: keyof CreateAccountRequest) =>
@@ -459,7 +464,6 @@ export default function AccountForm({
             type="submit"
             variant="primary"
             size="lg"
-            fullWidth
             className="mt-1"
           >
             {isLoading ? (
