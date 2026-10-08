@@ -10,7 +10,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, Search, ChevronDown, User, Settings, LogOut, X, Paperclip, Folder, UserIcon, CheckCircle, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils"
 import { showToast } from "../common/Toast"
 import { logout } from "@/api/auth.api"
@@ -41,15 +42,26 @@ const routeMeta: Record<string, { title: string; breadcrumb: string[] }> = {
   "/accounts/create": { title: "Accounts", breadcrumb: ["Accounts", "Create Account"] },
   "/accounts/edit/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
   "/accounts/detail/:id": { title: "Accounts", breadcrumb: ["Accounts", "Edit Account"] },
-  "/tasks/create": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
-  "/tasks/": { title: "Tasks", breadcrumb: ["Manage your customer accounts and related information"] },
-  "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Accounts", "Edit Account"] },
+  "/tasks/create": { title: "Tasks", breadcrumb: ["Tasks", "Create Task"] },
+  "/tasks": { title: "Tasks", breadcrumb: ["Track and manage your team's tasks"] },
+  "/tasks/edit/:id": { title: "Tasks", breadcrumb: ["Tasks", "Edit Task"] },
   "/project/create" : {title : "Project" , breadcrumb : ["Projects" , "Create Project"]},
   "/project/edit/:id" : {title : "Project" , breadcrumb : ["Projects" , "Edit Project"]},
   "/projects" : {title : "Project" , breadcrumb : ["Manage your projects and related information"]},
   "/invoice" : {title : "Invoice" , breadcrumb : ["Manage Invoices"]},
   "/pipeline" : {title : "Pipeline" , breadcrumb : ["Manage your projects and related information"]},
   "/profile/account-info" : {title : "Account Info" , breadcrumb : []},
+  "/staffing/dashboard": { title: "Staffing", breadcrumb: ["Daily, weekly and monthly staffing numbers"] },
+  "/staffing/requirements": { title: "Requirements", breadcrumb: ["Roles waiting to be filled"] },
+  "/staffing/requirements/create": { title: "Requirements", breadcrumb: ["Requirements", "Create Requirement"] },
+  "/staffing/requirements/detail/:id": { title: "Requirements", breadcrumb: ["Requirements", "Job Details"] },
+  "/staffing/requirements/edit/:id": { title: "Requirements", breadcrumb: ["Requirements", "Edit Requirement"] },
+  "/staffing/requirements/:id/board": { title: "Board", breadcrumb: ["Requirements", "Submission Board"] },
+  "/staffing/requirements/:id/submit": { title: "Board", breadcrumb: ["Requirements", "Submit Candidate"] },
+  "/staffing/candidates": { title: "Candidates", breadcrumb: ["The people pool, reused across requirements"] },
+  "/staffing/candidates/create": { title: "Candidates", breadcrumb: ["Candidates", "Add Candidate"] },
+  "/staffing/candidates/edit/:id": { title: "Candidates", breadcrumb: ["Candidates", "Edit Candidate"] },
+  "/staffing/bench": { title: "Bench", breadcrumb: ["Who is free, and how HR has filed them"] },
   "/reports": {title: "Report" , breadcrumb: []},
   "/reports/:id/edit" : {title : "Report" , breadcrumb : ["Projects" , "Edit Project"]},
 
@@ -63,10 +75,18 @@ interface UserProfile {
 
 // ── Dynamic route matcher ─────────────────────────────────────────────────────
 const getRouteMeta = (pathname: string) => {
-  if (routeMeta[pathname]) return routeMeta[pathname];
+  // "/tasks" and "/tasks/" are the same screen, and the sidebar links to one
+  // spelling while the route table holds the other. Without this the header
+  // falls through to the "Page" default, which is what it used to show.
+  const normalise = (value: string) =>
+    value.length > 1 && value.endsWith("/") ? value.slice(0, -1) : value;
+
+  const path = normalise(pathname);
+
+  if (routeMeta[path]) return routeMeta[path];
   for (const pattern in routeMeta) {
-    const regex = new RegExp("^" + pattern.replace(/:[^\s/]+/g, "[^/]+") + "$");
-    if (regex.test(pathname)) return routeMeta[pattern];
+    const regex = new RegExp("^" + normalise(pattern).replace(/:[^\s/]+/g, "[^/]+") + "$");
+    if (regex.test(path)) return routeMeta[pattern];
   }
   return null;
 };
@@ -81,18 +101,16 @@ export function Navbar() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [attachment, setAttachment] = useState<File | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-    const userDetail = async () => {
-      try {
-        const response = await myProfile();
-        setProfile(response.data);
-      } catch (error) {
-        console.error("Failed to fetch profile", error);
-      }
-    };
-    useEffect(() => {
-  userDetail();
-}, [])
+  // Fetched through react-query like every other read in the app, rather than
+  // an effect that set state directly. Failures leave `profile` null and the
+  // header falls back to its placeholders.
+  const { data: profileResponse } = useQuery({
+    queryKey: ["my-profile"],
+    queryFn: myProfile,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const profile: UserProfile | null = profileResponse?.data ?? null;
   const handleLogout = () => {
    logout();
     localStorage.clear();
