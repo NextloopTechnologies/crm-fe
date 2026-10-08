@@ -104,12 +104,30 @@ export const uploadCandidateDocument = async (
   ).data
 }
 
+/** Full-text search across resume contents. */
+export const searchResumes = async (query: string) =>
+  (await api.get('/staffing/resume/search', { params: { q: query } })).data
+
 export const deleteCandidateDocument = async (documentNumber: string) =>
   (await api.delete(`/staffing/document/${encodeURIComponent(documentNumber)}`)).data
 
-/** Opened in a tab rather than fetched — the API streams it back inline. */
-export const documentUrl = (documentNumber: string) =>
-  `/api/staffing/document/${encodeURIComponent(documentNumber)}`
+/**
+ * Fetches the file, then hands the browser a blob to open.
+ *
+ * A plain <a href> cannot carry the bearer token, so pointing one straight at
+ * this endpoint opens a tab showing a 401 rather than the CV. Going through
+ * the configured client keeps the Authorization header on the request. The
+ * object URL is revoked once the new tab has had time to take it.
+ */
+export const openDocument = async (documentNumber: string) => {
+  const res = await api.get(`/staffing/document/${encodeURIComponent(documentNumber)}`, {
+    responseType: 'blob',
+  })
+
+  const url = URL.createObjectURL(res.data as Blob)
+  window.open(url, '_blank', 'noopener')
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
+}
 
 // ── Bench & folders ─────────────────────────────────────────────────────────
 

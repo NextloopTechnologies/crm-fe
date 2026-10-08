@@ -145,6 +145,9 @@ export interface Submission {
   rateType?: RateType
   currency?: string
   screeningCallMinutes?: number
+  /** The exact file the client was sent, pinned at submission. */
+  submittedDocumentNumber?: string
+  submittedDocumentName?: string
   hrNotes?: string
   salesNotes?: string
   submittedBy?: string
@@ -259,4 +262,17 @@ export interface StaffingDocument {
   sizeBytes?: number
   uploadedBy?: string
   creationDate?: string
+}
+
+export interface ResumeSearchHit {
+  candidateNumber: string
+  fullName: string
+  primarySkills?: string
+  totalExperienceYears?: number
+  currentLocation?: string
+  benchStatus?: BenchStatus
+  documentNumber: string
+  fileName: string
+  /** Matching fragment; hits are wrapped in << >> by the server. */
+  snippet?: string
 }

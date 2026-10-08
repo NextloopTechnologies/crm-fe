@@ -7,8 +7,8 @@ import { showToast } from '@/components/common/Toast'
 import { useCurrentRole } from '@/hooks/useCurrentRole'
 import {
   deleteCandidateDocument,
-  documentUrl,
   getCandidateDocuments,
+  openDocument,
   uploadCandidateDocument,
 } from '@/api/staffing.api'
 import { DOCUMENT_VARIANT_OPTIONS, NEUTRAL_CHIP, VARIANT_CHIP } from '@/constants/Staffing'
@@ -86,6 +86,12 @@ export default function CandidateDocuments({ candidateNumber }: Props) {
     },
     onError: (err: unknown) =>
       showToast({ title: 'Not removed', description: apiErrorMessage(err), type: 'error' }),
+  })
+
+  const open = useMutation({
+    mutationFn: (documentNumber: string) => openDocument(documentNumber),
+    onError: (err: unknown) =>
+      showToast({ title: 'Could not open the file', description: apiErrorMessage(err), type: 'error' }),
   })
 
   const onPick = (file?: File) => {
@@ -167,17 +173,16 @@ export default function CandidateDocuments({ candidateNumber }: Props) {
               <FileText size={16} className="text-slate-400 shrink-0" />
 
               <div className="min-w-0 flex-1">
-                <a
+                <button
                   // Opened in a tab: the API serves it inline, so a PDF is
                   // readable without a download-then-open round trip.
-                  href={documentUrl(doc.documentNumber)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm font-medium text-slate-800 hover:text-[#5752FE] hover:underline truncate block"
+                  type="button"
+                  onClick={() => open.mutate(doc.documentNumber)}
+                  className="text-sm font-medium text-slate-800 hover:text-[#5752FE] hover:underline truncate block text-left w-full"
                   title={doc.fileName}
                 >
                   {doc.fileName}
-                </a>
+                </button>
                 <p className="text-[11px] text-slate-400">
                   {readableSize(doc.sizeBytes)}
                   {doc.uploadedBy ? ` · ${doc.uploadedBy}` : ''}

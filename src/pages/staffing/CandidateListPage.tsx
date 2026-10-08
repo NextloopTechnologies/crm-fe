@@ -10,6 +10,7 @@ import { ROUTES } from '@/lib/route'
 import { deleteCandidate, getCandidates } from '@/api/staffing.api'
 import type { Candidate } from '@/types/staffing.types'
 import { BENCH_CHIP, BENCH_STATUS_OPTIONS, NEUTRAL_CHIP } from '@/constants/Staffing'
+import ResumeSearch from './ResumeSearch'
 
 /** The people pool — reused across requirements rather than per submission. */
 export default function CandidateListPage() {
@@ -164,6 +165,8 @@ export default function CandidateListPage() {
           <StatsCard key={s.label} {...s} />
         ))}
       </div>
+
+      <ResumeSearch />
 
       <div className="border border-[#E0E0E0] p-4 rounded-lg">
         <div className="flex items-center justify-end gap-3 mb-4 flex-wrap px-1">

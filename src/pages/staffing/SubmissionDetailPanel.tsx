@@ -19,6 +19,7 @@ import {
   changeSubmissionOutcome,
   getSubmission,
   getSubmissionHistory,
+  openDocument,
   updateSubmission,
 } from '@/api/staffing.api'
 import {
@@ -155,6 +156,16 @@ export default function SubmissionDetailPanel({ submissionNumber, onClose, onCha
       }),
   })
 
+  const openDoc = useMutation({
+    mutationFn: (documentNumber: string) => openDocument(documentNumber),
+    onError: (err: unknown) =>
+      showToast({
+        title: 'Could not open the file',
+        description: apiErrorMessage(err, 'Please try again.'),
+        type: 'error',
+      }),
+  })
+
   // Recomputed from the field rather than read off the response, so the
   // warning appears as the number is typed instead of after a save.
   const overBudget =
@@ -275,6 +286,21 @@ export default function SubmissionDetailPanel({ submissionNumber, onClose, onCha
                 )}
               </div>
             </section>
+
+            {/* What the client was actually sent, which is not necessarily the
+                newest CV on file. */}
+            {submission.submittedDocumentNumber && (
+              <div className="mt-4 flex items-center gap-2 text-xs border border-[#ECECEC] rounded-lg px-3 py-2">
+                <span className="text-slate-500 shrink-0">Sent to client:</span>
+                <button
+                  type="button"
+                  onClick={() => openDoc.mutate(submission.submittedDocumentNumber!)}
+                  className="font-medium text-[#5752FE] hover:underline truncate"
+                >
+                  {submission.submittedDocumentName}
+                </button>
+              </div>
+            )}
 
             {/* ── Resumes ── */}
             {submission.candidateNumber && (
