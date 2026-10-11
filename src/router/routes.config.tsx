@@ -6,7 +6,7 @@ import {
   Settings, Building2, CheckSquare,
   BarChart2, UserCircle,
   FolderKanban, KanbanSquare,
-  Handshake,
+  Handshake, ClipboardList, UserSearch, Armchair, Gauge,
 } from "lucide-react"
 
 // ─── Lazy Imports ────────────────────────────────────────────
@@ -42,6 +42,15 @@ const EditProfilePage   = lazy(() => import('@/pages/profile/EditProfilePage'))
 const SettingsPage      = lazy(() => import('@/pages/SettingsPage'))
 const DeleteAccountPage      = lazy(() => import('@/pages/profile/DeleteAccountPage'))
 const AccountInformationPage = lazy(() => import('@/pages/profile/AccountInformationPage'))
+const StaffingDashboardPage  = lazy(() => import('@/pages/staffing/StaffingDashboardPage'))
+const RequirementListPage    = lazy(() => import('@/pages/staffing/RequirementListPage'))
+const RequirementFormPage    = lazy(() => import('@/pages/staffing/RequirementFormPage'))
+const RequirementDetailPage  = lazy(() => import('@/pages/staffing/RequirementDetailPage'))
+const SubmissionBoardPage    = lazy(() => import('@/pages/staffing/SubmissionBoardPage'))
+const SubmitCandidatePage    = lazy(() => import('@/pages/staffing/SubmitCandidatePage'))
+const CandidateListPage      = lazy(() => import('@/pages/staffing/CandidateListPage'))
+const CandidateFormPage      = lazy(() => import('@/pages/staffing/CandidateFormPage'))
+const BenchPage              = lazy(() => import('@/pages/staffing/BenchPage'))
 const InvoicePage      = lazy(() => import('@/pages/accounts/invoices/AccountInvoiceTab'))
 const CreateInvoicePage      = lazy(() => import('@/pages/accounts/invoices/CreateInvoicePage'))
 const EditInvoicePage      = lazy(() => import('@/pages/accounts/invoices/EditInvoicePage'))
@@ -106,6 +115,35 @@ export const protectedRoutes: RouteConfig[] = [
   },
   { path: ROUTES.REPORTS_CREATE, element: CreateReportPage },
   { path: 'reports/:id/edit',    element: EditReportPage },
+
+  // ── Staffing ─────────────────────────────────────────────
+  {
+    path: ROUTES.STAFFING_DASHBOARD,
+    element: StaffingDashboardPage,
+    sidebar: { label: "Staffing", icon: Gauge, group: "main" },
+  },
+  {
+    path: ROUTES.STAFFING_REQUIREMENTS,
+    element: RequirementListPage,
+    sidebar: { label: "Requirements", icon: ClipboardList, group: "main" },
+  },
+  { path: ROUTES.STAFFING_REQUIREMENT_CREATE, element: RequirementFormPage },
+  { path: 'staffing/requirements/detail/:id', element: RequirementDetailPage },
+  { path: 'staffing/requirements/edit/:id', element: RequirementFormPage },
+  { path: 'staffing/requirements/:requirementNumber/board', element: SubmissionBoardPage },
+  { path: 'staffing/requirements/:requirementNumber/submit', element: SubmitCandidatePage },
+  {
+    path: ROUTES.STAFFING_CANDIDATES,
+    element: CandidateListPage,
+    sidebar: { label: "Candidates", icon: UserSearch, group: "main" },
+  },
+  { path: ROUTES.STAFFING_CANDIDATE_CREATE, element: CandidateFormPage },
+  { path: 'staffing/candidates/edit/:id', element: CandidateFormPage },
+  {
+    path: ROUTES.STAFFING_BENCH,
+    element: BenchPage,
+    sidebar: { label: "Bench", icon: Armchair, group: "main" },
+  },
 
   // ── Management ───────────────────────────────────────────
   {

@@ -16,8 +16,8 @@ export const createUserFormSchema = (
       .string()
       .min(1, "Role cannot be null.")
       .regex(
-        /^(Admin|Manager|Sales|ADMIN|MANAGER|SALES)$/,
-        "Invalid role. Valid values: Admin, Manager, Sales."
+        /^(Admin|Manager|Sales|Hr|ADMIN|MANAGER|SALES|HR)$/,
+        "Invalid role. Valid values: Admin, Manager, Sales, HR."
       ),
     assignToManagerUsername: showAssignToManager
       ? z.string().min(1, "Manager username is required for SALES user.")

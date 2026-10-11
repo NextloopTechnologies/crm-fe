@@ -143,7 +143,6 @@ export default function UsersPage() {
         <Button type="submit"
               variant="primary"
               size="lg"
-              fullWidth
               className="mt-1"
               disabled={loading}>
               {loading ? (

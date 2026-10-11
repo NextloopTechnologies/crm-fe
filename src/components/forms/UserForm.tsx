@@ -26,11 +26,13 @@ const getRoleOptions = (callerRole: string) => {
         { label: "Admin", value: "ADMIN" },
         { label: "Manager", value: "MANAGER" },
         { label: "Sales", value: "SALES" },
+        { label: "HR", value: "HR" },
       ];
     case "ADMIN":
       return [
         { label: "Manager", value: "MANAGER" },
         { label: "Sales", value: "SALES" },
+        { label: "HR", value: "HR" },
       ];
     case "MANAGER":
       return [{ label: "Sales", value: "SALES" }];
@@ -246,7 +248,7 @@ export default function UserForm({
         onSubmit={handleSubmit}   
         onCancel={onCancel ?? (() => history.back())}
         submitLabel={
-          <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1" disabled={isLoading}>
+          <Button type="submit" variant="primary" size="lg" className="mt-1" disabled={isLoading}>
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

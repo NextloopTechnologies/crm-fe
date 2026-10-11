@@ -7,6 +7,7 @@ import { InlineInput } from '@/components/common/InlineInput'
 import { Button } from '@/components/common/Button'
 import { Checkbox } from '@/components/common/Checkbox'
 import SelectDropdown from '@/components/common/SelectDropdown'
+import { ChipsInput } from '@/components/common/ChipsInput'
 import BackButton from '@/components/common/BackButton'
 import { showToast } from '@/components/common/Toast'
 import { ROUTES } from '@/lib/route'
@@ -28,6 +29,7 @@ const EMPTY: VendorRequest = {
   msaSigned: false,
   msaValidUntil: '',
   address: { country: '', flatNo: '', street: '', city: '', state: '', zipCode: '' },
+  operatingCities: [],
 }
 
 // Formats mirror the backend so anything accepted here is accepted server-side.
@@ -35,6 +37,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const PHONE_RE = /^[0-9+\-\s()]{7,15}$/
 const GSTIN_RE = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
 const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]$/
+// Mirrors CITY_REGEX in VendorValidator.java. Deliberately looser than a plain
+// letters-and-spaces check: "St. Thomas Mount" and "Jammu & Kashmir" are real
+// places, and rejecting them here would fail before the request is even sent.
+const CITY_RE = /^\p{L}[\p{L}\s.'&-]{0,98}[\p{L}.]$|^\p{L}$/u
+const MAX_CITIES = 50
 
 export default function VendorFormPage() {
   const navigate = useNavigate()
@@ -50,7 +57,13 @@ export default function VendorFormPage() {
     getVendor(id)
       .then((res) => {
         const d = res?.data
-        if (d) setForm({ ...EMPTY, ...d, address: { ...EMPTY.address, ...(d.address ?? {}) } })
+        if (d)
+          setForm({
+            ...EMPTY,
+            ...d,
+            address: { ...EMPTY.address, ...(d.address ?? {}) },
+            operatingCities: d.operatingCities ?? [],
+          })
       })
       .catch(() =>
         showToast({ title: 'Could not load', description: 'Please try again.', type: 'error' }),
@@ -79,6 +92,11 @@ export default function VendorFormPage() {
     if (form.gstin?.trim() && !GSTIN_RE.test(form.gstin))
       next.gstin = 'GSTIN must be 15 characters, e.g. 22AAAAA0000A1Z5.'
     if (form.pan?.trim() && !PAN_RE.test(form.pan)) next.pan = 'PAN must be 10 characters, e.g. AAAAA9999A.'
+
+    const badCity = (form.operatingCities ?? []).find((c) => !CITY_RE.test(c))
+    if (badCity) next.operatingCities = `"${badCity}" is not a valid city name.`
+    else if ((form.operatingCities ?? []).length > MAX_CITIES)
+      next.operatingCities = `A vendor can have at most ${MAX_CITIES} operating cities.`
 
     setErrors(next)
     return Object.keys(next).length === 0
@@ -243,6 +261,26 @@ export default function VendorFormPage() {
         ),
       },
       {
+        icon: <span>🗺️</span>,
+        title: 'Coverage',
+        subtitle: 'Cities this vendor can actually source in.',
+        iconBg: 'bg-amber-50',
+        iconColor: 'text-amber-500',
+        children: (
+          <ChipsInput
+            id="operatingCities"
+            label="Operating Cities"
+            placeholder="Type a city and press Enter"
+            value={form.operatingCities ?? []}
+            onChange={(next) => set('operatingCities', next)}
+            validate={(city) => (CITY_RE.test(city) ? null : `"${city}" is not a valid city name.`)}
+            max={MAX_CITIES}
+            error={errors.operatingCities}
+            helpText="Separate from the address below — that is where they are registered, this is where they can help."
+          />
+        ),
+      },
+      {
         icon: <span>📍</span>,
         title: 'Address',
         subtitle: 'Optional — add it when you have it.',
@@ -274,7 +312,7 @@ export default function VendorFormPage() {
           onSubmit={handleSubmit}
           onCancel={() => navigate(ROUTES.VENDORS)}
           submitLabel={
-            <Button type="submit" variant="primary" size="lg" fullWidth className="mt-1" disabled={loading}>
+            <Button type="submit" variant="primary" size="lg" className="mt-1" disabled={loading}>
               {loading ? 'Saving...' : mode === 'add' ? 'Save' : 'Update'}
             </Button>
           }

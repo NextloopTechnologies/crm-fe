@@ -459,7 +459,6 @@ export default function EditLeadPage() {
           <Button type="submit"
             variant="primary"
             size="lg"
-            fullWidth
             className="mt-1"
             disabled={loading}>
             {loading ? (

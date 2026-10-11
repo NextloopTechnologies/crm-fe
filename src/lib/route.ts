@@ -53,6 +53,19 @@ export const ROUTES = {
   PROJECT: "/projects",
   PROJECT_CREATE: "/project/create",
   PROJECT_EDIT: (id: string) => `/project/edit/${id}`,
+  // Staffing
+  STAFFING_DASHBOARD: "/staffing/dashboard",
+  STAFFING_REQUIREMENTS: "/staffing/requirements",
+  STAFFING_REQUIREMENT_CREATE: "/staffing/requirements/create",
+  STAFFING_REQUIREMENT_DETAIL: (id: string) => `/staffing/requirements/detail/${encodeURIComponent(id)}`,
+  STAFFING_REQUIREMENT_EDIT: (id: string) => `/staffing/requirements/edit/${encodeURIComponent(id)}`,
+  STAFFING_BOARD: (id: string) => `/staffing/requirements/${encodeURIComponent(id)}/board`,
+  STAFFING_SUBMIT: (id: string) => `/staffing/requirements/${encodeURIComponent(id)}/submit`,
+  STAFFING_CANDIDATES: "/staffing/candidates",
+  STAFFING_CANDIDATE_CREATE: "/staffing/candidates/create",
+  STAFFING_CANDIDATE_EDIT: (id: string) => `/staffing/candidates/edit/${encodeURIComponent(id)}`,
+  STAFFING_BENCH: "/staffing/bench",
+
   // Pieline
   PIPELINE: "/pipeline",
 

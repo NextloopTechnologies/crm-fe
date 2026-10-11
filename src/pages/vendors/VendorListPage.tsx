@@ -117,6 +117,33 @@ export default function VendorListPage() {
         },
       },
       {
+        key: 'operatingCities',
+        label: 'Cities',
+        width: '220px',
+        render: (_, row) => {
+          const cities = row.operatingCities ?? []
+          if (cities.length === 0) return <span className="text-slate-400">—</span>
+          // Two chips and a count: a vendor covering fifteen cities would
+          // otherwise set the row height for the whole table. The title
+          // attribute carries the full list for anyone who needs it.
+          return (
+            <span className="flex flex-wrap items-center gap-1" title={cities.join(', ')}>
+              {cities.slice(0, 2).map((city) => (
+                <span
+                  key={city}
+                  className="inline-flex px-2 py-0.5 rounded-pill bg-[#ebebff] text-xs font-medium text-[#5b5bd6]"
+                >
+                  {city}
+                </span>
+              ))}
+              {cities.length > 2 && (
+                <span className="text-xs font-medium text-[#6b6b8a]">+{cities.length - 2}</span>
+              )}
+            </span>
+          )
+        },
+      },
+      {
         key: 'msaSigned',
         label: 'MSA',
         width: '110px',

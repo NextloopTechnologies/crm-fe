@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import FormPage, { type FormSection } from "@/components/common/Form";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
@@ -89,11 +89,14 @@ export default function InvoiceForm({
     orderNumber: "",
   });
 
-  useEffect(() => {
-    if (defaultValues && Object.keys(defaultValues).length > 0) {
-      setFormData((prev) => ({ ...prev, ...defaultValues }));
-    }
-  }, [defaultValues]);
+  // Re-seeds when the defaultValues identity changes, as the effect did.
+  // During render, so the fields never show one frame of stale content.
+  const [seededFrom, setSeededFrom] = useState<unknown>(null);
+
+  if (defaultValues && Object.keys(defaultValues).length > 0 && seededFrom !== defaultValues) {
+    setSeededFrom(defaultValues);
+    setFormData((prev) => ({ ...prev, ...defaultValues }));
+  }
 
   // ── Recalculate totals whenever items / discount / tax change ──
   const recalcTotals = useCallback(
