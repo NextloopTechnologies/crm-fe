@@ -1,17 +1,21 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useMutation } from '@tanstack/react-query'
 import { MailIcon } from '@/assets/icons/components/index'
-import { useLogin } from '@/hooks/useLogin'
 import { Button } from '../components/common/Button'
 import { Input } from '@/components/common/Input'
+import { showToast } from '@/components/common/Toast'
+import { requestPasswordReset, resetPassword } from '@/api/auth.api'
+import { apiErrorMessage } from '@/types/staffing.types'
 import pipelines from '../assets/icons/svgs/pipelines.svg'
 import user from '../assets/icons/svgs/user.svg'
 import growthIcon from '../assets/icons/svgs/growthIcon.svg'
 import dashboardImg from '../assets/images/dashboardImg.svg'
 
-// ─── Zod Schema ───────────────────────────────────────────────────────────────
+// ─── Zod Schemas ──────────────────────────────────────────────────────────────
 const forgotSchema = z.object({
     email: z
         .string()
@@ -19,7 +23,28 @@ const forgotSchema = z.object({
         .min(3, 'Please enter a valid email or phone'),
 })
 
+// Mirrors the server's rule, so a password it will refuse is caught here
+// rather than after a round trip that burns the token attempt.
+const resetSchema = z
+    .object({
+        token: z.string().min(1, 'Reset code is required'),
+        newPassword: z
+            .string()
+            .min(8, 'Use between 8 and 20 characters')
+            .max(20, 'Use between 8 and 20 characters')
+            .regex(/[A-Z]/, 'Include an uppercase letter')
+            .regex(/[a-z]/, 'Include a lowercase letter')
+            .regex(/[0-9]/, 'Include a number')
+            .regex(/[^A-Za-z0-9]/, 'Include a special character'),
+        confirmNewPassword: z.string().min(1, 'Confirm your new password'),
+    })
+    .refine((v) => v.newPassword === v.confirmNewPassword, {
+        message: 'Passwords don’t match',
+        path: ['confirmNewPassword'],
+    })
+
 type ForgotFormValues = z.infer<typeof forgotSchema>
+type ResetFormValues = z.infer<typeof resetSchema>
 
 // ─── Feature list ─────────────────────────────────────────────────────────────
 const features = [
@@ -30,19 +55,61 @@ const features = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function ForgotPasswordPage() {
-    const { isLoading } = useLogin()
+    const navigate = useNavigate()
+
+    // Two steps rather than one screen: the server will not take a new
+    // password from someone who has not yet proved they can read the account's
+    // mail, so there is nothing to collect until a code is in hand.
+    const [step, setStep] = useState<'request' | 'reset'>('request')
+    const [sentTo, setSentTo] = useState('')
 
     const {
         register,
         handleSubmit,
+        getValues,
         formState: { errors },
     } = useForm<ForgotFormValues>({
         resolver: zodResolver(forgotSchema),
     })
 
-    const onSubmit = async () => {
-        // TODO: wire up forgot password API
-    }
+    const resetForm = useForm<ResetFormValues>({
+        resolver: zodResolver(resetSchema),
+    })
+
+    const request = useMutation({
+        mutationFn: (identifier: string) => requestPasswordReset(identifier),
+        onSuccess: (res) => {
+            // The server answers the same way for an unknown account, so this
+            // deliberately does not claim the address was found.
+            showToast({
+                title: 'Check for your reset code',
+                description: res?.description ?? '',
+                type: 'success',
+            })
+            setSentTo(getValues('email'))
+            setStep('reset')
+        },
+        onError: (err: unknown) =>
+            showToast({ title: 'Could not send a code', description: apiErrorMessage(err), type: 'error' }),
+    })
+
+    const complete = useMutation({
+        mutationFn: (v: ResetFormValues) => resetPassword(v.token, v.newPassword, v.confirmNewPassword),
+        onSuccess: (res) => {
+            if (res?.status === 'Success' || res?.code === '0x0200') {
+                showToast({ title: 'Password changed', description: res?.description ?? '', type: 'success' })
+                navigate('/login')
+            } else {
+                showToast({ title: 'Not changed', description: res?.description ?? '', type: 'error' })
+            }
+        },
+        onError: (err: unknown) =>
+            showToast({ title: 'Not changed', description: apiErrorMessage(err), type: 'error' }),
+    })
+
+    const isLoading = request.isPending || complete.isPending
+
+    const onSubmit = (values: ForgotFormValues) => request.mutate(values.email)
 
     return (
         <div className="flex min-h-screen bg-gradient-to-b from-[#F0F2FD] to-[#E6E4FD] p-[80px] overflow-hidden">
@@ -119,41 +186,111 @@ export default function ForgotPasswordPage() {
                     {/* Header */}
                     <div>
                         <h2 className="text-[36px] font-semibold leading-[1.2] tracking-[-0.01em] text-[#000000]">
-                            Forgot password?
+                            {step === 'request' ? 'Forgot password?' : 'Enter your code'}
                         </h2>
                         <p className="mt-2 text-sm leading-[1.6] text-[#6b6b8a]">
-                            No worries! Enter your Phone number / email address and we'll send you a OTP to reset your password.
+                            {step === 'request' ? (
+                                "No worries. Enter your email, phone or username and we'll send a reset code."
+                            ) : (
+                                <>
+                                    If an account matches <span className="font-medium text-[#111127]">{sentTo}</span>, a
+                                    reset code is on its way. It is good for 30 minutes and can be used once.
+                                </>
+                            )}
                         </p>
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+                    {step === 'request' ? (
+                        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
 
-                        <Input
-                            id="email"
-                            label="Email / Phone*"
-                            type="text"
-                            placeholder="Enter Email / Phone*"
-                            autoComplete="email"
-                            leftIcon={<MailIcon className="w-4 h-4" />}
-                            error={errors.email?.message}
-                            disabled={isLoading}
-                            {...register('email')}
-                        />
+                            <Input
+                                id="email"
+                                label="Email / Phone*"
+                                type="text"
+                                placeholder="Enter Email / Phone*"
+                                autoComplete="username"
+                                leftIcon={<MailIcon className="w-4 h-4" />}
+                                error={errors.email?.message}
+                                disabled={isLoading}
+                                {...register('email')}
+                            />
 
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            size="lg"
-                            fullWidth
-                            className="mt-1"
-                            loading={isLoading}
-                            disabled={isLoading}
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="lg"
+                                fullWidth
+                                className="mt-1"
+                                loading={isLoading}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Sending code...' : 'Send reset code'}
+                            </Button>
+
+                        </form>
+                    ) : (
+                        <form
+                            onSubmit={resetForm.handleSubmit((v) => complete.mutate(v))}
+                            noValidate
+                            className="flex flex-col gap-4"
                         >
-                            {isLoading ? 'Sending OTP...' : 'Send OTP'}
-                        </Button>
 
-                    </form>
+                            <Input
+                                id="token"
+                                label="Reset code*"
+                                type="text"
+                                placeholder="Paste the code you were sent"
+                                autoComplete="one-time-code"
+                                error={resetForm.formState.errors.token?.message}
+                                disabled={isLoading}
+                                {...resetForm.register('token')}
+                            />
+
+                            <Input
+                                id="newPassword"
+                                label="New password*"
+                                type="password"
+                                placeholder="Enter a new password"
+                                autoComplete="new-password"
+                                error={resetForm.formState.errors.newPassword?.message}
+                                disabled={isLoading}
+                                {...resetForm.register('newPassword')}
+                            />
+
+                            <Input
+                                id="confirmNewPassword"
+                                label="Confirm new password*"
+                                type="password"
+                                placeholder="Enter it again"
+                                autoComplete="new-password"
+                                error={resetForm.formState.errors.confirmNewPassword?.message}
+                                disabled={isLoading}
+                                {...resetForm.register('confirmNewPassword')}
+                            />
+
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                size="lg"
+                                fullWidth
+                                className="mt-1"
+                                loading={isLoading}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Changing password...' : 'Change password'}
+                            </Button>
+
+                            <button
+                                type="button"
+                                onClick={() => setStep('request')}
+                                className="text-sm text-[#6b6b8a] hover:text-[#5b5bd6] transition-colors"
+                            >
+                                Didn't get a code? Try again
+                            </button>
+
+                        </form>
+                    )}
 
                     {/* Footer */}
                     <p className="text-center text-sm text-[#6b6b8a]">
